@@ -24,6 +24,23 @@ const raiz = document.getElementById('app');
 let conteudo;
 let topo;
 let menu;
+let layout;
+let botaoMenu;
+
+function alternarMenu(aberto) {
+    if (!layout) return;
+    layout.classList.toggle('menu-aberto', aberto);
+    botaoMenu.setAttribute('aria-expanded', String(aberto));
+    botaoMenu.setAttribute('aria-label', aberto ? 'Fechar menu' : 'Abrir menu');
+}
+
+window.addEventListener('keydown', e => {
+    if (e.key === 'Escape') alternarMenu(false);
+});
+
+window.matchMedia('(min-width: 901px)').addEventListener('change', e => {
+    if (e.matches) alternarMenu(false);
+});
 
 function rotasPermitidas() {
     return ROTAS.filter(r => sessao.pode(...r.permissoes));
@@ -81,7 +98,7 @@ function telaLogin(mensagem = '') {
     raiz.replaceChildren(h('div', { class: 'login' },
         h('div', { class: 'caixa' },
             h('div', { class: 'logo' },
-                h('h1', {}, 'DAMA ', h('span', {}, 'Intelligence')),
+                h('h1', {}, 'DAMA'),
                 h('small', {}, 'Desempenho, gamificação e AI Credits')),
             painel('Entrar', [
                 form,
@@ -106,17 +123,26 @@ function montarLayout() {
     }
 
     menu = h('nav', { class: 'sidebar' },
-        h('div', { class: 'logo' }, h('h1', {}, 'DAMA ', h('span', {}, 'Intel')), h('small', {}, 'Performance & AI Credits')),
+        h('div', { class: 'logo' }, h('h1', {}, 'DAMA'), h('small', {}, 'Performance & AI Credits')),
         [...grupos.entries()].map(([grupo, rotas]) => h('div', { class: 'menu-grupo' },
             h('span', {}, grupo),
             rotas.map(r => h('a', { class: 'menu-item', href: `#/${r.caminho}`, 'data-rota': r.caminho },
                 h('span', { class: 'icone' }, r.icone), r.titulo)))));
 
+    layout = h('div', { class: 'layout' });
+    botaoMenu = h('button', {
+        type: 'button', class: 'btn-menu', 'aria-label': 'Abrir menu', 'aria-expanded': 'false',
+        onclick: () => alternarMenu(!layout.classList.contains('menu-aberto'))
+    }, h('span', {}));
+    menu.addEventListener('click', e => {
+        if (e.target.closest('.menu-item')) alternarMenu(false);
+    });
+
     const titulo = h('h2', {});
     const subtitulo = h('p', {});
     topo = {
         el: h('header', { class: 'topo' },
-            h('div', {}, titulo, subtitulo),
+            h('div', { class: 'topo-titulo' }, botaoMenu, h('div', {}, titulo, subtitulo)),
             h('div', { class: 'usuario' },
                 h('div', { class: 'avatar' }, fmt.iniciais(c.nome)),
                 h('div', {}, h('div', { class: 'nome' }, c.nome),
@@ -134,7 +160,9 @@ function montarLayout() {
     };
     conteudo = h('main', { class: 'conteudo' });
 
-    raiz.replaceChildren(h('div', { class: 'layout' }, menu, h('div', { class: 'principal' }, topo.el, conteudo)));
+    layout.append(menu, h('div', { class: 'menu-fundo', onclick: () => alternarMenu(false) }),
+        h('div', { class: 'principal' }, topo.el, conteudo));
+    raiz.replaceChildren(layout);
 }
 
 let renderizacaoAtual = 0;
