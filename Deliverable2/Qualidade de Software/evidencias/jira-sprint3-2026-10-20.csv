@@ -1,0 +1,119 @@
+chave,status,categoria,responsavel,criada,resolvida,sprints,resumo
+SMAN-4,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-08-14T13:10:16.856-0300,2026-09-28T16:44:57.874-0300,Sprint 2|Sprint 3,Realizar FRONT
+SMAN-6,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-08-14T13:10:36.896-0300,2026-09-28T16:44:18.648-0300,Sprint 2|Sprint 3,Integração BACK-FRONT
+SMAN-9,Feito,done,Gustavo Basilio Gaspar Gomes,2026-08-21T12:00:55.132-0300,2026-10-20T08:02:56.384-0300,Sprint 3,Planejar APIs de IA a serem utilzadas
+SMAN-12,Feito,done,ana luiza proenca,2026-08-27T14:32:00.046-0300,2026-09-18T08:43:30.152-0300,Sprint 2|Sprint 3|SMAN Sprint 1,Planing poker
+SMAN-24,A fazer,new,Kaique Souto Lira,2026-08-28T09:08:28.261-0300,,Sprint 3,Cadastrar IA
+SMAN-29,Dev,indeterminate,ana luiza proenca,2026-09-03T10:25:45.905-0300,,Sprint 3,Definir critérios de Alto Valor (AV) para priorização de US
+SMAN-30,Feito,done,ana luiza proenca,2026-09-03T10:25:50.896-0300,2026-09-23T13:03:10.445-0300,Sprint 2|Sprint 3,Receber Epics e US/BDDs selecionados pelo PO (Jira-PO)
+SMAN-33,CODE REVIEW,indeterminate,ana luiza proenca,2026-09-03T10:26:08.848-0300,,Sprint 3,Realizar Sprint Planning com base nos Epics selecionados
+SMAN-34,TESTE-DEV,indeterminate,RICARDO JOSE DE MATTEO FILHO,2026-09-03T10:26:13.096-0300,,Sprint 3,Estruturar quadro da Sprint no Jira-SM
+SMAN-35,Feito,done,ana luiza proenca,2026-09-03T10:26:16.582-0300,2026-09-23T13:07:05.254-0300,Sprint 2|Sprint 3,Abrir a Sprint no Jira-SM
+SMAN-45,CODE REVIEW,indeterminate,ana luiza proenca,2026-09-18T08:40:53.214-0300,,Sprint 3,Planning poker das histórias da Sprint 2 
+SMAN-47,Dev,indeterminate,ana luiza proenca,2026-09-18T08:41:04.438-0300,,Sprint 3,Daily/check-ins de acompanhamento da Sprint 2
+SMAN-48,A fazer,new,RICARDO JOSE DE MATTEO FILHO,2026-09-18T08:45:31.018-0300,,Sprint 3,"Evolução: AI Literacy Score, AI Credits e Ranking"
+SMAN-50,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-09-18T08:52:52.453-0300,2026-09-28T16:44:56.264-0300,Sprint 2|Sprint 3,[Arquitetura] Redigir ADRs das decisões já tomadas (evolução monólito → modular → microservices; Node.js para alertas)
+SMAN-51,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-09-18T08:53:19.282-0300,2026-09-28T16:45:00.634-0300,Sprint 2|Sprint 3,[Arquitetura] Publicar documentação de arquitetura no repositório (/docs) e linkar no README
+SMAN-52,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-09-18T08:53:25.779-0300,2026-09-28T16:44:51.284-0300,Sprint 2|Sprint 3,[Backend] Evoluir o domínio do backend além do projeto-modelo de aula
+SMAN-53,A fazer,new,RICARDO JOSE DE MATTEO FILHO,2026-09-18T08:53:32.056-0300,,Sprint 3,[Backend] Validar integração Spring Boot ↔ Node alert-service (docker compose completo)
+SMAN-54,A fazer,new,RICARDO JOSE DE MATTEO FILHO,2026-09-18T08:53:43.735-0300,,Sprint 3,[Backend] Escrever testes de integração cobrindo POST /api/usages → alerta gerado
+SMAN-55,A fazer,new,RICARDO JOSE DE MATTEO FILHO,2026-09-18T08:53:50.189-0300,,Sprint 3,"[Backend] Revalidar proxy /api/* do frontend nas 3 versões (camadas, modular, microservices)"
+SMAN-56,Feito,done,Gustavo Basilio Gaspar Gomes,2026-09-18T08:53:56.815-0300,2026-10-20T08:03:39.958-0300,Sprint 3,"[Frontend] Criar wireframes: cadastro de projeto, dashboard de uso, tela de alertas"
+SMAN-57,Dev,indeterminate,ana luiza proenca,2026-09-18T08:54:02.817-0300,,Sprint 3,[Frontend] Implementar tela de listagem/cadastro de projetos (consumindo /api/projects)
+SMAN-58,Dev,indeterminate,ana luiza proenca,2026-09-18T08:54:09.501-0300,,Sprint 3,[Frontend] Implementar tela de registro de consumo de tokens (consumindo /api/usages)
+SMAN-59,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-09-18T08:54:16.290-0300,2026-09-28T16:44:20.236-0300,Sprint 2|Sprint 3,[Frontend] Empacotar versão executável (docker-compose) e documentar demo no README
+SMAN-61,A fazer,new,Kaique Souto Lira,2026-09-18T08:54:37.568-0300,,Sprint 3,[ML] Definir e justificar métrica de avaliação considerando desbalanceamento de teve_incidente
+SMAN-62,A fazer,new,Kaique Souto Lira,2026-09-18T08:54:48.141-0300,,Sprint 3,[ML] Tratar desbalanceamento de classes (class_weight/resampling) no pipeline
+SMAN-65,A fazer,new,Kaique Souto Lira,2026-09-18T08:55:12.937-0300,,Sprint 3,"[ML] Adicionar diagnóstico da base ao notebook (shape, nulos, cardinalidade, duplicatas, ausências disfarçadas)"
+SMAN-66,A fazer,new,Kaique Souto Lira,2026-09-18T08:55:19.496-0300,,Sprint 3,[ML] Documentar por escrito as decisões do pipeline de pré-processamento
+SMAN-67,Dev,indeterminate,RICARDO JOSE DE MATTEO FILHO,2026-09-18T08:55:26.620-0300,,Sprint 3,[Gestão] Reorganizar arquivos do repositório nas pastas estipuladas
+SMAN-68,Dev,indeterminate,ana luiza proenca,2026-09-18T08:55:33.486-0300,,Sprint 3,[Gestão] Definir escopo mínimo do MVP da Sprint 2 junto ao PO
+SMAN-69,CODE REVIEW,indeterminate,ana luiza proenca,2026-09-18T08:55:40.288-0300,,Sprint 3,[Gestão] Manter o quadro Jira-SM atualizado diariamente durante a Sprint 2
+SMAN-70,Feito,done,Gustavo Basilio Gaspar Gomes,2026-09-18T08:55:47.028-0300,2026-10-13T15:00:42.552-0300,Sprint 3,[Marketing] Finalizar análise de microambiente (PESTEL/Porter) — disciplina pendente
+SMAN-71,A fazer,new,RICARDO JOSE DE MATTEO FILHO,2026-09-18T08:55:52.914-0300,,Sprint 3,[Estatística] Corrigir e finalizar relatorioinicialcompleto.rmd — disciplina pendente
+SMAN-72,A fazer,new,RICARDO JOSE DE MATTEO FILHO,2026-09-18T08:55:58.844-0300,,Sprint 3,[Qualidade] Estruturar plano de testes/QA e iniciar casos de teste — disciplina pendente
+SMAN-74,A fazer,new,Kaique Souto Lira,2026-09-18T08:56:14.329-0300,,Sprint 3,[PO/Cálculo] Revisar e finalizar DELIVERABLE 1 LUCY.docx — Pesquisa Operacional pendente
+SMAN-87,A fazer,new,Ricardo.matteo,2026-09-23T17:58:04.860-0300,,Sprint 3,Implementar cálculo do AI Literacy Score
+SMAN-88,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-09-23T17:58:18.379-0300,2026-09-29T11:09:17.619-0300,Sprint 2|Sprint 3,Implementar sistema de AI Credits e níveis de autonomia
+SMAN-89,A fazer,new,Kaique Souto Lira,2026-09-23T17:58:31.662-0300,,Sprint 3,Implementar dashboard de AI Literacy Ranking
+SMAN-104,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-09-24T10:51:21.843-0300,2026-09-28T16:44:11.814-0300,Sprint 3,Elaborar diagrama C4 nível 1 (Contexto)
+SMAN-105,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-09-24T10:51:28.424-0300,2026-09-28T16:44:13.394-0300,Sprint 3,Elaborar diagrama C4 nível 2 (Contêineres)
+SMAN-106,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-09-24T10:51:32.980-0300,2026-09-28T16:44:15.264-0300,Sprint 3,Elaborar diagrama C4 nível 3 (Componentes do backend)
+SMAN-107,PULL-REQUEST,indeterminate,ana luiza proenca,2026-09-24T10:51:37.528-0300,,Sprint 3,Consolidar e atualizar o Documento de Visão em /docs/visao
+SMAN-108,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-09-24T10:51:41.920-0300,2026-09-28T16:44:17.030-0300,Sprint 3,Linkar a pasta /docs no README.md principal
+SMAN-109,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-09-24T14:27:09.573-0300,2026-09-28T16:44:52.993-0300,Sprint 3,Levantar regras de negócio específicas do DAMA Intelligence
+SMAN-110,Dev,indeterminate,ana luiza proenca,2026-09-24T14:27:14.641-0300,,Sprint 3,Evoluir entidade Project com campos e validações do domínio
+SMAN-111,CODE REVIEW,indeterminate,ana luiza proenca,2026-09-24T14:27:19.308-0300,,Sprint 3,"Evoluir entidade Usage com validações (tokens > 0, projeto existente)"
+SMAN-112,Dev,indeterminate,ana luiza proenca,2026-09-24T14:27:24.104-0300,,Sprint 3,Implementar regra de limiares de consumo (INFO/WARNING/CRITICAL)
+SMAN-113,PULL-REQUEST,indeterminate,ana luiza proenca,2026-09-24T14:27:28.636-0300,,Sprint 3,Escrever testes unitários das novas regras de domínio
+SMAN-114,CODE REVIEW,indeterminate,ana luiza proenca,2026-09-24T14:27:32.966-0300,,Sprint 3,Limpar ambiente Docker (down --volumes --remove-orphans)
+SMAN-115,CODE REVIEW,indeterminate,ana luiza proenca,2026-09-24T14:27:37.503-0300,,Sprint 3,Reconstruir imagens com docker compose build --no-cache
+SMAN-116,A fazer,new,Gustavo Basilio Gaspar Gomes,2026-09-24T14:27:42.141-0300,,Sprint 3,Subir a stack completa com docker compose up --force-recreate
+SMAN-117,A fazer,new,Gustavo Basilio Gaspar Gomes,2026-09-24T14:27:46.716-0300,,Sprint 3,"Validar docker compose ps (db, backend, frontend, alert-service Up)"
+SMAN-118,CODE REVIEW,indeterminate,ana luiza proenca,2026-09-24T14:27:51.447-0300,,Sprint 3,Testar POST /api/usages e conferir o alerta retornado pelo Node
+SMAN-119,PULL-REQUEST,indeterminate,ana luiza proenca,2026-09-24T14:27:56.106-0300,,Sprint 3,Registrar evidências da validação de integração (logs e prints)
+SMAN-120,CODE REVIEW,indeterminate,ana luiza proenca,2026-09-24T14:28:00.530-0300,,Sprint 3,Revisar ProjectIntegrationTest.java existente e mapear lacunas
+SMAN-121,A fazer,new,Gustavo Basilio Gaspar Gomes,2026-09-24T14:28:05.196-0300,,Sprint 3,Configurar ambiente de teste de integração com PostgreSQL
+SMAN-122,A fazer,new,Gustavo Basilio Gaspar Gomes,2026-09-24T14:28:09.606-0300,,Sprint 3,Disponibilizar alert-service no teste (container ou stub HTTP)
+SMAN-123,A fazer,new,Gustavo Basilio Gaspar Gomes,2026-09-24T14:28:14.331-0300,,Sprint 3,Teste de integração: consumo baixo gera alerta INFO
+SMAN-124,A fazer,new,Gustavo Basilio Gaspar Gomes,2026-09-24T14:28:18.819-0300,,Sprint 3,Teste de integração: consumo alto gera alerta WARNING/CRITICAL
+SMAN-125,A fazer,new,RICARDO JOSE DE MATTEO FILHO,2026-09-24T14:28:23.445-0300,,Sprint 3,Teste de integração: falha do alert-service é tratada pelo backend
+SMAN-126,CODE REVIEW,indeterminate,ana luiza proenca,2026-09-24T14:28:28.605-0300,,Sprint 3,Inspecionar proxy /api/* do frontend na versão 1 (camadas)
+SMAN-127,CODE REVIEW,indeterminate,ana luiza proenca,2026-09-24T14:28:33.025-0300,,Sprint 3,Inspecionar proxy /api/* do frontend na versão 2 (modular)
+SMAN-128,CODE REVIEW,indeterminate,ana luiza proenca,2026-09-24T14:28:37.367-0300,,Sprint 3,Inspecionar proxy /api/* do frontend na versão 3 (microservices)
+SMAN-129,A fazer,new,Gustavo Basilio Gaspar Gomes,2026-09-24T14:28:42.314-0300,,Sprint 3,Corrigir pathRewrite nas versões com falha de proxy
+SMAN-130,A fazer,new,Gustavo Basilio Gaspar Gomes,2026-09-24T14:28:47.085-0300,,Sprint 3,Reconstruir e testar /api/* pelo frontend nas 3 versões
+SMAN-132,PULL-REQUEST,indeterminate,ana luiza proenca,2026-09-24T14:28:56.617-0300,,Sprint 3,Criar wireframe do dashboard de uso
+SMAN-133,Feito,done,ana luiza proenca,2026-09-24T14:29:01.224-0300,2026-10-13T15:02:42.271-0300,Sprint 3,Criar wireframe da tela de alertas
+SMAN-134,CODE REVIEW,indeterminate,ana luiza proenca,2026-09-24T14:29:06.150-0300,,Sprint 3,Revisar wireframes com a equipe e o PO e versionar no repositório
+SMAN-135,QA,indeterminate,ana luiza proenca,2026-09-24T14:29:10.770-0300,,Sprint 3,Definir contrato de /api/projects (payload e erros)
+SMAN-136,PULL-REQUEST,indeterminate,ana luiza proenca,2026-09-24T14:29:15.311-0300,,Sprint 3,Implementar listagem de projetos (GET /api/projects)
+SMAN-137,CODE REVIEW,indeterminate,ana luiza proenca,2026-09-24T14:29:20.124-0300,,Sprint 3,Implementar formulário de cadastro de projeto (POST /api/projects)
+SMAN-138,PULL-REQUEST,indeterminate,ana luiza proenca,2026-09-24T14:29:24.611-0300,,Sprint 3,Tratar validações e erros na tela de projetos
+SMAN-139,A fazer,new,Gustavo Basilio Gaspar Gomes,2026-09-24T14:29:29.116-0300,,Sprint 3,Implementar formulário de registro de consumo de tokens (POST /api/usages)
+SMAN-140,A fazer,new,Gustavo Basilio Gaspar Gomes,2026-09-24T14:29:34.350-0300,,Sprint 3,Exibir alerta INFO/WARNING/CRITICAL retornado no registro de consumo
+SMAN-142,QA,indeterminate,ana luiza proenca,2026-09-24T14:29:43.613-0300,,Sprint 3,"Revisar Dockerfiles do frontend, backend e alert-service"
+SMAN-143,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-09-24T14:29:48.396-0300,2026-09-28T16:44:21.835-0300,Sprint 3,Criar .env.example e padronizar variáveis de ambiente
+SMAN-144,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-09-24T14:29:53.176-0300,2026-09-28T16:44:23.547-0300,Sprint 3,Validar docker compose up --build a partir de clone limpo
+SMAN-145,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-09-24T14:29:57.978-0300,2026-09-28T16:44:25.253-0300,Sprint 3,Documentar demo passo a passo no README
+SMAN-147,A fazer,new,Kaique Souto Lira,2026-09-24T14:30:07.932-0300,,Sprint 3,Analisar a distribuição do alvo teve_incidente
+SMAN-148,A fazer,new,Kaique Souto Lira,2026-09-24T14:30:13.178-0300,,Sprint 3,Calcular baseline trivial (classe majoritária) e mostrar o limite da acurácia
+SMAN-149,A fazer,new,Kaique Souto Lira,2026-09-24T14:30:18.004-0300,,Sprint 3,"Implementar métricas de avaliação no notebook (ROC-AUC, recall, matriz de confusão)"
+SMAN-150,A fazer,new,Kaique Souto Lira,2026-09-24T14:30:23.212-0300,,Sprint 3,Escrever justificativa da métrica pelo custo de falso negativo x falso positivo
+SMAN-151,A fazer,new,Kaique Souto Lira,2026-09-24T14:30:28.611-0300,,Sprint 3,Aplicar class_weight='balanced' no estimador do pipeline
+SMAN-152,A fazer,new,Kaique Souto Lira,2026-09-24T14:30:33.629-0300,,Sprint 3,"Testar resampling apenas no treino, dentro do pipeline"
+SMAN-153,A fazer,new,Kaique Souto Lira,2026-09-24T14:30:38.859-0300,,Sprint 3,Comparar abordagens de desbalanceamento com validação cruzada estratificada
+SMAN-154,A fazer,new,Kaique Souto Lira,2026-09-24T14:30:44.122-0300,,Sprint 3,Diagnóstico da base: shape de cada CSV
+SMAN-155,A fazer,new,Kaique Souto Lira,2026-09-24T14:30:48.847-0300,,Sprint 3,Diagnóstico da base: contagem de nulos por coluna
+SMAN-156,A fazer,new,Kaique Souto Lira,2026-09-24T14:30:54.320-0300,,Sprint 3,Diagnóstico da base: cardinalidade das variáveis categóricas
+SMAN-157,A fazer,new,Kaique Souto Lira,2026-09-24T14:30:59.238-0300,,Sprint 3,Diagnóstico da base: checagem de duplicatas
+SMAN-158,A fazer,new,Kaique Souto Lira,2026-09-24T14:31:04.028-0300,,Sprint 3,"Diagnóstico da base: ausências disfarçadas ("""", N/A, -1)"
+SMAN-159,A fazer,new,Kaique Souto Lira,2026-09-24T14:37:41.940-0300,,Sprint 3,Consolidar o diagnóstico da base em tabela-resumo no notebook
+SMAN-160,A fazer,new,Kaique Souto Lira,2026-09-24T14:37:46.873-0300,,Sprint 3,Documentar a decisão de imputação de valores ausentes
+SMAN-161,A fazer,new,Kaique Souto Lira,2026-09-24T14:37:51.545-0300,,Sprint 3,Documentar a decisão de escalonamento das variáveis numéricas
+SMAN-162,A fazer,new,Kaique Souto Lira,2026-09-24T14:37:56.543-0300,,Sprint 3,Documentar a decisão do one-hot encoding com handle_unknown
+SMAN-163,A fazer,new,Kaique Souto Lira,2026-09-24T14:38:01.316-0300,,Sprint 3,Documentar a decisão do encoding ordinal com ordem explícita
+SMAN-164,A fazer,new,Kaique Souto Lira,2026-09-24T14:38:05.794-0300,,Sprint 3,Documentar por que o pré-processamento é ajustado após a separação treino/teste
+SMAN-165,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-09-24T14:38:10.913-0300,2026-09-28T16:44:44.625-0300,Sprint 3,Mapear a estrutura atual do repositório
+SMAN-166,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-09-24T14:38:16.107-0300,2026-09-28T16:44:46.380-0300,Sprint 3,Identificar arquivos fora das pastas estipuladas e definir o destino de cada um
+SMAN-167,Feito,done,ana luiza proenca,2026-09-24T14:38:21.187-0300,2026-10-13T15:01:46.335-0300,Sprint 3,Mover os arquivos para as pastas corretas com git mv
+SMAN-168,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-09-24T14:38:26.100-0300,2026-09-28T16:44:48.094-0300,Sprint 3,Corrigir caminhos e referências quebrados após a reorganização
+SMAN-169,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-09-24T14:38:30.922-0300,2026-09-28T16:44:49.724-0300,Sprint 3,Atualizar o README com o mapa de pastas do repositório
+SMAN-171,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-09-28T01:20:01.871-0300,2026-09-28T15:34:08.672-0300,Sprint 3,"[BD] Redesenhar schema PostgreSQL para os RFs (E01–E05), criar views de analytics e seed"
+SMAN-172,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-09-28T01:20:09.533-0300,2026-09-28T15:34:10.386-0300,Sprint 3,[BD] Validar scripts SQL e queries dos repositórios em PostgreSQL 16 (instalação do zero e reexecução)
+SMAN-173,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-09-28T01:20:15.218-0300,2026-09-28T16:44:54.633-0300,Sprint 3,"[Backend] Estruturar projeto Spring Boot modular (pom, config, Docker) e módulo shared"
+SMAN-174,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-09-28T01:20:24.701-0300,2026-09-28T15:34:12.201-0300,Sprint 3,"[Backend] Implementar autenticação por header, autorização por perfil (@PreAuthorize) e módulo perfil"
+SMAN-186,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-10-15T14:21:29.802-0300,2026-10-15T14:23:26.574-0300,Sprint 3,[Validação] Criar roteiro de validação parcial por persona (docs/validacao)
+SMAN-187,A fazer,new,RICARDO JOSE DE MATTEO FILHO,2026-10-15T14:23:54.488-0300,,Sprint 3,[Validação] Executar sessões de validação parcial com as personas e registrar resultados
+SMAN-188,A fazer,new,RICARDO JOSE DE MATTEO FILHO,2026-10-15T14:23:56.833-0300,,Sprint 3,[Gestão] Registrar Sprint Review e Retrospectiva da Sprint 2
+SMAN-189,A fazer,new,RICARDO JOSE DE MATTEO FILHO,2026-10-15T14:23:59.250-0300,,Sprint 3,[Gestão] Registrar Sprint Review e Retrospectiva da Sprint 3
+SMAN-190,A fazer,new,RICARDO JOSE DE MATTEO FILHO,2026-10-15T14:24:01.548-0300,,Sprint 3,"[Gestão] Reunir evidências do Jira (prints do board, backlog e burndown das Sprints 2 e 3)"
+SMAN-191,A fazer,new,RICARDO JOSE DE MATTEO FILHO,2026-10-15T14:24:04.096-0300,,Sprint 3,[Inovação] Documentar situação da hipótese de inovação e sua incorporação ao MVP
+SMAN-192,A fazer,new,RICARDO JOSE DE MATTEO FILHO,2026-10-15T14:24:06.141-0300,,Sprint 3,"[Evidências] Registrar o MVP integrado rodando (docker compose, testes e pipeline verde)"
+SMAN-202,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-10-15T15:34:33.479-0300,2026-10-15T15:36:07.167-0300,Sprint 3,[Front] Trocar fontes para Plus Jakarta Sans e Sora e simplificar o logo para DAMA
+SMAN-203,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-10-15T15:34:36.117-0300,2026-10-15T15:36:08.659-0300,Sprint 3,[Gestão] Organizar o Jira para o Deliverable 2 (tasks por disciplina e limpeza das duplicadas)
+SMAN-204,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-10-15T20:53:00.091-0300,2026-10-15T20:55:03.499-0300,Sprint 3,[Qualidade] Avaliar a maturidade dos processos de desenvolvimento
+SMAN-205,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-10-15T20:53:02.821-0300,2026-10-15T20:55:05.129-0300,Sprint 3,"[Qualidade] Registrar as auditorias do processo, do repositório e dos testes"
+SMAN-206,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-10-15T20:53:05.000-0300,2026-10-15T20:55:06.697-0300,Sprint 3,[Qualidade] Levantar indicadores e métricas de qualidade do processo e do produto
+SMAN-207,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-10-15T20:53:09.009-0300,2026-10-15T20:55:08.636-0300,Sprint 3,[Qualidade] Elaborar o plano de melhoria do processo e do produto (5W2H)
+SMAN-208,Feito,done,RICARDO JOSE DE MATTEO FILHO,2026-10-15T20:53:12.137-0300,2026-10-15T20:55:10.463-0300,Sprint 3,[Gestão] Levantar o estado do projeto frente aos entregáveis do Deliverable 2

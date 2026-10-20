@@ -8,4 +8,6 @@
 | [api/](api/) | Endpoints da API REST, permissões e exemplos |
 | [requisitos/](requisitos/) | Rastreabilidade história → requisito → endpoint → teste e regras de negócio adotadas |
 
+A documentação de qualidade (maturidade, CMMI, auditorias, métricas, plano de testes e plano de melhoria) fica em [Deliverable2/Qualidade de Software](../Deliverable2/Qualidade%20de%20Software/).
+
 Como rodar o projeto: [README da raiz](../README.md).

@@ -14,6 +14,7 @@ DAMA/
 ├── database/         Scripts PostgreSQL: schema, views, seed e dados de demonstração
 ├── docs/             Produto, arquitetura (C4), ADRs, API e rastreabilidade
 ├── Deliverable1/     Entregas acadêmicas do Deliverable 1 por disciplina
+├── Deliverable2/     Entregas do Deliverable 2 (índice por disciplina, Qualidade de Software, Pesquisa Operacional)
 ├── projetos-aula/    Projetos-modelo das aulas (camadas, modular, microservices)
 └── docker-compose.yml
 ```
@@ -77,3 +78,4 @@ Unitários para regras de metas, conquistas e análises de gestão; testes de in
 - [Arquitetura C4](docs/arquitetura/) e [ADRs](docs/adr/)
 - [Referência da API](docs/api/)
 - [Rastreabilidade e regras de negócio](docs/requisitos/)
+- [Deliverable 2](Deliverable2/): [Qualidade de Software](Deliverable2/Qualidade%20de%20Software/) e [Pesquisa Operacional](Deliverable2/Pesquisa%20Operacional/)

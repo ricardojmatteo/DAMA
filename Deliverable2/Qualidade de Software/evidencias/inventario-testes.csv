@@ -1,0 +1,89 @@
+id,componente,nivel,classe,caso,historia,automatizado
+TB-01,backend,Integração (API + PostgreSQL),DamaApiIntegrationTest,visaoConsolidadaSomaPontosSemMultiplicarPorDepartamentosEMetas,POAN-118,sim
+TB-02,backend,Integração (API + PostgreSQL),DamaApiIntegrationTest,conquistaAutomaticaEhConcedidaAoAtingirOCriterioENivelSobe,POAN-120,sim
+TB-03,backend,Integração (API + PostgreSQL),DamaApiIntegrationTest,conquistaCriadaDepoisVaiParaQuemJaCumpreOCriterio,POAN-120,sim
+TB-04,backend,Integração (API + PostgreSQL),DamaApiIntegrationTest,conquistaManualEhConcedidaUmaVezSo,POAN-120,sim
+TB-05,backend,Integração (API + PostgreSQL),DamaApiIntegrationTest,metaDeIndicadorMenorEhMelhorConcluiAoFicarAbaixoDoAlvo,POAN-114,sim
+TB-06,backend,Integração (API + PostgreSQL),DamaApiIntegrationTest,alertasApontamMetaVencidaEIndicadorEmQueda,POAN-121,sim
+TB-07,backend,Integração (API + PostgreSQL),DamaApiIntegrationTest,dashboardDaEquipeConsolidaMembros,POAN-121,sim
+TB-08,backend,Integração (API + PostgreSQL),DamaApiIntegrationTest,perfilColaboradorVeRankingMasNaoVeAlertasNemAuditoria,POAN-111/119,sim
+TB-09,backend,Integração (API + PostgreSQL),DamaApiIntegrationTest,requisicaoSemCabecalhoNaoEhAutenticada,POAN-111,sim
+TB-10,backend,Unitário,AiCreditServiceTest,atividadeElegivelGeraUmCreditoFixoPorRegraSemMultiplicarQuantidade,POAN-117,sim
+TB-11,backend,Unitário,AiCreditServiceTest,atividadeSemRegraContinuaRegistradaEQuantidadeAusenteValeUm,POAN-117,sim
+TB-12,backend,Unitário,AiCreditServiceTest,registroRecusaColaboradorInativoOuAtividadeDeOutraEmpresaOuInativa,POAN-117,sim
+TB-13,backend,Unitário,AiCreditServiceTest,debitoExigeSaldoMasCreditoRequerColaboradorAtivoEPossuiEvento,POAN-117,sim
+TB-14,backend,Unitário,AiCreditServiceTest,regraSaldoElegibilidadeENiveisRespeitamEmpresaEValoresDoRepositorio,POAN-117,sim
+TB-15,backend,Contrato (backend → alert-service),AlertaGestaoNodeTest,enviaOsDadosNoContratoEUsaOsAlertasDevolvidosPeloNode,POAN-121,sim
+TB-16,backend,Contrato (backend → alert-service),AlertaGestaoNodeTest,quandoOServicoRespondeErroUsaAsRegrasLocais,POAN-121,sim
+TB-17,backend,Contrato (backend → alert-service),AlertaGestaoNodeTest,respostaForaDoContratoUsaAsRegrasLocais,POAN-121,sim
+TB-18,backend,Contrato (backend → alert-service),AlertaGestaoNodeTest,servicoForaDoArUsaAsRegrasLocais,POAN-121,sim
+TB-19,backend,Contrato (backend → alert-service),AlertaGestaoNodeTest,motorLocalAplicaAsRegrasNaMesmaOrdemDoContrato,POAN-121,sim
+TB-20,backend,Unitário,AnaliseGestaoRegrasTest,metaComPrazoEncerradoEhVencidaComSeveridadeAlta,POAN-121,sim
+TB-21,backend,Unitário,AnaliseGestaoRegrasTest,metaAtrasadaEmRelacaoAoTempoDecorridoFicaEmRisco,POAN-121,sim
+TB-22,backend,Unitário,AnaliseGestaoRegrasTest,metaNoRitmoEsperadoNaoGeraAlerta,POAN-121,sim
+TB-23,backend,Unitário,AnaliseGestaoRegrasTest,metaDeIndicadorMenorEhMelhorNaoEntraNaRegraDeRisco,POAN-121,sim
+TB-24,backend,Unitário,AnaliseGestaoRegrasTest,quedaDeVintePorCentoEhMediaEDeTrintaEhAlta,POAN-121,sim
+TB-25,backend,Unitário,AnaliseGestaoRegrasTest,variacaoPequenaOuMelhoraNaoGeraAlerta,POAN-121,sim
+TB-26,backend,Unitário,AnaliseGestaoRegrasTest,indicadorMenorEhMelhorPioraQuandoSobe,POAN-121,sim
+TB-27,backend,Unitário,AnaliseGestaoRegrasTest,equipeComMenosDaMetadeDaMediaDaEmpresaGeraAlerta,POAN-121,sim
+TB-28,backend,Unitário,AnaliseGestaoRegrasTest,semPontosNaEmpresaNaoHaComparacaoEntreEquipes,POAN-121,sim
+TB-29,backend,Unitário,AnalyticsServiceTest,consultasExigemEmpresaERetornamZeroQuandoNaoHaVisaoConsolidada,POAN-118,sim
+TB-30,backend,Unitário,AnalyticsServiceTest,analiseAgrupaSomenteValoresDaMesmaSerieEOrdenaPorSeveridade,POAN-118,sim
+TB-31,backend,Unitário,AuditoriaServiceTest,registraJsonVazioQuandoDetalhesSaoNulosEMantemJsonInformado,POAN-119,sim
+TB-32,backend,Unitário,ColaboradorServiceTest,listaEBuscaExigemExistencia,POAN-110,sim
+TB-33,backend,Unitário,ColaboradorServiceTest,criarValidaEmpresaDepartamentoEEmailAntesDeAuditar,POAN-110,sim
+TB-34,backend,Unitário,ColaboradorServiceTest,atualizarEStatusValidamEDepoisRetornamEstadoAtual,POAN-110,sim
+TB-35,backend,Unitário,ConquistaServiceTest,nivelAtualEProgressoAteOProximo,POAN-120,sim
+TB-36,backend,Unitário,ConquistaServiceTest,noNivelMaisAltoNaoHaProximoNivel,POAN-120,sim
+TB-37,backend,Unitário,ConquistaServiceTest,criterioAutomaticoExigeValorMinimo,POAN-120,sim
+TB-38,backend,Unitário,ConquistaServiceTest,conquistaManualNaoAceitaValorMinimo,POAN-120,sim
+TB-39,backend,Unitário,ConquistaServiceTest,criterioDesconhecidoEhRecusado,POAN-120,sim
+TB-40,backend,Unitário,ConquistaServiceTest,conquistaAutomaticaCriadaJaEhAvaliadaParaAEmpresa,POAN-120,sim
+TB-41,backend,Unitário,ConquistaServiceTest,conquistaAutomaticaNaoPodeSerConcedidaManualmente,POAN-120,sim
+TB-42,backend,Unitário,ConquistaServiceTest,conquistaManualRepetidaEhConflito,POAN-120,sim
+TB-43,backend,Unitário,ConquistaServiceTest,colaboradorInativoNaoEhAvaliado,POAN-120,sim
+TB-44,backend,Unitário,DashboardServiceTest,dashboardDoColaboradorAgregaIndicadoresMetasPontosCreditosENivel,POAN-113,sim
+TB-45,backend,Unitário,DashboardServiceTest,dashboardDaEquipeUsaDataDoClockEConsolidaDadosDaEquipe,POAN-121,sim
+TB-46,backend,Unitário,DesafioServiceTest,validaEmpresaStatusEPeriodoAoListarOuCriar,POAN-116,sim
+TB-47,backend,Unitário,DesafioServiceTest,inscricaoExigeStatusAbertoMesmoEmpresaColaboradorAtivoENaoDuplicidade,POAN-116,sim
+TB-48,backend,Unitário,DesafioServiceTest,concluirCreditaRecompensaPositivaENaoCreditaZeroEImpedeParticipacaoFinalizada,POAN-116,sim
+TB-49,backend,Unitário,DesafioServiceTest,alteraStatusEDesistenciaRetornamEstadoAtualizado,POAN-116,sim
+TB-50,backend,Unitário,IndicadorServiceTest,criarAplicaMaiorMelhorComoPadraoEExigeEmpresa,POAN-112,sim
+TB-51,backend,Unitário,IndicadorServiceTest,registrarValorExigeExatamenteUmDonoEQueElePertençaAEmpresa,POAN-112,sim
+TB-52,backend,Unitário,IndicadorServiceTest,registrarValorAceitaColaboradorOuDepartamentoEHistoricoValidaPeriodo,POAN-112,sim
+TB-53,backend,Unitário,IndicadorServiceTest,consultasDelegamEIndicadorAusenteDa404,POAN-112,sim
+TB-54,backend,Unitário,MetaServiceTest,metaSemIndicadorConcluiQuandoAtingeOuSuperaOAlvo,POAN-114,sim
+TB-55,backend,Unitário,MetaServiceTest,metaDeIndicadorMenorEhMelhorConcluiQuandoFicaAbaixoDoAlvo,POAN-114,sim
+TB-56,backend,Unitário,MetaServiceTest,conclusaoAutomaticaPublicaEventoParaConquistas,POAN-114,sim
+TB-57,backend,Unitário,MetaServiceTest,progressoEmMetaEncerradaEhRecusado,POAN-114,sim
+TB-58,backend,Unitário,OrganizacaoServiceTest,criaListaEConsultaEmpresasEDepartamentos,POAN-110,sim
+TB-59,backend,Unitário,OrganizacaoServiceTest,criaDepartamentoTrataDuplicidadeEEmpresaInexistente,POAN-110,sim
+TB-60,backend,Unitário,OrganizacaoServiceTest,delegaConsultasDePertencimentoEBuscaDepartamento,POAN-110,sim
+TB-61,backend,Unitário,PerfilServiceTest,criarPerfilRejeitaPermissaoDesconhecidaECriaComPermissoesResolvidas,POAN-111,sim
+TB-62,backend,Unitário,PerfilServiceTest,atribuirExigePerfilExistenteEOsDemaisMetodosDelegam,POAN-111,sim
+TB-63,backend,Unitário,PontuacaoServiceTest,criarRegraExigeEmpresaEAtividadeDaMesmaEmpresa,POAN-115,sim
+TB-64,backend,Unitário,PontuacaoServiceTest,regraPodeSerAtivadaOuDesativadaEInexistenteGera404,POAN-115,sim
+TB-65,backend,Unitário,PontuacaoServiceTest,lancamentoExigeColaboradorAtivoRegraAtivaEDaMesmaEmpresa,POAN-115,sim
+TB-66,backend,Unitário,PontuacaoServiceTest,lancamentoUsaDescricaoDaRegraQuandoAusenteEPublIcaEvento,POAN-115,sim
+TB-67,backend,Unitário,PontuacaoServiceTest,resumoECreditoAutomaticoUsamDadosDoRepositorio,POAN-115,sim
+TB-68,backend,Unitário,ReconhecimentoServiceTest,listarExigeEmpresaEMantemConsultaDoColaborador,POAN-116,sim
+TB-69,backend,Unitário,ReconhecimentoServiceTest,criarExigeEmpresaColaboradorDoMesmoTenantEAtivoEDisparaEvento,POAN-116,sim
+TA-01,alert-service,Unitário (regras),regras.test.js,Meta com prazo encerrado é vencida com severidade alta,POAN-121,sim
+TA-02,alert-service,Unitário (regras),regras.test.js,Meta atrasada em relação ao tempo decorrido fica em risco,POAN-121,sim
+TA-03,alert-service,Unitário (regras),regras.test.js,Meta no ritmo esperado não gera alerta,POAN-121,sim
+TA-04,alert-service,Unitário (regras),regras.test.js,Meta de indicador menor-é-melhor não entra na regra de risco,POAN-121,sim
+TA-05,alert-service,Unitário (regras),regras.test.js,Queda de 20% é média e de 30% é alta,POAN-121,sim
+TA-06,alert-service,Unitário (regras),regras.test.js,Variação pequena ou melhora não gera alerta,POAN-121,sim
+TA-07,alert-service,Unitário (regras),regras.test.js,Indicador menor-é-melhor piora quando sobe,POAN-121,sim
+TA-08,alert-service,Unitário (regras),regras.test.js,Limites exatos de 10% e 25% de piora contam como alerta,POAN-121,sim
+TA-09,alert-service,Unitário (regras),regras.test.js,Equipe com menos da metade da média da empresa gera alerta,POAN-121,sim
+TA-10,alert-service,Unitário (regras),regras.test.js,Sem pontos na empresa não há comparação entre equipes,POAN-121,sim
+TA-11,alert-service,Unitário (regras),regras.test.js,Colaborador sem atividade gera alerta de severidade baixa com a data de corte,POAN-121,sim
+TA-12,alert-service,Unitário (regras),regras.test.js,"Avaliar mantém a ordem metas, tendências, equipes e sem atividade",POAN-121,sim
+TA-13,alert-service,API HTTP,server.test.js,GET /health responde UP,POAN-121,sim
+TA-14,alert-service,API HTTP,server.test.js,POST /avaliar devolve os alertas calculados,POAN-121,sim
+TA-15,alert-service,API HTTP,server.test.js,Listas ausentes são tratadas como vazias,POAN-121,sim
+TA-16,alert-service,API HTTP,server.test.js,Entrada sem dataReferencia é rejeitada com 400,POAN-121,sim
+TA-17,alert-service,API HTTP,server.test.js,Meta sem campo obrigatório é rejeitada com 400 e aponta o campo,POAN-121,sim
+TA-18,alert-service,API HTTP,server.test.js,JSON inválido é rejeitado com 400,POAN-121,sim
+TA-19,alert-service,API HTTP,server.test.js,Rota inexistente devolve 404 e GET em /avaliar devolve 405,POAN-121,sim

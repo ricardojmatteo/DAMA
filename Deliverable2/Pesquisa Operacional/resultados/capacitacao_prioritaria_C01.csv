@@ -1,0 +1,41 @@
+employee_id,departamento,licencas_liberadas,valor_UE
+C01-E0334,Engenharia de Software,3,13.89
+C01-E0342,Qualidade (QA),3,13.3
+C01-E0331,DevOps e Infraestrutura,3,13.14
+C01-E0232,Qualidade (QA),3,12.89
+C01-E0306,Financeiro,3,12.32
+C01-E0139,DevOps e Infraestrutura,3,12.03
+C01-E0354,Engenharia de Software,3,11.83
+C01-E0101,Engenharia de Software,3,11.81
+C01-E0015,Engenharia de Software,3,11.74
+C01-E0007,Engenharia de Software,3,11.21
+C01-E0036,Suporte ao Cliente,3,11.11
+C01-E0363,Produto,3,11.02
+C01-E0251,Engenharia de Software,3,10.98
+C01-E0293,Suporte ao Cliente,3,10.96
+C01-E0288,Qualidade (QA),3,10.89
+C01-E0269,DevOps e Infraestrutura,3,10.87
+C01-E0296,Qualidade (QA),3,10.82
+C01-E0258,Vendas,3,10.75
+C01-E0025,Produto,3,10.61
+C01-E0109,Engenharia de Software,3,10.61
+C01-E0305,Vendas,3,10.55
+C01-E0110,Engenharia de Software,3,10.55
+C01-E0017,DevOps e Infraestrutura,3,10.51
+C01-E0241,Financeiro,3,10.46
+C01-E0026,Suporte ao Cliente,3,10.45
+C01-E0202,Engenharia de Software,3,10.42
+C01-E0087,Vendas,3,10.42
+C01-E0005,Engenharia de Software,3,10.38
+C01-E0322,Vendas,3,10.37
+C01-E0162,Vendas,3,10.27
+C01-E0282,DevOps e Infraestrutura,3,10.19
+C01-E0281,Suporte ao Cliente,3,10.07
+C01-E0245,Engenharia de Software,3,9.93
+C01-E0362,Vendas,3,9.89
+C01-E0234,Qualidade (QA),3,9.73
+C01-E0175,Vendas,2,9.7
+C01-E0204,Suporte ao Cliente,3,9.46
+C01-E0069,Engenharia de Software,3,9.38
+C01-E0315,Suporte ao Cliente,2,9.37
+C01-E0074,Suporte ao Cliente,3,9.28

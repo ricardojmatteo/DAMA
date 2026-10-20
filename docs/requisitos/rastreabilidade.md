@@ -7,11 +7,11 @@ Histórias do Jira-PO (épico POAN-109). A numeração de RFs segue a das histó
 | POAN-110 Cadastro e gestão de colaboradores | RF01, RF02, RF16, RF17 | `colaborador`, `organizacao` — `/empresas/{id}/colaboradores`, `/colaboradores/{id}` | Pessoas e perfis | `DamaApiIntegrationTest` (cadastro em todos os cenários) |
 | POAN-111 Perfis e permissões | RF18, RN01, RN07 | `perfil`, `shared.security`, `sessao` — `/perfis`, `/me` | Pessoas e perfis, login | `perfilColaboradorVeRankingMasNaoVeAlertasNemAuditoria`, `requisicaoSemCabecalhoNaoEhAutenticada` |
 | POAN-112 Indicadores, evolução e filtro por período | RF03, RF06, RF34, RF35 | `indicador` — `/indicadores/{id}/valores?inicio&fim` | Indicadores | `alertasApontamMetaVencidaEIndicadorEmQueda` (registro de valores) |
-| POAN-113 Dashboard do colaborador | RF05, RF32 | `dashboard` — `/colaboradores/{id}/dashboard` | Meu painel | verificado no front e na demo |
+| POAN-113 Dashboard do colaborador | RF05, RF32 | `dashboard` — `/colaboradores/{id}/dashboard` | Meu painel | `DashboardServiceTest` (unitário); integração pendente (TI-02 no plano de testes) |
 | POAN-114 Metas e progresso | RF04, RF29, RF30, RN05 | `meta` — `/metas/{id}/progresso` | Metas | `MetaServiceTest`, `metaDeIndicadorMenorEhMelhorConcluiAoFicarAbaixoDoAlvo` |
 | POAN-115 Pontuação, histórico e ranking | RF07, RF08, RF11, RF27, RF28, RF37 | `pontuacao`, `analytics` — `/colaboradores/{id}/pontuacao`, `/analytics/ranking-colaboradores` | Ranking e pontuação | `visaoConsolidadaSomaPontosSemMultiplicarPorDepartamentosEMetas` |
 | POAN-116 Desafios e reconhecimentos | RF09, RF10 | `desafio`, `reconhecimento` | Desafios, Reconhecimentos | `conquistaCriadaDepoisVaiParaQuemJaCumpreOCriterio` (reconhecimento) |
-| POAN-117 AI Credits | RF12, RF19–RF26 | `aicredit` — atividades, regras, saldo, histórico, níveis | AI Credits | verificado no front e na demo |
+| POAN-117 AI Credits | RF12, RF19–RF26 | `aicredit` — atividades, regras, saldo, histórico, níveis | AI Credits | `AiCreditServiceTest` (5 unitários); integração pendente (TI-01 no plano de testes) |
 | POAN-118 Visão consolidada e comparação entre equipes | RF13, RF14, RF33, RF36 | `analytics` — `/visao-consolidada`, `/ranking-departamentos`, `/indicadores-departamentos` | Análises, Equipes | `visaoConsolidadaSomaPontosSemMultiplicarPorDepartamentosEMetas` |
 | POAN-119 Auditoria | RF38 | `auditoria` — `/empresas/{id}/auditoria` | Auditoria | `perfilColaborador...` (acesso negado ao Colaborador) |
 | POAN-120 Conquistas e níveis de evolução | RF31 | `conquista` — `/conquistas`, `/evolucao`, `/niveis-evolucao` | Evolução e conquistas | `ConquistaServiceTest`, `conquistaAutomaticaEhConcedidaAoAtingirOCriterioENivelSobe`, `conquistaManualEhConcedidaUmaVezSo` |

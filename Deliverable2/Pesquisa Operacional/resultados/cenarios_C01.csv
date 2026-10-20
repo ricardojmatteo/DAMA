@@ -1,0 +1,13 @@
+cenario,status,licencas,custo,valor_UE,UE_por_mil_reais,obs,vs_atual
+A0 Atual,—,468,84626,522.2,6.17,"96 ociosas, 42 redundantes",+0%
+A1 Base,Optimal,576,94364,1307.5,13.86,,+150%
+A2 Orçamento por CC,Optimal,429,73075,1052.6,14.41,"inviável com cobertura (Engenharia de Software, Vendas, Marketing); resolvido sem R4",+102%
+A3 Sem cobertura,Optimal,554,94368,1347.9,14.28,,+158%
+A4 Níveis de autonomia,Optimal,443,79692,915.3,11.49,67 capacitados hoje,+75%
+A5 Níveis + 40 capacitações,Optimal,524,94234,1106.7,11.74,,+112%
+A6 Custo mínimo (valor de hoje),Optimal,336,48096,723.4,15.04,meta: 522.2 UE,+39%
+A7 Reajuste de 20%,Optimal,496,94365,1190.5,12.62,,+128%
+A8 Corte de 20%,Optimal,480,75491,1159.4,15.36,,+122%
+A9 Orçamento +20%,Optimal,668,113238,1367.5,12.08,,+162%
+A10 Transição: até 100 revogações,Optimal,557,94364,1157.7,12.27,,+122%
+A11 Sem limite por categoria,Optimal,576,94362,1675.8,17.76,premissa de substituição relaxada,+221%

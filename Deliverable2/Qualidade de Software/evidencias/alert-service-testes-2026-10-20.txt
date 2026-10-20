@@ -1,0 +1,29 @@
+✔ meta com prazo encerrado é vencida com severidade alta (3.299443ms)
+✔ meta atrasada em relação ao tempo decorrido fica em risco (0.899147ms)
+✔ meta no ritmo esperado não gera alerta (0.58009ms)
+✔ meta de indicador menor-é-melhor não entra na regra de risco (0.566085ms)
+✔ queda de 20% é média e de 30% é alta (3.4613ms)
+✔ variação pequena ou melhora não gera alerta (0.383972ms)
+✔ indicador menor-é-melhor piora quando sobe (0.880464ms)
+✔ limites exatos de 10% e 25% de piora contam como alerta (0.444252ms)
+✔ equipe com menos da metade da média da empresa gera alerta (3.824306ms)
+✔ sem pontos na empresa não há comparação entre equipes (0.956014ms)
+✔ colaborador sem atividade gera alerta de severidade baixa com a data de corte (0.560886ms)
+✔ avaliar mantém a ordem metas, tendências, equipes e sem atividade (0.854576ms)
+✔ GET /health responde UP (86.925677ms)
+[alert-service] POST /avaliar metas=1 tendencias=0 equipes=0 semAtividade=0 -> 1 alerta(s)
+✔ POST /avaliar devolve os alertas calculados (13.297689ms)
+[alert-service] POST /avaliar metas=0 tendencias=0 equipes=0 semAtividade=0 -> 0 alerta(s)
+✔ listas ausentes são tratadas como vazias (8.175402ms)
+✔ entrada sem dataReferencia é rejeitada com 400 (8.795368ms)
+✔ meta sem campo obrigatório é rejeitada com 400 e aponta o campo (9.913081ms)
+✔ JSON inválido é rejeitado com 400 (5.115958ms)
+✔ rota inexistente devolve 404 e GET em /avaliar devolve 405 (5.548605ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 517.607783
