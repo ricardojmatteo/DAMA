@@ -6,7 +6,7 @@ import { h, fmt, painel, tabela, badge, botao, formulario, opcoes, toast, stat }
 
 export default async function (el, _params, recarregar) {
     const e = sessao.empresaId;
-    const escreve = sessao.pode('GAMIFICACAO_ESCREVER');
+    const escreve = sessao.pode('PONTOS_LANCAR');   // só o Administrador lança pontos e mantém regras
     const [ranking, minhaPontuacao, regras, n] = await Promise.all([
         api.get(`/empresas/${e}/analytics/ranking-colaboradores`),
         sessao.pode('GAMIFICACAO_LER') ? api.get(`/colaboradores/${sessao.id}/pontuacao`) : Promise.resolve(null),

@@ -47,7 +47,7 @@ Em telas de toque os botões têm altura mínima de 40 px e os campos usam fonte
 | Meu painel | todos | Pontos, AI Credits, nível, conquistas, metas e evolução dos indicadores |
 | Evolução e conquistas | todos | Níveis, progresso e conquistas; gestores criam e concedem conquistas |
 | AI Credits | todos | Saldo, nível de autonomia, histórico; gestores registram atividades e lançam créditos |
-| Ranking e pontuação | todos | Ranking da empresa; gestores lançam pontos e mantêm regras |
+| Ranking e pontuação | todos | Ranking da empresa; só o administrador lança pontos e mantém regras |
 | Metas | todos | Metas com progresso; gestores criam metas e registram progresso |
 | Indicadores | todos | Evolução por pessoa ou equipe com filtro de período |
 | Equipes | todos | Dashboard da equipe; gestores comparam equipes |

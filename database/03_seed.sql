@@ -11,7 +11,8 @@ INSERT INTO permissao (codigo, descricao) VALUES
     ('DESEMPENHO_LER',       'Consultar indicadores, metas e dashboard'),
     ('DESEMPENHO_ESCREVER',  'Registrar indicadores e metas'),
     ('GAMIFICACAO_LER',      'Consultar pontuação, ranking, desafios e reconhecimentos'),
-    ('GAMIFICACAO_ESCREVER', 'Lançar pontos, desafios e reconhecimentos'),
+    ('GAMIFICACAO_ESCREVER', 'Gerenciar desafios, reconhecimentos e conquistas'),
+    ('PONTOS_LANCAR',        'Lançar pontos e manter as regras de pontuação (exclusiva do Administrador)'),
     ('AI_CREDITS_LER',       'Consultar saldo e histórico de AI Credits'),
     ('AI_CREDITS_GERENCIAR', 'Conceder/debitar AI Credits e gerenciar regras'),
     ('ANALYTICS_LER',        'Consultar analytics consolidado e comparação entre equipes');
@@ -25,10 +26,10 @@ INSERT INTO perfil (nome, descricao) VALUES
 INSERT INTO perfil_permissao (perfil_id, permissao_id)
 SELECT (SELECT perfil_id FROM perfil WHERE nome = 'Administrador'), permissao_id FROM permissao;
 
--- Gestor: tudo, exceto gerenciar perfis/permissões de acesso
+-- Gestor: tudo, exceto gerenciar perfis/permissões de acesso e lançar pontos (só o Administrador lança pontos)
 INSERT INTO perfil_permissao (perfil_id, permissao_id)
 SELECT (SELECT perfil_id FROM perfil WHERE nome = 'Gestor'), permissao_id
-FROM permissao WHERE codigo <> 'PERFIL_GERENCIAR';
+FROM permissao WHERE codigo NOT IN ('PERFIL_GERENCIAR', 'PONTOS_LANCAR');
 
 -- Colaborador: apenas leitura do próprio desempenho/gamificação/créditos
 INSERT INTO perfil_permissao (perfil_id, permissao_id)

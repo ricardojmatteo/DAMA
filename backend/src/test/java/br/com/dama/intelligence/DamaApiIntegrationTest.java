@@ -184,6 +184,28 @@ class DamaApiIntegrationTest {
     }
 
     @Test
+    void soAdministradorLancaPontosGestorRecebe403() {
+        Empresa e = novaEmpresa();
+        long perfilGestor = 0;
+        for (JsonNode perfil : get(ADMIN, "/api/perfis")) {
+            if (perfil.get("nome").asText().equals("Gestor")) {
+                perfilGestor = perfil.get("perfilId").asLong();
+            }
+        }
+        call(HttpMethod.POST, ADMIN, "/api/colaboradores/" + e.colaboradorA + "/perfis", Map.of("perfilId", perfilGestor));
+        assertThat(get(e.colaboradorA, "/api/me").get("permissoes").toString())
+                .contains("GAMIFICACAO_ESCREVER").doesNotContain("PONTOS_LANCAR");
+
+        long regra = post(ADMIN, "/api/empresas/" + e.id + "/regras-pontuacao", Map.of("nome", "Entrega", "pontos", 10)).get("regraId").asLong();
+        assertThat(call(HttpMethod.POST, e.colaboradorA, "/api/colaboradores/" + e.colaboradorB + "/pontuacao", Map.of("regraId", regra))
+                .getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(call(HttpMethod.POST, e.colaboradorA, "/api/empresas/" + e.id + "/regras-pontuacao", Map.of("nome", "Outra", "pontos", 5))
+                .getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(call(HttpMethod.POST, ADMIN, "/api/colaboradores/" + e.colaboradorB + "/pontuacao", Map.of("regraId", regra))
+                .getStatusCode()).isEqualTo(HttpStatus.CREATED);
+    }
+
+    @Test
     void requisicaoSemCabecalhoNaoEhAutenticada() {
         assertThat(call(HttpMethod.GET, null, "/api/me", null).getStatusCode().value()).isIn(401, 403);
     }

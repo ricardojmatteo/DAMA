@@ -24,22 +24,23 @@ public class PontuacaoController {
         return facade.listarRegras(empresaId);
     }
 
+    // Lançar pontos e mexer nas regras é exclusivo do Administrador (permissão PONTOS_LANCAR).
     @PostMapping("/empresas/{empresaId}/regras-pontuacao")
-    @PreAuthorize("hasAuthority('GAMIFICACAO_ESCREVER')")
+    @PreAuthorize("hasAuthority('PONTOS_LANCAR')")
     public ResponseEntity<RegraPontuacaoView> criarRegra(@PathVariable Long empresaId,
                                                            @Valid @RequestBody CreateRegraPontuacaoCommand comando) {
         return ResponseEntity.status(HttpStatus.CREATED).body(facade.criarRegra(empresaId, comando));
     }
 
     @PatchMapping("/regras-pontuacao/{regraId}/ativa")
-    @PreAuthorize("hasAuthority('GAMIFICACAO_ESCREVER')")
+    @PreAuthorize("hasAuthority('PONTOS_LANCAR')")
     public RegraPontuacaoView alterarRegraAtiva(@PathVariable Long regraId,
                                                   @Valid @RequestBody AlterarRegraAtivaCommand comando) {
         return facade.alterarRegraAtiva(regraId, comando.ativa());
     }
 
     @PostMapping("/colaboradores/{colaboradorId}/pontuacao")
-    @PreAuthorize("hasAuthority('GAMIFICACAO_ESCREVER')")
+    @PreAuthorize("hasAuthority('PONTOS_LANCAR')")
     public ResponseEntity<PontuacaoView> lancar(@PathVariable Long colaboradorId,
                                                   @Valid @RequestBody LancarPontosCommand comando) {
         return ResponseEntity.status(HttpStatus.CREATED).body(facade.lancar(colaboradorId, comando));

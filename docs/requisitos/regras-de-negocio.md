@@ -42,5 +42,5 @@ As regras acima são aplicadas pelo `alert-service` (Node.js) a pedido do backen
 
 ## Permissões
 
-15. O perfil Colaborador só lê desempenho, gamificação e AI Credits (inclui o ranking). Quem lança pontos, créditos, metas e reconhecimentos é Gestor ou Administrador.
+15. O perfil Colaborador só lê desempenho, gamificação e AI Credits (inclui o ranking). Créditos, metas e reconhecimentos são lançados por Gestor ou Administrador; pontos, só pelo Administrador (permissão `PONTOS_LANCAR`).
 16. Auditoria, perfis, empresas e equipes são exclusivos do Administrador.

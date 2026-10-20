@@ -14,6 +14,7 @@ Erros de negócio voltam como `400` (regra violada), `404` (não encontrado), `4
 | `DESEMPENHO_ESCREVER` | ✓ | ✓ | |
 | `GAMIFICACAO_LER` | ✓ | ✓ | ✓ |
 | `GAMIFICACAO_ESCREVER` | ✓ | ✓ | |
+| `PONTOS_LANCAR` | ✓ | | |
 | `AI_CREDITS_LER` | ✓ | ✓ | ✓ |
 | `AI_CREDITS_GERENCIAR` | ✓ | ✓ | |
 | `ANALYTICS_LER` | ✓ | ✓ | |
@@ -62,9 +63,9 @@ Erros de negócio voltam como `400` (regra violada), `404` (não encontrado), `4
 
 | Método | Caminho | Permissão | O que faz |
 |---|---|---|---|
-| GET / POST | `/empresas/{empresaId}/regras-pontuacao` | LER / ESCREVER | Regras de pontuação |
-| PATCH | `/regras-pontuacao/{id}/ativa` | GAMIFICACAO_ESCREVER | Ativa ou desativa regra |
-| POST | `/colaboradores/{id}/pontuacao` | GAMIFICACAO_ESCREVER | Lança pontos a partir de uma regra ativa |
+| GET / POST | `/empresas/{empresaId}/regras-pontuacao` | GAMIFICACAO_LER / PONTOS_LANCAR | Regras de pontuação (criar só o Administrador) |
+| PATCH | `/regras-pontuacao/{id}/ativa` | PONTOS_LANCAR | Ativa ou desativa regra |
+| POST | `/colaboradores/{id}/pontuacao` | PONTOS_LANCAR | Lança pontos a partir de uma regra ativa |
 | GET | `/colaboradores/{id}/pontuacao` | GAMIFICACAO_LER | Total e histórico de pontos |
 | GET / POST | `/empresas/{empresaId}/desafios` | LER / ESCREVER | Desafios |
 | GET | `/desafios/{id}` | GAMIFICACAO_LER | Consulta desafio |
@@ -116,8 +117,8 @@ Saúde da aplicação (sem autenticação): `GET /actuator/health`.
 # quem sou eu (Lucas, perfil Colaborador, nos dados de demonstração)
 curl -H "X-Colaborador-Id: 4" http://localhost:8080/api/me
 
-# lançar pontos como gestora
-curl -X POST -H "X-Colaborador-Id: 2" -H "Content-Type: application/json" \
+# lançar pontos (só o Administrador; um Gestor recebe 403)
+curl -X POST -H "X-Colaborador-Id: 1" -H "Content-Type: application/json" \
      -d '{"regraId": 1}' http://localhost:8080/api/colaboradores/4/pontuacao
 
 # análises de gestão

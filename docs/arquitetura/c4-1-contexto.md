@@ -3,7 +3,7 @@
 ```mermaid
 flowchart TB
     colaborador["Colaborador<br/><small>[Pessoa]</small><br/>Acompanha desempenho, metas,<br/>conquistas e AI Credits"]
-    gestor["Gestor<br/><small>[Pessoa]</small><br/>Define metas, lança pontos,<br/>acompanha equipes e alertas"]
+    gestor["Gestor<br/><small>[Pessoa]</small><br/>Define metas, acompanha<br/>equipes e alertas"]
     diretor["Diretor / Administrador<br/><small>[Pessoa]</small><br/>Visão consolidada, perfis<br/>e auditoria"]
 
     dama["DAMA Intelligence<br/><small>[Sistema]</small><br/>Desempenho, gamificação e<br/>autonomia de IA por AI Credits"]
