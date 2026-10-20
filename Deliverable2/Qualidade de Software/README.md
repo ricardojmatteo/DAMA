@@ -16,7 +16,7 @@ Cada documento indica a origem dos dados na coluna "Fonte" ou "Evidência". A pa
 
 ## Resultado em uma linha
 
-Nível de maturidade CMMI estimado em 1 (Inicial). As áreas técnicas já chegam a 2 e 3; planejamento, monitoramento, garantia da qualidade e medição ficam em 1. Das 14 ações de melhoria, 2 foram concluídas até 20/10.
+Nível de maturidade CMMI estimado em 1 (Inicial). As áreas técnicas já chegam a 2 e 3; planejamento, monitoramento, garantia da qualidade e medição ficam em 1. Em relação ao D1, planejamento, monitoramento e análise causal saíram do nível 0: o trabalho deixou de ser feito na véspera e o feedback dos professores virou backlog ([cmmi.md](cmmi.md), seção 4). Das 14 ações de melhoria, 2 foram concluídas até 20/10.
 
 ## Apoio
 

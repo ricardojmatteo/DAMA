@@ -5,7 +5,7 @@ Entregas do Deliverable 2 por disciplina. As que são código ou documentação 
 | # | Disciplina | Onde está | Situação | Jira |
 |---|---|---|---|---|
 | 01 | Marketing Estratégico | — | A fazer. A base é a análise de negócio e marketing de `docs/produto/DAMA-Intelligence-Documento-Completo.docx` | SMAN-194 |
-| 02 | Estatística Multivariada | — | A fazer. A base é `Deliverable1/EstatisticaMulti` | SMAN-195 |
+| 02 | Estatística Multivariada | [Estatistica Multivariada/](Estatistica%20Multivariada/) | Pronto | SMAN-195 |
 | 03 | Modelagem e Construção de Software | `backend/`, `alert-service/`, `frontend/`, [`docs/arquitetura`](../docs/arquitetura/), [`docs/adr`](../docs/adr/), `backend/Jenkinsfile` | Parcial. Faltam evidências de TDD, CI dos três serviços e o plano de inovação por sprint | SMAN-196 |
 | 04 | Qualidade de Software | [Qualidade de Software/](Qualidade%20de%20Software/) | Pronto. Faltam a execução completa da suíte do backend com cobertura e os casos manuais | SMAN-197, 204 a 207 |
 | 05 | Machine Learning | — | A fazer. A base é `Deliverable1/machine-learning-ia` | SMAN-201 |

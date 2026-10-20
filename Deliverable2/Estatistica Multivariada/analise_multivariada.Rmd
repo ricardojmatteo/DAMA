@@ -1,0 +1,568 @@
+---
+title: "Deliverable 2 — Estatística Multivariada"
+subtitle: "Indicadores organizacionais de maturidade no uso de IA"
+author: "DAMA Intelligence — Ana Luiza Proença, Gustavo Gomes, Kaique Lira e Ricardo Matteo"
+date: "`r format(Sys.Date(), '%d/%m/%Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: kable
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.width = 8, fig.height = 4.6, dpi = 110)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(ggrepel)
+library(knitr)
+library(psych)      # KMO, Bartlett, análise fatorial, alfa de Cronbach, análise paralela
+library(cluster)    # silhueta
+library(MASS)       # análise discriminante linear
+select <- dplyr::select   # MASS também tem um select()
+options(scipen = 99, digits = 4, OutDec = ",")
+spf <- function(...) gsub("(\\d)\\.(\\d)", "\\1,\\2", sprintf(...))   # sprintf com vírgula decimal
+
+DADOS <- "../../Deliverable1/machine-learning-ia/Data/csv"   # base completa do projeto
+dir.create("resultados", showWarnings = FALSE)
+dir.create("figuras", showWarnings = FALSE)
+MESES  <- sprintf("2026-%02d", 1:7)   # jan a jul/2026, os 7 meses mais recentes da base
+CAMBIO <- 5.50                        # premissa: R$ por US$ (consumo pago em dólar)
+N_MIN  <- 5                           # tamanho mínimo do departamento (colaboradores ativos)
+
+# paleta: cores só nas marcas, texto em tinta neutra
+AZUL <- "#2a78d6"; LARANJA <- "#eb6834"; VERDE <- "#1baf7a"; AMARELO <- "#eda100"
+VERMELHO <- "#e34948"; NEUTRO <- "#f0efec"; TINTA <- "#0b0b0b"; TINTA2 <- "#52514e"; GRADE <- "#e4e3df"
+CORES_CLUSTER <- c(AZUL, LARANJA, VERDE, AMARELO)
+tema <- theme_minimal(base_size = 11) +
+  theme(plot.title = element_text(face = "bold", color = TINTA), plot.title.position = "plot",
+        axis.text = element_text(color = TINTA2), axis.title = element_text(color = TINTA2),
+        panel.grid.minor = element_blank(), panel.grid.major = element_line(color = GRADE),
+        legend.position = "top", legend.title = element_blank(),
+        plot.background = element_rect(fill = "#fcfcfb", color = NA))
+theme_set(tema)
+salvar <- function(nome, g, w = 8, h = 4.6) ggsave(file.path("figuras", nome), g, width = w, height = h, dpi = 150, bg = "#fcfcfb")
+ler <- function(nome, ...) read.csv(file.path(DADOS, paste0(nome, ".csv")), stringsAsFactors = FALSE, ...)
+```
+
+# Objetivo e ponto de partida
+
+O Deliverable 1 montou uma tabela analítica por colaborador e testou duas hipóteses com correlações e boxplots:
+
+- **H1, treinamento aumenta o uso de IA:** confirmada, com efeito fraco (r = 0,11).
+- **H2, treinamento reduz incidentes de segurança:** não confirmada (r = −0,02).
+
+A própria conclusão do D1 pedia "uma análise multivariada mais robusta, controlando por área, cargo e exposição às ferramentas de IA". Este relatório faz essa análise em quatro etapas:
+
+1. constrói **indicadores organizacionais** por departamento, a partir de sete bases do projeto;
+2. aplica **técnicas multivariadas** para reduzir esses indicadores a poucas dimensões interpretáveis: adequação (KMO e Bartlett), análise de componentes principais, análise fatorial com rotação varimax e confiabilidade;
+3. constrói um **índice de maturidade em IA** e agrupa os departamentos por perfil, com clusters hierárquicos e k-means validados por MANOVA e análise discriminante;
+4. **revisita H1 e H2** com regressão múltipla e regressão logística, agora com variáveis de controle.
+
+# Dados e unidade de análise
+
+A unidade de análise é o **departamento**, porque é nele que a empresa decide licenças, treinamentos e orçamento. Por isso os indicadores do relatório são "organizacionais". Os critérios de inclusão são:
+
+- **Período:** janeiro a julho de 2026.
+- **Colaboradores:** só os ativos.
+- **Departamentos:** só os com pelo menos `r N_MIN` colaboradores ativos, para que as proporções não oscilem por causa de uma ou duas pessoas.
+
+```{r carga}
+emp  <- ler("employees");  dep <- ler("departments"); comp <- ler("companies")
+tr   <- ler("training_records"); lic <- ler("ai_licenses"); sec <- ler("security_events")
+bil  <- ler("ai_billing");  bud <- ler("ai_budgets")
+uso  <- ler("ai_usage_logs")[, c("timestamp", "employee_id", "ai_tool_id", "request_count",
+                                 "input_tokens", "output_tokens", "request_status")]
+uso$mes <- substr(uso$timestamp, 1, 7)
+uso <- uso[uso$mes %in% MESES, ]
+ok  <- uso[uso$request_status == "success", ]
+ativos <- emp[emp$active %in% c("True", TRUE), ]
+data.frame(base = c("employees (ativos)", "ai_usage_logs (jan–jul/2026)", "training_records", "ai_licenses",
+                    "security_events", "ai_billing", "ai_budgets"),
+           linhas = c(nrow(ativos), nrow(uso), nrow(tr), nrow(lic), nrow(sec), nrow(bil), nrow(bud)))
+```
+
+## Dicionário dos indicadores
+
+| Indicador | Definição | Fonte | Dimensão esperada |
+|---|---|---|---|
+| `adocao` | % dos colaboradores ativos com ao menos uma requisição bem-sucedida | `ai_usage_logs` | Uso |
+| `intensidade` | log(1 + requisições bem-sucedidas por colaborador por mês) | `ai_usage_logs` | Uso |
+| `regularidade` | fração média dos 7 meses em que cada usuário usou IA | `ai_usage_logs` | Uso |
+| `amplitude` | número médio de ferramentas diferentes por usuário | `ai_usage_logs` | Uso |
+| `sucesso` | % das requisições concluídas com sucesso | `ai_usage_logs` | Qualidade técnica |
+| `tokens_req` | log(tokens por requisição): quanto menor, mais enxuta a interação | `ai_usage_logs` | Eficiência |
+| `capacitacao` | % dos colaboradores com ao menos um curso de IA concluído | `training_records` | Capacitação |
+| `horas` | horas de curso concluídas por colaborador | `training_records` | Capacitação |
+| `nota` | nota média nos cursos concluídos | `training_records` | Capacitação |
+| `licencas` | licenças ativas por colaborador | `ai_licenses` | Investimento |
+| `ociosas` | % das licenças ativas sem nenhum uso no período | `ai_licenses` × `ai_usage_logs` | Uso (sentido inverso) |
+| `custo_colab` | log(gasto mensal com IA por colaborador, em R$) | `ai_billing` | Investimento |
+| `execucao` | gasto mensal ÷ orçamento mensal do centro de custo | `ai_billing`, `ai_budgets` | Investimento |
+| `incidentes` | eventos de segurança por 100 colaboradores | `security_events` | Risco |
+
+# Construção dos indicadores organizacionais
+
+```{r indicadores}
+por_colab <- ok %>% group_by(employee_id) %>%
+  summarise(req = sum(request_count), tok = sum(input_tokens + output_tokens),
+            meses = n_distinct(mes), ferr = n_distinct(ai_tool_id), .groups = "drop")
+todas <- uso %>% group_by(employee_id) %>% summarise(req_total = sum(request_count), .groups = "drop")
+cursos <- tr %>% filter(completion_status == "Concluido") %>% group_by(employee_id) %>%
+  summarise(cursos = n(), nota = mean(score), horas = sum(duration_hours), .groups = "drop")
+incid  <- sec %>% count(employee_id, name = "inc")
+lic_at <- lic %>% filter(license_status == "Ativa") %>% count(employee_id, name = "lic")
+
+colab <- ativos %>% left_join(por_colab, by = "employee_id") %>% left_join(todas, by = "employee_id") %>%
+  left_join(cursos, by = "employee_id") %>% left_join(incid, by = "employee_id") %>%
+  left_join(lic_at, by = "employee_id") %>%
+  mutate(across(c(req, tok, meses, ferr, req_total, cursos, horas, inc, lic), ~ replace_na(.x, 0)))
+
+usadas <- unique(paste(ok$employee_id, ok$ai_tool_id))
+ociosidade <- lic %>% filter(license_status == "Ativa") %>%
+  mutate(usada = paste(employee_id, ai_tool_id) %in% usadas) %>%
+  inner_join(emp[, c("employee_id", "department_id")], by = "employee_id") %>%
+  group_by(department_id) %>% summarise(ociosas = 1 - mean(usada), .groups = "drop")
+
+bil$custo_brl <- ifelse(bil$currency == "USD", bil$total_cost * CAMBIO, bil$total_cost)
+gasto <- bil %>% filter(billing_month %in% MESES) %>% group_by(cost_center) %>%
+  summarise(gasto = sum(custo_brl) / length(MESES), .groups = "drop")
+orcado <- bud %>% filter(year == 2026, month <= 7) %>% group_by(cost_center) %>%
+  summarise(orcado = mean(budget_amount), .groups = "drop")
+
+ind_todos <- colab %>% group_by(department_id) %>% summarise(
+    n            = n(),
+    adocao       = mean(req > 0),
+    intensidade  = log1p(sum(req) / n() / length(MESES)),
+    regularidade = ifelse(any(req > 0), mean(meses[req > 0]) / length(MESES), 0),
+    amplitude    = ifelse(any(req > 0), mean(ferr[req > 0]), 0),
+    sucesso      = ifelse(sum(req_total) > 0, sum(req) / sum(req_total), NA),
+    tokens_req   = ifelse(sum(req) > 0, log(sum(tok) / sum(req)), NA),
+    capacitacao  = mean(cursos > 0),
+    horas        = mean(horas),
+    nota         = mean(nota, na.rm = TRUE),
+    licencas     = mean(lic),
+    incidentes   = 100 * sum(inc) / n(), .groups = "drop") %>%
+  mutate(cost_center = paste0("CC-", department_id)) %>%
+  left_join(ociosidade, by = "department_id") %>% left_join(gasto, by = "cost_center") %>%
+  left_join(orcado, by = "cost_center") %>%
+  mutate(ociosas = replace_na(ociosas, 0), custo_colab = log(gasto / n), execucao = gasto / orcado) %>%
+  left_join(dep, by = "department_id") %>%
+  left_join(comp[, c("company_id", "company_name", "industry")], by = "company_id") %>%
+  mutate(nan = is.nan(nota), nota = ifelse(nan, NA, nota)) %>% select(-nan)
+
+VARS <- c("adocao", "intensidade", "regularidade", "amplitude", "sucesso", "tokens_req", "capacitacao",
+          "horas", "nota", "licencas", "ociosas", "custo_colab", "execucao", "incidentes")
+ind <- ind_todos %>% filter(n >= N_MIN)
+sem_uso <- ind %>% filter(adocao == 0)
+base <- ind %>% filter(adocao > 0) %>% as.data.frame()
+write.csv(ind_todos, "resultados/indicadores_departamentos.csv", row.names = FALSE)
+cat(nrow(ind_todos), "departamentos com colaboradores ativos;", nrow(ind), "com pelo menos", N_MIN,
+    "colaboradores;", nrow(sem_uso), "sem nenhum uso de IA no período (tratados à parte);", nrow(base), "na análise.\n")
+```
+
+Quatro departamentos não tiveram nenhum uso de IA no período. Para eles, intensidade, amplitude e tokens por requisição não fazem sentido. Ficam fora da análise fatorial e entram no ranking final na faixa mais baixa.
+
+## Estatística descritiva
+
+```{r descritivas}
+desc <- describe(base[, VARS])[, c("n", "mean", "sd", "min", "median", "max", "skew")]
+kable(round(desc, 3), caption = "Indicadores organizacionais — departamentos na análise")
+```
+
+```{r distribuicoes, fig.height=5.5}
+longo <- base %>% select(all_of(VARS)) %>% pivot_longer(everything(), names_to = "indicador", values_to = "valor")
+g <- ggplot(longo, aes(valor)) + geom_histogram(bins = 18, fill = AZUL, color = "#fcfcfb") +
+  facet_wrap(~ indicador, scales = "free", ncol = 5) + labs(title = "Distribuição dos 14 indicadores", x = NULL, y = "departamentos")
+salvar("fig01_distribuicoes.png", g, h = 5.5); g
+```
+
+# Adequação dos dados à análise multivariada
+
+## Correlações
+
+```{r correlacao, fig.height=6}
+R <- cor(base[, VARS], use = "pairwise.complete.obs")
+cl <- as.data.frame(R) %>% mutate(v1 = rownames(R)) %>% pivot_longer(-v1, names_to = "v2", values_to = "r") %>%
+  mutate(v1 = factor(v1, levels = VARS), v2 = factor(v2, levels = rev(VARS)))
+g <- ggplot(cl, aes(v1, v2, fill = r)) + geom_tile(color = "#fcfcfb", linewidth = 0.6) +
+  geom_text(aes(label = sub(".", ",", sprintf("%.2f", r), fixed = TRUE)), size = 2.8, color = TINTA) +
+  scale_fill_gradient2(low = VERMELHO, mid = NEUTRO, high = AZUL, midpoint = 0, limits = c(-1, 1), name = "r") +
+  labs(title = "Matriz de correlação dos indicadores", x = NULL, y = NULL) +
+  theme(axis.text.x = element_text(angle = 40, hjust = 1), panel.grid = element_blank(), legend.position = "right") + coord_fixed()
+salvar("fig02_correlacao.png", g, w = 8, h = 6.5); g
+```
+
+## Observações atípicas multivariadas
+
+A distância de Mahalanobis mede o quanto cada departamento se afasta do centro, considerando todas as variáveis ao mesmo tempo. Valores acima do quantil 0,999 da qui-quadrado são marcados como atípicos.
+
+```{r mahalanobis}
+cand <- setdiff(VARS, "nota")                 # nota tem ausências; entra só se passar na triagem
+Xc <- base[complete.cases(base[, cand]), ]
+Zc <- scale(Xc[, cand])
+d2 <- mahalanobis(Zc, colMeans(Zc), cov(Zc))
+lim <- qchisq(0.999, df = length(cand))
+atip <- Xc[d2 > lim, c("department_id", "department_name", "company_name", "n")]
+atip$D2 <- round(d2[d2 > lim], 1)
+atip
+```
+
+Os departamentos marcados são poucos e são casos reais da base, não erros de cadastro. Por isso permanecem na análise. A extração por máxima verossimilhança, usada adiante, é sensível a eles. Por isso a seção 7 refaz a análise fatorial sem os atípicos e compara as cargas.
+
+## KMO, MSA e teste de Bartlett
+
+O KMO compara correlações simples com correlações parciais. Valores acima de 0,7 indicam que os dados têm estrutura comum suficiente para a análise fatorial. O MSA é o mesmo critério calculado por variável. A triagem remove, uma de cada vez, a variável de menor MSA enquanto ela estiver abaixo de 0,5.
+
+```{r kmo}
+vars <- cand
+removidas <- data.frame()
+repeat {
+  k <- KMO(Xc[, vars])
+  if (min(k$MSAi) >= 0.5) break
+  pior <- names(which.min(k$MSAi))
+  removidas <- rbind(removidas, data.frame(variavel = pior, MSA = round(min(k$MSAi), 3), KMO_antes = round(k$MSA, 3)))
+  vars <- setdiff(vars, pior)
+}
+k <- KMO(Xc[, vars])
+removidas
+data.frame(variavel = names(k$MSAi), MSA = round(k$MSAi, 3), row.names = NULL)
+bart <- cortest.bartlett(cor(Xc[, vars]), n = nrow(Xc))
+cn <- base[complete.cases(base[, c(cand, "nota")]), c(cand, "nota")]
+msa_nota <- KMO(cn)$MSAi["nota"]
+cat(spf("KMO global = %.3f | Bartlett: qui² = %.1f, gl = %d, p = %.2e | n = %d departamentos, %d variáveis\n",
+            k$MSA, bart$chisq, bart$df, bart$p.value, nrow(Xc), length(vars)))
+```
+
+`nota` ficou fora da triagem por dois motivos: tem ausências (departamentos sem nenhum curso concluído) e, calculado nos `r nrow(cn)` departamentos sem ausência, seu MSA é `r round(msa_nota, 2)`, abaixo de 0,5. A triagem removeu ainda `r paste(removidas$variavel, collapse = " e ")`, porque quase não se correlacionam com os demais indicadores. Na base, quase toda requisição tem sucesso e incidentes são raros. Os incidentes voltam na seção 10, como desfecho.
+
+# Análise de componentes principais
+
+```{r pca}
+Z <- scale(Xc[, vars])
+pca <- prcomp(Z)
+autov <- data.frame(componente = paste0("CP", seq_along(pca$sdev)), autovalor = round(pca$sdev^2, 3),
+                    variancia = round(pca$sdev^2 / sum(pca$sdev^2), 3)) %>% mutate(acumulada = cumsum(variancia))
+set.seed(42)
+pa <- fa.parallel(Z, fa = "both", plot = FALSE, n.iter = 50)
+autov$aleatorio_paralela <- round(pa$pc.sim[seq_len(nrow(autov))], 3)
+autov
+cat("Critério de Kaiser (autovalor > 1):", sum(autov$autovalor > 1), "componentes | análise paralela:",
+    pa$ncomp, "componentes e", pa$nfact, "fatores\n")
+```
+
+```{r scree}
+sc_df <- data.frame(k = seq_along(pca$sdev), observado = pca$sdev^2, aleatorio = pa$pc.sim[seq_along(pca$sdev)]) %>%
+  pivot_longer(-k, names_to = "serie", values_to = "autovalor")
+g <- ggplot(sc_df, aes(k, autovalor, color = serie)) + geom_hline(yintercept = 1, color = GRADE, linewidth = 1) +
+  geom_line(linewidth = 1) + geom_point(size = 2.6) +
+  scale_color_manual(values = c(observado = AZUL, aleatorio = LARANJA),
+                     labels = c(observado = "Autovalores observados", aleatorio = "Autovalores de dados aleatórios (análise paralela)")) +
+  scale_x_continuous(breaks = seq_along(pca$sdev)) + labs(title = "Scree plot e análise paralela", x = "Componente", y = "Autovalor")
+salvar("fig03_scree.png", g); g
+```
+
+```{r cargas_pca}
+kable(round(pca$rotation[, 1:3], 3), caption = "Cargas dos três primeiros componentes (autovetores)")
+```
+
+Os três critérios indicam três dimensões: Kaiser, scree e análise paralela. Juntas, elas explicam `r round(100 * autov$acumulada[3], 1)`% da variância total. A PCA resume a informação, mas não separa bem os construtos: o primeiro componente carrega quase todos os indicadores. Para interpretar as dimensões, a seção seguinte usa a análise fatorial com rotação.
+
+# Análise fatorial exploratória
+
+Extração por **máxima verossimilhança**, com **3 fatores** (pela análise paralela) e rotação **varimax**. A rotação ortogonal foi escolhida porque os escores entram somados no índice, e fatores não correlacionados evitam contar a mesma informação duas vezes.
+
+```{r fa}
+af <- fa(Z, nfactors = 3, rotate = "varimax", fm = "ml", scores = "regression")
+ordem <- order(colSums(af$loadings^2), decreasing = TRUE)
+L <- unclass(af$loadings)[, ordem]
+NOMES <- c("F1_uso", "F2_capacitacao", "F3_investimento")
+colnames(L) <- NOMES
+cargas <- data.frame(variavel = rownames(L), round(L, 3), comunalidade = round(af$communality, 3), row.names = NULL)
+write.csv(cargas, "resultados/cargas_fatoriais.csv", row.names = FALSE)
+kable(cargas, caption = "Cargas fatoriais (varimax) e comunalidades")
+var_exp <- colSums(L^2) / length(vars)
+cat(spf("Variância explicada: F1 %.1f%%, F2 %.1f%%, F3 %.1f%% (total %.1f%%)\n", 100 * var_exp[1], 100 * var_exp[2], 100 * var_exp[3], 100 * sum(var_exp)))
+cat(spf("Ajuste: TLI = %.3f | RMSEA = %.3f | qui² = %.1f (gl = %d)\n", af$TLI, af$RMSEA[1], af$STATISTIC, af$dof))
+```
+
+```{r fig_cargas, fig.height=4.2}
+cl2 <- as.data.frame(L) %>% mutate(variavel = factor(rownames(L), levels = rev(rownames(L)))) %>%
+  pivot_longer(-variavel, names_to = "fator", values_to = "carga")
+g <- ggplot(cl2, aes(fator, variavel, fill = carga)) + geom_tile(color = "#fcfcfb", linewidth = 0.6) +
+  geom_text(aes(label = ifelse(abs(carga) >= 0.3, sub(".", ",", sprintf("%.2f", carga), fixed = TRUE), "")), size = 3.3, color = TINTA) +
+  scale_fill_gradient2(low = VERMELHO, mid = NEUTRO, high = AZUL, midpoint = 0, limits = c(-1, 1), name = "carga") +
+  labs(title = "Cargas fatoriais (mostradas quando |carga| ≥ 0,30)", x = NULL, y = NULL) +
+  theme(panel.grid = element_blank(), legend.position = "right")
+salvar("fig04_cargas.png", g, h = 4.2); g
+```
+
+## Interpretação dos fatores
+
+- **F1 — Uso efetivo de IA.** Cargas altas em adoção, intensidade, amplitude e regularidade, e cargas negativas em licenças ociosas e tokens por requisição. Departamentos com F1 alto usam IA de forma ampla e frequente e não deixam licenças paradas.
+- **F2 — Capacitação.** Proporção de colaboradores com curso concluído e horas de curso por pessoa.
+- **F3 — Investimento.** Gasto por colaborador, licenças por colaborador e execução do orçamento.
+
+## Confiabilidade (alfa de Cronbach)
+
+```{r alfa}
+# itens em escalas diferentes (proporções, horas, reais): alfa padronizado, com os itens de sentido inverso invertidos
+alfa <- function(cols, inverter = character()) {
+  Zi <- scale(Xc[, cols]); Zi[, inverter] <- -Zi[, inverter]
+  psych::alpha(as.data.frame(Zi), check.keys = FALSE, warnings = FALSE)$total$raw_alpha
+}
+conf <- data.frame(
+  fator = NOMES,
+  itens = c("adocao, intensidade, amplitude, regularidade, ociosas (−), tokens_req (−)", "capacitacao, horas", "custo_colab, licencas, execucao"),
+  alfa_padronizado = round(c(alfa(c("adocao", "intensidade", "amplitude", "regularidade", "ociosas", "tokens_req"), c("ociosas", "tokens_req")),
+                             alfa(c("capacitacao", "horas")), alfa(c("custo_colab", "licencas", "execucao"))), 3))
+conf
+```
+
+Como os itens estão em escalas diferentes (proporções, horas, reais), o alfa é calculado sobre os itens padronizados, com os de sentido inverso (ociosas e tokens por requisição) invertidos. Uso (α = `r conf$alfa_padronizado[1]`) e capacitação (α = `r conf$alfa_padronizado[2]`) têm consistência interna alta, acima de 0,7. O de investimento (α = `r conf$alfa_padronizado[3]`) fica abaixo de 0,6 e serve apenas para análise exploratória. Seus três itens medem facetas diferentes do gasto: quanto, quantas licenças e quanto do orçamento. Por isso ele é tratado como um índice à parte, e não como parte da maturidade.
+
+## Robustez: rotação oblíqua
+
+```{r oblimin}
+afo <- fa(Z, nfactors = 3, rotate = "oblimin", fm = "ml", scores = "regression")
+kable(round(afo$Phi, 3), caption = "Correlação entre fatores com rotação oblimin")
+```
+
+Com rotação oblíqua, os fatores se correlacionam de forma moderada. Isso é esperado: quem usa mais também tende a capacitar e a investir mais. A seção 7 compara o índice calculado com as duas rotações.
+
+# Índices organizacionais
+
+**Índice de Maturidade em IA (IMIA).** Combina uso efetivo (F1) e capacitação (F2), cada um com peso igual à sua parcela da variância explicada. O resultado é reescalado de 0 a 100. **Índice de Investimento (IINV).** É o escore de F3, também reescalado de 0 a 100. Os dois ficam separados porque maturidade é o que o departamento faz com a IA e investimento é quanto ele gasta para isso. A relação entre os dois mostra a eficiência.
+
+```{r indices}
+esc <- as.data.frame(af$scores[, ordem]); names(esc) <- NOMES
+w <- var_exp[1:2] / sum(var_exp[1:2])
+r01 <- function(x) 100 * (x - min(x)) / (max(x) - min(x))
+dep_idx <- cbind(Xc[, c("department_id", "department_name", "company_id", "company_name", "industry", "n")], esc) %>%
+  mutate(imia_bruto = w[1] * F1_uso + w[2] * F2_capacitacao, IMIA = r01(imia_bruto), IINV = r01(F3_investimento))
+cat(spf("Pesos do IMIA: uso %.3f, capacitação %.3f\n", w[1], w[2]))
+
+# robustez: o mesmo índice com escores oblimin
+esc_o <- as.data.frame(afo$scores)
+lo <- unclass(afo$loadings)
+id_uso <- which.max(abs(lo["adocao", ])); id_cap <- which.max(abs(lo["capacitacao", ]))
+imia_o <- w[1] * esc_o[, id_uso] * sign(lo["adocao", id_uso]) + w[2] * esc_o[, id_cap] * sign(lo["capacitacao", id_cap])
+cat(spf("Correlação (Spearman) entre o IMIA com varimax e com oblimin: %.3f\n", cor(dep_idx$imia_bruto, imia_o, method = "spearman")))
+sem_md <- dep_idx$department_id %in% atip$department_id
+af_sem <- fa(scale(Xc[!sem_md, vars]), nfactors = 3, rotate = "varimax", fm = "ml", scores = "regression")
+cg <- factor.congruence(af$loadings[, ordem], af_sem$loadings)
+cat(spf("Congruência de Tucker entre as cargas com e sem os %d atípicos: %s\n", sum(sem_md),
+            paste(round(apply(abs(cg), 1, max), 3), collapse = ", ")))
+
+# departamentos sem uso entram no fim do ranking
+dep_final <- bind_rows(dep_idx, sem_uso %>% transmute(department_id, department_name, company_id, company_name, industry, n, IMIA = 0)) %>%
+  arrange(desc(IMIA))
+write.csv(dep_final, "resultados/indices_departamentos.csv", row.names = FALSE)
+```
+
+```{r ranking}
+top <- dep_final %>% slice_head(n = 8) %>% transmute(departamento = department_name, empresa = company_name, setor = industry, n, IMIA = round(IMIA, 1), IINV = round(IINV, 1))
+fim <- dep_final %>% slice_tail(n = 8) %>% transmute(departamento = department_name, empresa = company_name, setor = industry, n, IMIA = round(IMIA, 1), IINV = round(IINV, 1))
+kable(top, caption = "Os 8 departamentos com maior maturidade")
+kable(fim, caption = "Os 8 departamentos com menor maturidade (inclui os sem uso de IA, IMIA = 0)")
+```
+
+```{r empresas}
+emp_idx <- dep_final %>% group_by(company_id, company_name, industry) %>%
+  summarise(departamentos = n(), colaboradores = sum(n), IMIA = weighted.mean(IMIA, n),
+            IINV = weighted.mean(IINV, n, na.rm = TRUE), .groups = "drop") %>% arrange(desc(IMIA))
+write.csv(emp_idx, "resultados/indices_empresas.csv", row.names = FALSE)
+kable(emp_idx %>% mutate(across(c(IMIA, IINV), ~ round(.x, 1))), caption = "Índices por empresa (média ponderada pelo número de colaboradores)")
+setor <- dep_final %>% group_by(industry) %>% summarise(departamentos = n(), IMIA = round(weighted.mean(IMIA, n), 1),
+                                                        IINV = round(weighted.mean(IINV, n, na.rm = TRUE), 1), .groups = "drop") %>% arrange(desc(IMIA))
+setor
+```
+
+```{r quadrantes, fig.height=5.4}
+mI <- median(dep_idx$IMIA); mV <- median(dep_idx$IINV)
+dep_idx <- dep_idx %>% mutate(quadrante = case_when(
+  IMIA >= mI & IINV <  mV ~ "Eficiente (maturidade alta, investimento baixo)",
+  IMIA >= mI & IINV >= mV ~ "Avançado (maturidade alta, investimento alto)",
+  IMIA <  mI & IINV >= mV ~ "Desperdício (maturidade baixa, investimento alto)",
+  TRUE                    ~ "Inicial (maturidade baixa, investimento baixo)"))
+qt <- dep_idx %>% count(quadrante, name = "departamentos")
+qt
+rot <- dep_idx %>% filter(quadrante == "Desperdício (maturidade baixa, investimento alto)") %>% arrange(desc(IINV - IMIA)) %>% slice_head(n = 5)
+g <- ggplot(dep_idx, aes(IINV, IMIA)) +
+  geom_vline(xintercept = mV, color = GRADE, linewidth = 1) + geom_hline(yintercept = mI, color = GRADE, linewidth = 1) +
+  geom_point(aes(size = n), color = AZUL, alpha = 0.75, stroke = 0) +
+  geom_text_repel(data = rot, aes(label = paste0(department_name, " (", company_id, ")")), size = 3, color = TINTA2, seed = 1) +
+  annotate("text", x = c(2, 98, 98, 2), y = c(99, 99, 1, 1), hjust = c(0, 1, 1, 0), vjust = c(1, 1, 0, 0), size = 3.2, color = TINTA2,
+           label = c("Eficiente", "Avançado", "Desperdício", "Inicial")) +
+  scale_size_continuous(range = c(1.5, 7), name = "colaboradores") +
+  labs(title = "Maturidade × investimento por departamento", x = "Índice de investimento (0–100)", y = "Índice de maturidade em IA (0–100)",
+       caption = "Linhas: medianas dos dois índices. Rótulos: os 5 departamentos com maior distância entre investimento e maturidade.") +
+  theme(legend.position = "right", legend.title = element_text(color = TINTA2, size = 9), plot.caption = element_text(color = TINTA2, hjust = 0))
+salvar("fig05_quadrantes.png", g, h = 5.4); g
+```
+
+# Análise de agrupamentos
+
+Os escores dos três fatores são agrupados de duas formas: por agrupamento hierárquico (método de Ward, distância euclidiana) e por k-means. O número de grupos é escolhido pela silhueta média.
+
+```{r silhueta}
+E <- as.matrix(esc)
+dd <- dist(E)
+hc <- hclust(dd, method = "ward.D2")
+sil <- do.call(rbind, lapply(2:6, function(k) {
+  set.seed(42); km <- kmeans(E, centers = k, nstart = 50)
+  data.frame(k = k, silhueta_ward = mean(silhouette(cutree(hc, k), dd)[, 3]), silhueta_kmeans = mean(silhouette(km$cluster, dd)[, 3]))
+}))
+round(sil, 3)
+```
+
+```{r dendrograma, fig.height=4.2}
+K <- 4
+op <- par(bg = "#fcfcfb", mar = c(1, 4, 3, 1))
+plot(hc, labels = FALSE, hang = -1, main = "Dendrograma (Ward) dos departamentos", sub = "", xlab = "", ylab = "altura", col = TINTA2)
+rect.hclust(hc, k = K, border = CORES_CLUSTER)
+par(op)
+png("figuras/fig06_dendrograma.png", width = 1200, height = 630, res = 150, bg = "#fcfcfb")
+plot(hc, labels = FALSE, hang = -1, main = "Dendrograma (Ward) dos departamentos", sub = "", xlab = "", ylab = "altura", col = TINTA2)
+rect.hclust(hc, k = K, border = CORES_CLUSTER); invisible(dev.off())
+```
+
+A silhueta praticamente empata entre 3 e 4 grupos. A escolha foi **4 grupos**, porque o quarto separa dois perfis com ações diferentes: departamentos que usam IA sem capacitação, que representam risco de governança, e departamentos capacitados com investimento baixo. Com 3 grupos, esses dois perfis ficariam juntos. Os grupos finais saem do k-means.
+
+```{r kmeans}
+set.seed(42)
+km <- kmeans(E, centers = K, nstart = 50)
+dep_idx$cluster <- km$cluster
+perfil <- dep_idx %>% bind_cols(Xc[, c("adocao", "capacitacao", "ociosas", "custo_colab", "execucao", "incidentes")]) %>%
+  group_by(cluster) %>% summarise(departamentos = n(), colaboradores = sum(n),
+                                  across(c(F1_uso, F2_capacitacao, F3_investimento, IMIA, IINV, adocao, capacitacao, ociosas, execucao, incidentes), mean), .groups = "drop")
+# nomes a partir do perfil dos centróides
+nomear <- function(p) {
+  if (p$F1_uso > 0.5 && p$F3_investimento > 0.5) return("Avançados")
+  if (p$F2_capacitacao > 0.5) return("Capacitados, investimento baixo")
+  if (p$F1_uso > 0.5 && p$F2_capacitacao < 0) return("Uso sem capacitação")
+  return("Adoção baixa")
+}
+perfil$perfil <- sapply(seq_len(nrow(perfil)), function(i) nomear(perfil[i, ]))
+stopifnot(!anyDuplicated(perfil$perfil))   # cada grupo recebe um nome distinto
+dep_idx$perfil <- perfil$perfil[match(dep_idx$cluster, perfil$cluster)]
+write.csv(perfil, "resultados/perfil_clusters.csv", row.names = FALSE)
+kable(perfil %>% select(perfil, everything(), -cluster) %>% mutate(across(where(is.numeric) & !c(departamentos, colaboradores), ~ round(.x, 2))),
+      caption = "Perfil médio de cada grupo")
+table(Perfil = dep_idx$perfil, Setor = dep_idx$industry)
+```
+
+```{r fig_clusters, fig.height=5}
+ordem_p <- c("Avançados", "Capacitados, investimento baixo", "Uso sem capacitação", "Adoção baixa")
+dep_idx$perfil <- factor(dep_idx$perfil, levels = ordem_p)
+cent <- dep_idx %>% group_by(perfil) %>% summarise(F1_uso = mean(F1_uso), F2_capacitacao = mean(F2_capacitacao))
+g <- ggplot(dep_idx, aes(F1_uso, F2_capacitacao, color = perfil, shape = perfil)) +
+  geom_hline(yintercept = 0, color = GRADE) + geom_vline(xintercept = 0, color = GRADE) +
+  geom_point(size = 2.6, alpha = 0.85) +
+  geom_label(data = cent, aes(label = perfil), color = TINTA, fill = "#fcfcfbcc", size = 3.2, label.size = 0, show.legend = FALSE) +
+  scale_color_manual(values = setNames(CORES_CLUSTER, ordem_p)) + scale_shape_manual(values = setNames(c(16, 17, 15, 18), ordem_p)) +
+  labs(title = "Grupos de departamentos nos fatores de uso e capacitação", x = "F1 — uso efetivo (escore)", y = "F2 — capacitação (escore)")
+salvar("fig07_clusters.png", g, h = 5); g
+```
+
+# Validação dos grupos e diferenças entre setores
+
+## MANOVA
+
+A MANOVA testa se os vetores de médias dos três fatores diferem entre os grupos e entre os setores. O teste usado é o traço de Pillai, o mais robusto a violações de pressupostos.
+
+```{r manova}
+m_cl <- manova(cbind(F1_uso, F2_capacitacao, F3_investimento) ~ perfil, data = dep_idx)
+m_st <- manova(cbind(F1_uso, F2_capacitacao, F3_investimento) ~ industry, data = dep_idx)
+summary(m_cl, test = "Pillai")
+summary(m_st, test = "Pillai")
+summary.aov(m_st)
+```
+
+## Análise discriminante linear
+
+A análise discriminante (LDA) com validação cruzada leave-one-out verifica se os grupos são separáveis por uma regra linear sobre os indicadores originais, e não apenas sobre os fatores que os criaram.
+
+```{r lda}
+d_lda <- cbind(as.data.frame(scale(Xc[, vars])), perfil = dep_idx$perfil)
+lda_cv <- lda(perfil ~ ., data = d_lda, CV = TRUE)
+conf_lda <- table(Real = d_lda$perfil, Previsto = lda_cv$class)
+conf_lda
+acerto <- mean(lda_cv$class == d_lda$perfil)
+cat(spf("Acerto na validação cruzada: %.1f%% (acerto ao acaso pela maior classe: %.1f%%)\n",
+            100 * acerto, 100 * max(table(d_lda$perfil)) / nrow(d_lda)))
+```
+
+# As hipóteses do D1, agora com controles
+
+No nível do colaborador, as hipóteses do D1 são testadas de novo com as variáveis de controle que o próprio D1 sugeria:
+
+- **setor** da empresa;
+- **senioridade** (o cargo);
+- **tempo de casa**;
+- **licenças ativas**, como medida de exposição às ferramentas.
+
+```{r hipoteses}
+colab_m <- colab %>% left_join(comp[, c("company_id", "industry")], by = "company_id") %>%
+  mutate(log_req = log1p(req / length(MESES)), teve_incidente = as.integer(inc > 0),
+         tempo_casa = as.numeric(as.Date("2026-07-31") - as.Date(hire_date)) / 365.25,
+         seniority = factor(seniority, levels = c("Junior", "Pleno", "Senior", "Especialista", "Gerente")),
+         industry = factor(industry))
+h1_simples  <- lm(log_req ~ cursos, data = colab_m)
+h1_controle <- lm(log_req ~ cursos + lic + seniority + tempo_casa + industry, data = colab_m)
+h2_simples  <- glm(teve_incidente ~ cursos, family = binomial, data = colab_m)
+h2_controle <- glm(teve_incidente ~ cursos + log_req + lic + seniority + tempo_casa + industry, family = binomial, data = colab_m)
+coef_lin <- function(m, nome) { s <- summary(m)$coefficients["cursos", ]; data.frame(modelo = nome, coef = s[1], ep = s[2], p = s[4], R2 = summary(m)$r.squared) }
+h1 <- rbind(coef_lin(h1_simples, "H1 sem controles"), coef_lin(h1_controle, "H1 com controles")); rownames(h1) <- NULL
+kable(h1 %>% mutate(across(c(coef, ep, R2), ~ round(.x, 3)), p = signif(p, 3)),
+      caption = "H1: efeito de cada curso concluído sobre log(1 + requisições/mês)")
+or <- function(m, nome) { b <- coef(summary(m))["cursos", ]; ci <- exp(b[1] + c(-1.96, 1.96) * b[2])
+  data.frame(modelo = nome, OR = exp(b[1]), IC95_inf = ci[1], IC95_sup = ci[2], p = b[4]) }
+h2 <- rbind(or(h2_simples, "H2 sem controles"), or(h2_controle, "H2 com controles")); rownames(h2) <- NULL
+kable(h2 %>% mutate(across(c(OR, IC95_inf, IC95_sup), ~ round(.x, 3)), p = signif(p, 3)),
+      caption = "H2: razão de chances de ter incidente por curso concluído")
+kable(round(summary(h1_controle)$coefficients, 3), caption = "Regressão múltipla completa (H1 com controles)")
+cat(spf("N = %d colaboradores ativos; %d com algum incidente (%.1f%%)\n", nrow(colab_m), sum(colab_m$teve_incidente), 100 * mean(colab_m$teve_incidente)))
+```
+
+```{r incid_dep}
+ct <- cor.test(dep_idx$F2_capacitacao, Xc$incidentes, method = "spearman", exact = FALSE)
+cat(spf("Nível departamento: correlação de Spearman entre capacitação (F2) e incidentes por 100 colaboradores = %.3f (p = %.3f)\n", ct$estimate, ct$p.value))
+```
+
+# Resultados e interpretação
+
+```{r resumo, echo=FALSE}
+b_simpl <- coef(h1_simples)["cursos"]; b_ctrl <- coef(h1_controle)["cursos"]; p_ctrl <- summary(h1_controle)$coefficients["cursos", 4]
+or_ctrl <- exp(coef(h2_controle)["cursos"]); p_or <- coef(summary(h2_controle))["cursos", 4]
+melhor_setor <- setor$industry[1]; pior_setor <- setor$industry[nrow(setor)]
+n_desp <- qt$departamentos[qt$quadrante == "Desperdício (maturidade baixa, investimento alto)"]
+```
+
+1. **Os 14 indicadores se reduzem a três dimensões.** Do KMO de `r round(k$MSA, 2)`, com Bartlett significativo e 11 indicadores após a triagem, saem três fatores que explicam `r round(100 * sum(var_exp), 1)`% da variância: **uso efetivo**, **capacitação** e **investimento**. O uso efetivo responde sozinho por `r round(100 * var_exp[1], 1)`%. Adoção e licenças ociosas são quase espelhos uma da outra: onde a adoção é baixa, a empresa paga licenças que ninguém usa.
+2. **Incidentes e taxa de sucesso não acompanham as demais dimensões.** Eles saem na triagem do KMO. Do ponto de vista da gestão, isso significa que o risco de segurança não é explicado por quanto o departamento usa, treina ou gasta, e precisa de indicador próprio no painel.
+3. **O IMIA ordena departamentos e empresas.** `r melhor_setor` lidera e `r pior_setor` fica por último, e a MANOVA confirma que o setor explica diferenças multivariadas nos três fatores. A diferença é forte no uso e no investimento e fraca na capacitação: o setor determina quanto se usa, mas não quanto se treina.
+4. **`r n_desp` departamentos estão no quadrante de desperdício**, com investimento acima da mediana e maturidade abaixo dela. São o primeiro alvo da realocação de licenças proposta no modelo de Pesquisa Operacional.
+5. **Os quatro perfis são bem separados.** A MANOVA por grupo é significativa e a análise discriminante acerta `r round(100 * acerto, 1)`% dos departamentos na validação cruzada. O grupo **uso sem capacitação** é o de maior risco de governança: usa IA tanto quanto os avançados, mas quase sem formação.
+6. **H1 era confundida pelo setor.** Sem controles, cada curso concluído está associado a `r round(b_simpl, 3)` a mais em log(1 + requisições/mês). Com setor, senioridade, tempo de casa e licenças, o efeito cai para `r round(b_ctrl, 3)` (p = `r signif(p_ctrl, 2)`), sem significância. A associação do D1 vinha do fato de que as empresas de tecnologia treinam mais e também usam mais. O curso em si não explica o uso.
+7. **H2 continua não confirmada.** Com controles, a razão de chances de ter incidente por curso é `r round(or_ctrl, 2)` (p = `r signif(p_or, 2)`), e o intervalo de confiança inclui 1. Também não há correlação entre capacitação e incidentes no nível do departamento.
+
+## O que isso muda no DAMA
+
+- O painel organizacional do DAMA deve mostrar três indicadores-síntese: **uso efetivo, capacitação e investimento**. Os 11 indicadores ficam como detalhamento. O IMIA serve como indicador de maturidade por departamento e por empresa.
+- O indicador de **licenças ociosas** é o sinal mais forte de baixa maturidade e o mais barato de corrigir. É ele que liga esta análise ao modelo de otimização de licenças.
+- A hipótese de que treinamento por si só aumenta o uso e reduz incidentes não se sustenta nos dados. Os cursos precisam ser acompanhados de outras condições, como acesso às ferramentas certas e metas de uso, o que reforça a lógica de níveis de autonomia do produto.
+
+## Limitações
+
+- A base é sintética. O orçamento foi gerado de forma independente do gasto, o que influencia o indicador de execução.
+- Os incidentes são raros (`r sum(colab_m$teve_incidente)` colaboradores com incidente), o que limita o poder dos testes de H2.
+- Os indicadores são médias do período, sem dimensão temporal. Uma análise longitudinal poderia testar se a capacitação precede o aumento de uso.
+- O fator de investimento tem confiabilidade baixa (α = `r conf$alfa_padronizado[3]`) e deve ser lido como exploratório.
+
+```{r sessao, echo=FALSE}
+cat("R", R.version$major, ".", R.version$minor, " | psych ", as.character(packageVersion("psych")), " | cluster ",
+    as.character(packageVersion("cluster")), " | MASS ", as.character(packageVersion("MASS")), "\n", sep = "")
+```
