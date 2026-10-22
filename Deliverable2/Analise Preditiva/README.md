@@ -23,7 +23,7 @@
   - **35 dos 161 centros de custo** devem ficar acima do orçamento, com excesso de cerca de **R$ 84 mil por mês**.
   - O maior é Engenharia de Software da NexoCode, com **348%**, o mesmo achado da Pesquisa Operacional.
   - Somando por empresa, só ServPro (107%) e Banco Alterosa (101%) passam do total. A soma esconde onde está o problema.
-- **D1 corrigido.** A pergunta do D1 (quem vai ter incidente de segurança) foi refeita conforme o feedback da pré-avaliação. Com 67 casos em 2.356 colaboradores, o pouco sinal vem só da empresa. Cursos e tokens são um sorteio: ROC-AUC de 0,506. Por isso o D2 mudou de pergunta.
+- **D1 corrigido.** A pergunta do D1 (quem vai ter incidente de segurança) foi refeita conforme o feedback da pré-avaliação, incluindo o corte temporal (preditores até dez/2025, alvo em jan a jul/2026). Sobram 31 casos em 2.039 colaboradores. O pouco sinal vem da unidade (departamento e empresa), não da pessoa: cursos e tokens têm ROC-AUC de 0,542, e no teste o modelo fica no nível do sorteio. Por isso o D2 mudou de pergunta.
 
 ## Arquivos
 
@@ -48,17 +48,18 @@ Para rodar: Python 3 com `pandas`, `numpy`, `scikit-learn`, `statsmodels` e `mat
 | | Deliverable 1 | Deliverable 2 |
 |---|---|---|
 | Pergunta | Quem vai ter um incidente de segurança | Qual será a demanda e o custo de IA de cada empresa nos próximos meses |
-| Dados | 69 eventos de segurança, 2.356 colaboradores | 14 meses de uso de 18 empresas (269.515 eventos) e tokens de 8 empresas |
+| Dados | 69 eventos de segurança; com o corte temporal, 31 incidentes em 2.039 colaboradores | 14 meses de uso de 18 empresas (269.515 eventos) e tokens de 8 empresas |
 | Modelo | Random Forest | 6 modelos de série temporal, do ingênuo ao gradient boosting global |
 | Validação | Nenhuma (o notebook não rodava) → na versão corrigida, validação cruzada estratificada repetida | Backtest com origem móvel (7 origens × 18 empresas × 3 horizontes) e intervalos calibrados |
-| Resultado | ROC-AUC de 0,715; o sinal é a empresa, não a pessoa | WAPE de 5,8%; previsão até jan/2027; centros de custo em risco |
+| Resultado | ROC-AUC de 0,701 na validação cruzada e 0,644 no teste; o sinal é a unidade, não a pessoa | WAPE de 5,8%; previsão até jan/2027; centros de custo em risco |
 
-A versão corrigida do D1 está em `Deliverable1/AnalisePreditiva/DAMAAnalisePreditiva1_corrigido.ipynb`. Ela atende às 19 tarefas do épico SMAN-78:
+A versão corrigida do D1 está em `Deliverable1/AnalisePreditiva/DAMAAnalisePreditiva1_corrigido.ipynb`. Ela atende às 19 tarefas do épico SMAN-78 e ao ponto de rigor temporal do feedback:
 - diagnóstico da base;
 - baseline da classe majoritária;
 - ROC-AUC, PR-AUC e justificativa pelo custo do erro;
 - `class_weight`, sobreamostragem e subamostragem só no treino, comparadas com validação cruzada;
-- decisões do pré-processamento documentadas, incluindo a ordem da senioridade.
+- decisões do pré-processamento documentadas, incluindo a ordem da senioridade;
+- corte temporal em 01/01/2026, com checagem variável a variável do que existia antes da previsão.
 
 ## 2. Modelos e validação
 
