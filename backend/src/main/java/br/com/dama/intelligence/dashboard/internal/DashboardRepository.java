@@ -96,11 +96,6 @@ class DashboardRepository {
                 "where c.departamento_id = ? and c.ativo", departamentoId);
     }
 
-    Long posicaoNoRanking(Long departamentoId) {
-        return jdbc.query("select posicao from dama.vw_ranking_departamento where departamento_id = ?",
-                (rs, i) -> rs.getLong("posicao"), departamentoId).stream().findFirst().orElse(null);
-    }
-
     List<MembroEquipeView> membros(Long departamentoId) {
         return jdbc.query(
                 "select c.colaborador_id, c.nome, c.cargo, " +

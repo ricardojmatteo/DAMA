@@ -46,6 +46,33 @@ public class PontuacaoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(facade.lancar(colaboradorId, comando));
     }
 
+    // Tarefas entregues e bônus são registrados pelo gestor (SM/coordenador) ou pela integração com o Jira.
+    @PostMapping("/colaboradores/{colaboradorId}/tarefas")
+    @PreAuthorize("hasAuthority('DESEMPENHO_ESCREVER')")
+    public ResponseEntity<TarefaEntregueView> registrarTarefa(@PathVariable Long colaboradorId,
+                                                                @Valid @RequestBody RegistrarTarefaCommand comando) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(facade.registrarTarefa(colaboradorId, comando));
+    }
+
+    @GetMapping("/colaboradores/{colaboradorId}/tarefas")
+    @PreAuthorize("hasAuthority('GAMIFICACAO_LER')")
+    public List<TarefaEntregueView> listarTarefas(@PathVariable Long colaboradorId) {
+        return facade.listarTarefas(colaboradorId);
+    }
+
+    @PostMapping("/colaboradores/{colaboradorId}/bonus")
+    @PreAuthorize("hasAuthority('DESEMPENHO_ESCREVER')")
+    public ResponseEntity<BonusGestorView> concederBonus(@PathVariable Long colaboradorId,
+                                                           @Valid @RequestBody ConcederBonusCommand comando) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(facade.concederBonus(colaboradorId, comando));
+    }
+
+    @GetMapping("/colaboradores/{colaboradorId}/bonus")
+    @PreAuthorize("hasAuthority('GAMIFICACAO_LER')")
+    public List<BonusGestorView> listarBonus(@PathVariable Long colaboradorId) {
+        return facade.listarBonus(colaboradorId);
+    }
+
     @GetMapping("/colaboradores/{colaboradorId}/pontuacao")
     @PreAuthorize("hasAuthority('GAMIFICACAO_LER')")
     public PontuacaoResumoView resumo(@PathVariable Long colaboradorId) {

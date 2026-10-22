@@ -188,6 +188,29 @@ CREATE TABLE pontuacao (
 );
 COMMENT ON TABLE pontuacao IS 'RF07/RF27 — lançamento de pontos; RF11 histórico é a consulta desta tabela por colaborador.';
 
+CREATE TABLE tarefa_entregue (
+    tarefa_id       bigserial PRIMARY KEY,
+    colaborador_id  bigint  NOT NULL REFERENCES colaborador,
+    chave           text    NOT NULL,                 -- identificador no Jira, ex.: DAMA-123
+    descricao       text,
+    story_points    numeric NOT NULL CHECK (story_points > 0),
+    urgencia        text    NOT NULL DEFAULT 'MEDIA' CHECK (urgencia IN ('BAIXA','MEDIA','ALTA','CRITICA')),
+    tokens_ia       bigint  NOT NULL DEFAULT 0 CHECK (tokens_ia >= 0),
+    entregue_em     timestamp NOT NULL DEFAULT now(),
+    UNIQUE (colaborador_id, chave)
+);
+COMMENT ON TABLE tarefa_entregue IS 'Tarefa concluída (vinda do Jira): story points, urgência e tokens de IA gastos nela. Base do ranking (docs/requisitos/ranking.md).';
+
+CREATE TABLE bonus_gestor (
+    bonus_id        bigserial PRIMARY KEY,
+    colaborador_id  bigint  NOT NULL REFERENCES colaborador,
+    concedido_por   bigint  NOT NULL REFERENCES colaborador,
+    pontos          numeric NOT NULL CHECK (pontos > 0),
+    motivo          text    NOT NULL,
+    registrado_em   timestamp NOT NULL DEFAULT now()
+);
+COMMENT ON TABLE bonus_gestor IS 'Bônus subjetivo do gestor/coordenador; no ranking vale no máximo 15% dos pontos líquidos das tarefas.';
+
 CREATE TABLE desafio (
     desafio_id        bigserial PRIMARY KEY,
     empresa_id        bigint  NOT NULL REFERENCES empresa,
@@ -329,3 +352,5 @@ CREATE INDEX ix_ai_credit_colaborador     ON ai_credit_transacao (colaborador_id
 CREATE INDEX ix_auditoria_empresa         ON auditoria_evento (empresa_id, registrado_em);
 CREATE INDEX ix_atividade_registro_colab  ON atividade_registro (colaborador_id, registrado_em);
 CREATE INDEX ix_reconhecimento_colab      ON reconhecimento (colaborador_id);
+CREATE INDEX ix_tarefa_entregue_colab     ON tarefa_entregue (colaborador_id, entregue_em);
+CREATE INDEX ix_bonus_gestor_colab        ON bonus_gestor (colaborador_id, registrado_em);

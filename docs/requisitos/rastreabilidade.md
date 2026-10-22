@@ -23,7 +23,7 @@ Histórias do Jira-PO (épico POAN-109). A numeração de RFs segue a das histó
 | Critério | Onde é atendido |
 |---|---|
 | US07 — atribuir AI Credits: escolher colaborador e atividade, registrar movimentação, somar ao saldo, aparecer no histórico | AI Credits → "Registrar atividade" e "Crédito ou débito manual"; `POST /colaboradores/{id}/atividades` e `/ai-credits/transacoes` |
-| US10 — pontuação calculada automaticamente e atualizada após cada movimentação | Pontos sempre somados da tabela `pontuacao` (nunca armazenados); ranking lê `vw_ranking_colaborador` |
+| US10 — pontuação calculada automaticamente e atualizada após cada movimentação | Pontos de regras e desafios sempre somados da tabela `pontuacao` (nunca armazenados); o ranking usa as tarefas entregues na janela de tempo, a urgência, o uso de IA e o bônus do gestor (`RankingRegras`, ver [ranking.md](ranking.md)) |
 | US12 — criar meta para colaborador ou equipe, com objetivo, valor esperado e período | Metas → "Nova meta"; RN05 validado no backend |
 | US15 — dashboard da equipe com dados registrados, evolução e respeito às permissões | Equipes; `GET /departamentos/{id}/dashboard` com `DESEMPENHO_LER` |
 

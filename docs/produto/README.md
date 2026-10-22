@@ -30,4 +30,5 @@ Personas usadas na demonstração (`database/demo/04_demo.sql`):
 | Auditoria de movimentações | Implementado |
 | Login real (JWT/SSO) e isolamento entre empresas | Não implementado — ver [ADR-0006](../adr/0006-autenticacao-por-cabecalho.md) |
 | AI Literacy Score (eficiência no uso de tokens) | Não implementado |
+| Integração automática com o Jira (tarefas concluídas, story points, prioridade e tokens) | Não implementado: ver [ranking.md](../requisitos/ranking.md) |
 | Relatórios exportáveis e previsão de desempenho (ML) | Não implementado |

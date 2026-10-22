@@ -5,6 +5,7 @@ import br.com.dama.intelligence.analytics.internal.AlertaGestaoClient.EntradaAna
 import br.com.dama.intelligence.analytics.internal.AlertaGestaoClient.Tendencia;
 import br.com.dama.intelligence.analytics.internal.AnaliseGestaoRegras.ValorIndicador;
 import br.com.dama.intelligence.shared.error.NotFoundException;
+import br.com.dama.intelligence.shared.error.ValidationException;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
@@ -17,11 +18,13 @@ class AnalyticsService implements AnalyticsFacade {
     private final AnalyticsRepository repo;
     private final Clock clock;
     private final AlertaGestaoClient motorAlertas;
+    private final RankingConfig ranking;
 
-    AnalyticsService(AnalyticsRepository repo, Clock clock, AlertaGestaoClient motorAlertas) {
+    AnalyticsService(AnalyticsRepository repo, Clock clock, AlertaGestaoClient motorAlertas, RankingConfig ranking) {
         this.repo = repo;
         this.clock = clock;
         this.motorAlertas = motorAlertas;
+        this.ranking = ranking;
     }
 
     @Override
@@ -33,15 +36,31 @@ class AnalyticsService implements AnalyticsFacade {
     }
 
     @Override
-    public List<RankingDepartamentoView> rankingDepartamentos(Long empresaId) {
+    public List<RankingDepartamentoView> rankingDepartamentos(Long empresaId, LocalDate inicio, LocalDate fim) {
         validarEmpresa(empresaId);
-        return repo.rankingDepartamentos(empresaId);
+        LocalDate[] janela = janela(inicio, fim);
+        return RankingRegras.rankingDepartamentos(repo.departamentos(empresaId), repo.colaboradoresAtivos(empresaId),
+                repo.tarefasEntregues(empresaId, janela[0], janela[1]), repo.bonusDoGestor(empresaId, janela[0], janela[1]),
+                ranking.parametros());
     }
 
     @Override
-    public List<RankingColaboradorView> rankingColaboradores(Long empresaId) {
+    public List<RankingColaboradorView> rankingColaboradores(Long empresaId, LocalDate inicio, LocalDate fim) {
         validarEmpresa(empresaId);
-        return repo.rankingColaboradores(empresaId);
+        LocalDate[] janela = janela(inicio, fim);
+        return RankingRegras.rankingColaboradores(repo.colaboradoresAtivos(empresaId),
+                repo.tarefasEntregues(empresaId, janela[0], janela[1]), repo.bonusDoGestor(empresaId, janela[0], janela[1]),
+                ranking.parametros());
+    }
+
+    /** Fim padrão = hoje; início padrão = janela padrão de dias terminando no fim (inclusive). */
+    private LocalDate[] janela(LocalDate inicio, LocalDate fim) {
+        LocalDate ate = fim != null ? fim : LocalDate.now(clock);
+        LocalDate de = inicio != null ? inicio : ate.minusDays(ranking.janelaPadraoDias() - 1L);
+        if (de.isAfter(ate)) {
+            throw new ValidationException("O início do período não pode ser depois do fim.");
+        }
+        return new LocalDate[]{de, ate};
     }
 
     @Override
@@ -69,7 +88,7 @@ class AnalyticsService implements AnalyticsFacade {
 
         // as regras de alerta são aplicadas pelo motor configurado (alert-service Node ou regras locais)
         List<AlertaGestaoView> alertas = new ArrayList<>(motorAlertas.avaliar(new EntradaAnalise(hoje,
-                repo.metasAbertas(empresaId), tendencias, repo.equipes(empresaId),
+                repo.metasAbertas(empresaId), tendencias, equipesDaJanelaPadrao(empresaId),
                 repo.colaboradoresSemAtividade(empresaId, hoje.minusDays(AnaliseGestaoRegras.DIAS_SEM_ATIVIDADE)))));
 
         alertas.sort(Comparator.comparingInt((AlertaGestaoView a) -> AnaliseGestaoRegras.peso(a.severidade())));
@@ -78,6 +97,14 @@ class AnalyticsService implements AnalyticsFacade {
             porSeveridade.put(severidade, alertas.stream().filter(a -> a.severidade().equals(severidade)).count());
         }
         return new AnaliseGestaoView(empresaId, hoje, porSeveridade, alertas);
+    }
+
+    /** O alerta de equipe abaixo da média usa a mesma pontuação (janela padrão, ajustada pela IA) do ranking. */
+    private List<AnaliseGestaoRegras.Equipe> equipesDaJanelaPadrao(Long empresaId) {
+        return rankingDepartamentos(empresaId, null, null).stream()
+                .map(r -> new AnaliseGestaoRegras.Equipe(r.departamentoId(), r.departamentoNome(),
+                        r.colaboradoresAtivos(), r.pontuacaoTotal()))
+                .toList();
     }
 
     private static boolean mesmaSerie(ValorIndicador a, ValorIndicador b) {

@@ -16,33 +16,37 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class AnalyticsServiceTest {
     private AnalyticsRepository repo;
     private AlertaGestaoClient alertas;
     private AnalyticsService service;
+    private static final RankingConfig RANKING = new RankingConfig(20000, 0.25, 0.15, 30);
 
     @BeforeEach
     void setUp() {
         repo = mock(AnalyticsRepository.class);
         alertas = mock(AlertaGestaoClient.class);
         when(repo.existeEmpresa(1L)).thenReturn(true);
-        service = new AnalyticsService(repo, Clock.fixed(Instant.parse("2026-10-05T12:00:00Z"), ZoneOffset.UTC), alertas);
+        service = new AnalyticsService(repo, Clock.fixed(Instant.parse("2026-10-05T12:00:00Z"), ZoneOffset.UTC), alertas, RANKING);
     }
 
     @Test
     void consultasExigemEmpresaERetornamZeroQuandoNaoHaVisaoConsolidada() {
-        assertThatThrownBy(() -> service.rankingColaboradores(2L)).isInstanceOf(br.com.dama.intelligence.shared.error.NotFoundException.class);
+        assertThatThrownBy(() -> service.rankingColaboradores(2L, null, null)).isInstanceOf(br.com.dama.intelligence.shared.error.NotFoundException.class);
         when(repo.visaoConsolidada(1L)).thenReturn(Optional.empty());
         assertThat(service.visaoConsolidada(1L)).isEqualTo(new VisaoConsolidadaView(1L, 0, 0, 0, 0, BigDecimal.ZERO));
-        RankingDepartamentoView departamento = new RankingDepartamentoView(2L, "TI", 2, BigDecimal.TEN, BigDecimal.TEN, 1);
-        RankingColaboradorView colaborador = new RankingColaboradorView(3L, "Ana", 2L, BigDecimal.TEN, 1);
-        when(repo.rankingDepartamentos(1L)).thenReturn(List.of(departamento));
-        when(repo.rankingColaboradores(1L)).thenReturn(List.of(colaborador));
+        when(repo.departamentos(1L)).thenReturn(List.of(new RankingRegras.Departamento(2L, "TI")));
+        when(repo.colaboradoresAtivos(1L)).thenReturn(List.of(new RankingRegras.Colaborador(3L, "Ana", 2L)));
+        when(repo.tarefasEntregues(eq(1L), any(), any())).thenReturn(List.of(
+                new RankingRegras.Tarefa(3L, BigDecimal.TEN, "BAIXA", 0)));
         when(repo.indicadoresPorDepartamento(1L, null)).thenReturn(List.of());
-        assertThat(service.rankingDepartamentos(1L)).containsExactly(departamento);
-        assertThat(service.rankingColaboradores(1L)).containsExactly(colaborador);
+        assertThat(service.rankingDepartamentos(1L, null, null)).extracting(RankingDepartamentoView::departamentoNome, RankingDepartamentoView::posicao)
+                .containsExactly(tuple("TI", 1L));
+        assertThat(service.rankingColaboradores(1L, null, null)).extracting(RankingColaboradorView::nome, RankingColaboradorView::pontuacao)
+                .containsExactly(tuple("Ana", new BigDecimal("10.00")));
         assertThat(service.indicadoresPorDepartamento(1L, null)).isEmpty();
     }
 
@@ -53,7 +57,6 @@ class AnalyticsServiceTest {
         ValorIndicador outraSerie = valor(2L, 10L, null, LocalDate.of(2026, 10, 1), "1");
         when(repo.ultimosDoisValoresPorSerie(1L)).thenReturn(List.of(atual, anterior, outraSerie));
         when(repo.metasAbertas(1L)).thenReturn(List.of());
-        when(repo.equipes(1L)).thenReturn(List.of());
         when(repo.colaboradoresSemAtividade(1L, LocalDate.of(2026, 9, 5))).thenReturn(List.of(new ColaboradorSemAtividade(9L, "Bruno", 2L)));
         AlertaGestaoView baixa = alerta("SEM_ATIVIDADE_RECENTE", "BAIXA");
         AlertaGestaoView alta = alerta("INDICADOR_EM_QUEDA", "ALTA");
@@ -69,6 +72,19 @@ class AnalyticsServiceTest {
         verify(alertas).avaliar(captor.capture());
         assertThat(captor.getValue().tendencias()).hasSize(1);
         assertThat(captor.getValue().tendencias().get(0).anterior()).isEqualTo(anterior);
+    }
+
+    @Test
+    void janelaPadraoSaoOsUltimos30DiasTerminandoHojeEPeriodoInvertidoEhRecusado() {
+        service.rankingColaboradores(1L, null, null);
+        verify(repo).tarefasEntregues(1L, LocalDate.of(2026, 9, 6), LocalDate.of(2026, 10, 5));
+        verify(repo).bonusDoGestor(1L, LocalDate.of(2026, 9, 6), LocalDate.of(2026, 10, 5));
+
+        service.rankingColaboradores(1L, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 31));
+        verify(repo).tarefasEntregues(1L, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 31));
+
+        assertThatThrownBy(() -> service.rankingDepartamentos(1L, LocalDate.of(2026, 2, 1), LocalDate.of(2026, 1, 1)))
+                .isInstanceOf(br.com.dama.intelligence.shared.error.ValidationException.class);
     }
 
     private static ValorIndicador valor(Long indicador, Long colaborador, Long departamento, LocalDate data, String valor) {

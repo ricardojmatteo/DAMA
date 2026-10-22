@@ -203,6 +203,33 @@ FROM desafio_participante dp JOIN desafio d ON d.desafio_id = dp.desafio_id
 WHERE d.empresa_id = 1 AND dp.status = 'Concluido';
 
 -- ---------------------------------------------------------------------
+-- Tarefas entregues (Jira) e bônus do gestor: base do ranking.
+-- Limite de tokens por story point = 20.000; os primeiros 25% são grátis.
+-- Uns ficam dentro da franquia grátis, outros passam do limite.
+-- ---------------------------------------------------------------------
+INSERT INTO tarefa_entregue (colaborador_id, chave, descricao, story_points, urgencia, tokens_ia, entregue_em)
+SELECT pg_temp.cid(email), chave, descricao, sp, urgencia, tokens, now() - make_interval(days => dias_atras)
+FROM (VALUES
+    ('juliana.rocha@demo.dama',   'DEMO-101', 'Revisão de arquitetura',      5, 'ALTA',    20000, 20),
+    ('juliana.rocha@demo.dama',   'DEMO-102', 'Documentação técnica',       3, 'MEDIA',   12000, 6),
+    ('beatriz.santos@demo.dama',  'DEMO-103', 'Integração com assistente',  8, 'CRITICA', 90000, 18),
+    ('beatriz.santos@demo.dama',  'DEMO-104', 'Testes automatizados',       5, 'MEDIA',   30000, 4),
+    ('lucas.pereira@demo.dama',   'DEMO-105', 'Análise de churn',           5, 'ALTA',   100000, 10),
+    ('lucas.pereira@demo.dama',   'DEMO-106', 'Relatório mensal',           3, 'BAIXA',   70000, 3),
+    ('felipe.costa@demo.dama',    'DEMO-107', 'Refatoração de módulo',      5, 'MEDIA',   60000, 12),
+    ('felipe.costa@demo.dama',    'DEMO-108', 'Correção de bug',            2, 'ALTA',    35000, 5),
+    ('rafael.oliveira@demo.dama', 'DEMO-109', 'Automação de conciliação',   5, 'MEDIA',   18000, 14),
+    ('mariana.souza@demo.dama',   'DEMO-110', 'Plano de capacitação',       3, 'BAIXA',    8000, 9),
+    ('paula.mendes@demo.dama',    'DEMO-111', 'Proposta comercial',         5, 'MEDIA',   40000, 11)
+) AS v(email, chave, descricao, sp, urgencia, tokens, dias_atras);
+
+INSERT INTO bonus_gestor (colaborador_id, concedido_por, pontos, motivo, registrado_em)
+VALUES (pg_temp.cid('juliana.rocha@demo.dama'), pg_temp.cid('mariana.souza@demo.dama'), 2,
+        'Mentoria à equipe durante a sprint', now() - interval '7 days'),
+       (pg_temp.cid('beatriz.santos@demo.dama'), pg_temp.cid('ricardo.nogueira@demo.dama'), 50,
+        'Resolveu o incidente de produção', now() - interval '2 days');
+
+-- ---------------------------------------------------------------------
 -- Reconhecimentos
 -- ---------------------------------------------------------------------
 INSERT INTO reconhecimento (empresa_id, colaborador_id, concedido_por_id, tipo, descricao, registrado_em)

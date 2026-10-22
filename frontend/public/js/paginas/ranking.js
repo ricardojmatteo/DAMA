@@ -3,12 +3,15 @@ import { sessao } from '../sessao.js';
 import { nomes, pessoasAtivas } from '../dados.js';
 import { grafico } from '../graficos.js';
 import { h, fmt, painel, tabela, badge, botao, formulario, opcoes, toast, stat } from '../ui.js';
+import { periodoRanking, seletorPeriodo } from './comum.js';
+import { navegar } from '../app.js';
 
-export default async function (el, _params, recarregar) {
+export default async function (el, params, recarregar) {
     const e = sessao.empresaId;
+    const periodo = periodoRanking(params);
     const escreve = sessao.pode('PONTOS_LANCAR');   // só o Administrador lança pontos e mantém regras
     const [ranking, minhaPontuacao, regras, n] = await Promise.all([
-        api.get(`/empresas/${e}/analytics/ranking-colaboradores`),
+        api.get(`/empresas/${e}/analytics/ranking-colaboradores?${periodo.consulta}`),
         sessao.pode('GAMIFICACAO_LER') ? api.get(`/colaboradores/${sessao.id}/pontuacao`) : Promise.resolve(null),
         api.get(`/empresas/${e}/regras-pontuacao`).catch(() => []),
         nomes()
@@ -17,8 +20,8 @@ export default async function (el, _params, recarregar) {
 
     el.append(h('div', { class: 'grade cards' },
         stat('Minha posição', eu ? `${eu.posicao}º` : '—', `de ${ranking.length} colaboradores`),
-        stat('Meus pontos', fmt.num(eu?.pontosTotais ?? minhaPontuacao?.pontosTotais)),
-        stat('Líder', ranking[0]?.nome || '—', ranking[0] ? `${fmt.num(ranking[0].pontosTotais)} pontos` : null)));
+        stat('Minha pontuação', fmt.num(eu?.pontuacao), eu ? `nota ${fmt.num(eu.nota)} de 10 · ${periodo.rotulo.toLowerCase()}` : periodo.rotulo),
+        stat('Líder', ranking[0]?.nome || '—', ranking[0] ? `${fmt.num(ranking[0].pontuacao)} de pontuação` : null)));
 
     const areaGrafico = h('div', { class: 'grafico' });
     el.append(h('div', { class: 'grade duas' },
@@ -26,9 +29,17 @@ export default async function (el, _params, recarregar) {
             { titulo: '#', valor: r => r.posicao <= 3 ? badge(`${r.posicao}º`, 'acento') : `${r.posicao}º` },
             { titulo: 'Colaborador', valor: r => h('span', { class: r.colaboradorId === sessao.id ? 'forte' : '' }, r.nome) },
             { titulo: 'Equipe', valor: r => n.departamento(r.departamentoId) },
-            { titulo: 'Pontos', classe: 'num', valor: r => fmt.num(r.pontosTotais) }
+            { titulo: 'Tarefas', classe: 'num', valor: r => fmt.num(r.tarefasEntregues) },
+            { titulo: 'Pontos', classe: 'num', valor: r => fmt.num(r.pontosTarefas) },
+            { titulo: 'Uso de IA', classe: 'num', valor: r => Number(r.penalidadeIa) > 0 ? badge(`-${fmt.num(r.penalidadeIa)}`, 'perigo') : '—' },
+            { titulo: 'Bônus gestor', classe: 'num', valor: r => Number(r.bonusGestor) > 0 ? badge(`+${fmt.num(r.bonusGestor)}`, 'sucesso') : '—' },
+            { titulo: 'Pontuação', classe: 'num', valor: r => h('span', { class: 'forte' }, fmt.num(r.pontuacao)) },
+            { titulo: 'Nota', classe: 'num', valor: r => fmt.num(r.nota) }
         ], ranking, { destacar: r => r.colaboradorId === sessao.id }), {
-            acoes: escreve ? botao('Lançar pontos', () => lancar(regras, recarregar), { tipo: 'primario' }) : null
+            subtitulo: 'Pontuação = pontos das tarefas entregues (story points × urgência) − uso de IA acima da franquia grátis + bônus do gestor (até 15%). Nota de 0 a 10: 10 é a maior pontuação da empresa.',
+            acoes: h('div', { class: 'linha' },
+                seletorPeriodo(periodo.dias, v => navegar('ranking', { dias: v })),
+                escreve ? botao('Lançar pontos', () => lancar(regras, recarregar), { tipo: 'primario' }) : null)
         }),
         painel('Top 10', areaGrafico)));
 
@@ -36,7 +47,7 @@ export default async function (el, _params, recarregar) {
     grafico(areaGrafico, 'bar', {
         labels: top.map(r => r.nome.split(' ')[0]),
         datasets: [{
-            label: 'Pontos', data: top.map(r => Number(r.pontosTotais)),
+            label: 'Pontuação', data: top.map(r => Number(r.pontuacao)),
             backgroundColor: top.map(r => r.colaboradorId === sessao.id ? '#ffa726' : '#ff3b00cc'), borderRadius: 6
         }]
     }, { indexAxis: 'y', plugins: { legend: { display: false } } });
@@ -64,7 +75,7 @@ export default async function (el, _params, recarregar) {
             }, { pequeno: true })
         }
     ].filter(Boolean), regras, { vazioTexto: 'Nenhuma regra cadastrada.' }), {
-        subtitulo: 'Pontos só podem ser lançados a partir de uma regra ativa',
+        subtitulo: 'Pontos lançados por regra alimentam níveis e conquistas; o ranking usa as tarefas entregues. Só podem ser lançados a partir de uma regra ativa',
         acoes: escreve ? botao('Nova regra', () => novaRegra(recarregar)) : null
     }));
 }

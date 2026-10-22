@@ -147,11 +147,43 @@ class DamaApiIntegrationTest {
         assertThat(analise.get("alertas").get(0).get("severidade").asText()).isEqualTo("ALTA");
     }
 
+
+    @Test
+    void rankingDescontaUsoExcessivoDeIaLimitaOBonusEFiltraPelaJanela() {
+        Empresa e = novaEmpresa();
+        // A: 5 story points, urgência alta (x1,5) = 7,5 pontos, sem IA
+        post(ADMIN, "/api/colaboradores/" + e.colaboradorA + "/tarefas",
+                Map.of("chave", "T-1", "storyPoints", 5, "urgencia", "ALTA", "tokensIa", 0));
+        // B: 10 story points, urgência alta = 15 pontos, mas gastou 150.000 de um limite de 200.000 tokens
+        // (os primeiros 25% são grátis): perde 2/3 e fica com 5
+        post(ADMIN, "/api/colaboradores/" + e.colaboradorB + "/tarefas",
+                Map.of("chave", "T-2", "storyPoints", 10, "urgencia", "ALTA", "tokensIa", 150000));
+        // bônus pedido de 5, mas o teto é 15% de 5 = 0,75
+        post(ADMIN, "/api/colaboradores/" + e.colaboradorB + "/bonus", Map.of("pontos", 5, "motivo", "Resolveu o incidente"));
+
+        JsonNode ranking = get(ADMIN, "/api/empresas/" + e.id + "/analytics/ranking-colaboradores");
+
+        assertThat(ranking.get(0).get("colaboradorId").asLong()).isEqualTo(e.colaboradorA);
+        assertThat(ranking.get(0).get("pontuacao").decimalValue()).isEqualByComparingTo("7.5");
+        assertThat(ranking.get(0).get("nota").decimalValue()).isEqualByComparingTo("10");
+        JsonNode b = ranking.get(1);
+        assertThat(b.get("pontosTarefas").decimalValue()).isEqualByComparingTo("15");
+        assertThat(b.get("penalidadeIa").decimalValue()).isEqualByComparingTo("10");
+        assertThat(b.get("bonusGestor").decimalValue()).isEqualByComparingTo("0.75");
+        assertThat(b.get("pontuacao").decimalValue()).isEqualByComparingTo("5.75");
+        assertThat(b.get("posicao").asLong()).isEqualTo(2);
+
+        String ontem = LocalDate.now().minusDays(1).toString();
+        JsonNode antes = get(ADMIN, "/api/empresas/" + e.id + "/analytics/ranking-colaboradores?inicio=2000-01-01&fim=" + ontem);
+        assertThat(antes.get(0).get("tarefasEntregues").asLong()).isZero();
+    }
+
     @Test
     void dashboardDaEquipeConsolidaMembros() {
         Empresa e = novaEmpresa();
         long regra = post(ADMIN, "/api/empresas/" + e.id + "/regras-pontuacao", Map.of("nome", "Entrega", "pontos", 15)).get("regraId").asLong();
         post(ADMIN, "/api/colaboradores/" + e.colaboradorA + "/pontuacao", Map.of("regraId", regra));
+        post(ADMIN, "/api/colaboradores/" + e.colaboradorA + "/tarefas", Map.of("chave", "T-9", "storyPoints", 3));   // a equipe A passa a liderar o ranking
 
         JsonNode dashboard = get(ADMIN, "/api/departamentos/" + e.departamentoA + "/dashboard");
 

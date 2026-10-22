@@ -18,6 +18,12 @@ dama:
   alertas:
     url: ${ALERTAS_URL:}
     timeout-ms: ${ALERTAS_TIMEOUT_MS:2000}
+  # Ranking (docs/requisitos/ranking.md): janela padrão, limite de tokens por story point, franquia grátis e teto do bônus do gestor
+  ranking:
+    tokens-por-ponto: ${RANKING_TOKENS_POR_PONTO:20000}
+    franquia-gratis: ${RANKING_FRANQUIA_GRATIS:0.25}
+    bonus-maximo: ${RANKING_BONUS_MAXIMO:0.15}
+    janela-padrao-dias: ${RANKING_JANELA_DIAS:30}
 
 management:
   endpoints:

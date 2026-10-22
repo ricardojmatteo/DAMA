@@ -15,6 +15,15 @@ public interface PontuacaoFacade {
 
     PontuacaoResumoView resumo(Long colaboradorId);
 
+    // Ranking: tarefas entregues (Jira) e bônus do gestor — docs/requisitos/ranking.md
+    TarefaEntregueView registrarTarefa(Long colaboradorId, RegistrarTarefaCommand comando);
+
+    List<TarefaEntregueView> listarTarefas(Long colaboradorId);
+
+    BonusGestorView concederBonus(Long colaboradorId, ConcederBonusCommand comando);
+
+    List<BonusGestorView> listarBonus(Long colaboradorId);
+
     /**
      * Uso interno entre módulos (ex.: desafio concluído): credita pontos cujo critério vem do próprio
      * chamador, sem passar por uma regra_pontuacao. Não exposto via HTTP.

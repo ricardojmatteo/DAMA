@@ -1,5 +1,7 @@
 package br.com.dama.intelligence.dashboard.internal;
 
+import br.com.dama.intelligence.analytics.api.AnalyticsFacade;
+import br.com.dama.intelligence.analytics.api.RankingDepartamentoView;
 import br.com.dama.intelligence.colaborador.api.ColaboradorFacade;
 import br.com.dama.intelligence.colaborador.api.ColaboradorView;
 import br.com.dama.intelligence.conquista.api.ConquistaFacade;
@@ -20,14 +22,16 @@ class DashboardService implements DashboardFacade {
     private final ColaboradorFacade colaboradores;
     private final OrganizacaoFacade organizacao;
     private final ConquistaFacade conquistas;
+    private final AnalyticsFacade analytics;
     private final DashboardRepository repo;
     private final Clock clock;
 
     DashboardService(ColaboradorFacade colaboradores, OrganizacaoFacade organizacao, ConquistaFacade conquistas,
-                     DashboardRepository repo, Clock clock) {
+                     AnalyticsFacade analytics, DashboardRepository repo, Clock clock) {
         this.colaboradores = colaboradores;
         this.organizacao = organizacao;
         this.conquistas = conquistas;
+        this.analytics = analytics;
         this.repo = repo;
         this.clock = clock;
     }
@@ -67,7 +71,10 @@ class DashboardService implements DashboardFacade {
                 repo.pontosDaEquipe(departamentoId),
                 repo.aiCreditsSaldoDaEquipe(departamentoId),
                 repo.conquistasDaEquipe(departamentoId),
-                repo.posicaoNoRanking(departamentoId),
+                // mesma posição da tela de ranking (janela padrão, pontuação por pessoa)
+                analytics.rankingDepartamentos(departamento.empresaId(), null, null).stream()
+                        .filter(r -> r.departamentoId().equals(departamentoId))
+                        .map(RankingDepartamentoView::posicao).findFirst().orElse(null),
                 repo.membros(departamentoId)
         );
     }

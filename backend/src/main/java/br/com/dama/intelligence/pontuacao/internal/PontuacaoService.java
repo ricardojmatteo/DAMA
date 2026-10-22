@@ -6,11 +6,13 @@ import br.com.dama.intelligence.colaborador.api.ColaboradorFacade;
 import br.com.dama.intelligence.colaborador.api.ColaboradorView;
 import br.com.dama.intelligence.organizacao.api.OrganizacaoFacade;
 import br.com.dama.intelligence.pontuacao.api.*;
+import br.com.dama.intelligence.shared.error.ConflictException;
 import br.com.dama.intelligence.shared.error.NotFoundException;
 import br.com.dama.intelligence.shared.error.ValidationException;
 import br.com.dama.intelligence.shared.event.DesempenhoAtualizadoEvent;
 import br.com.dama.intelligence.shared.security.UsuarioAtual;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -92,6 +94,47 @@ class PontuacaoService implements PontuacaoFacade {
     public PontuacaoResumoView resumo(Long colaboradorId) {
         colaboradores.buscarPorId(colaboradorId); // 404 se não existir
         return new PontuacaoResumoView(colaboradorId, repo.total(colaboradorId), repo.historico(colaboradorId));
+    }
+
+    @Override
+    @Transactional
+    public TarefaEntregueView registrarTarefa(Long colaboradorId, RegistrarTarefaCommand comando) {
+        ColaboradorView colaborador = colaboradores.buscarPorId(colaboradorId);
+        exigirAtivo(colaborador);
+        String urgencia = comando.urgencia() == null ? "MEDIA" : comando.urgencia().toUpperCase();
+        TarefaEntregueView tarefa;
+        try {
+            tarefa = repo.inserirTarefa(colaboradorId, comando.chave().trim(), comando.descricao(), comando.storyPoints(),
+                    urgencia, comando.tokensIa() == null ? 0 : comando.tokensIa(), comando.entregueEm());
+        } catch (DuplicateKeyException e) {
+            throw new ConflictException("A tarefa " + comando.chave().trim() + " já foi registrada para este colaborador.");
+        }
+        auditoria.registrar(colaborador.empresaId(), UsuarioAtual.id(), "tarefa_entregue", tarefa.tarefaId().toString(), "CRIACAO", null);
+        eventos.publishEvent(new DesempenhoAtualizadoEvent(colaboradorId));
+        return tarefa;
+    }
+
+    @Override
+    public List<TarefaEntregueView> listarTarefas(Long colaboradorId) {
+        colaboradores.buscarPorId(colaboradorId); // 404 se não existir
+        return repo.listarTarefas(colaboradorId);
+    }
+
+    @Override
+    @Transactional
+    public BonusGestorView concederBonus(Long colaboradorId, ConcederBonusCommand comando) {
+        ColaboradorView colaborador = colaboradores.buscarPorId(colaboradorId);
+        exigirAtivo(colaborador);
+        BonusGestorView bonus = repo.inserirBonus(colaboradorId, UsuarioAtual.id(), comando.pontos(), comando.motivo().trim());
+        auditoria.registrar(colaborador.empresaId(), UsuarioAtual.id(), "bonus_gestor", bonus.bonusId().toString(), "CRIACAO", null);
+        eventos.publishEvent(new DesempenhoAtualizadoEvent(colaboradorId));
+        return bonus;
+    }
+
+    @Override
+    public List<BonusGestorView> listarBonus(Long colaboradorId) {
+        colaboradores.buscarPorId(colaboradorId); // 404 se não existir
+        return repo.listarBonus(colaboradorId);
     }
 
     @Override

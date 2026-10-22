@@ -1,5 +1,6 @@
 package br.com.dama.intelligence.analytics.api;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -12,9 +13,14 @@ import java.util.List;
 public interface AnalyticsFacade {
     VisaoConsolidadaView visaoConsolidada(Long empresaId);
 
-    List<RankingDepartamentoView> rankingDepartamentos(Long empresaId);
+    /**
+     * Ranking de equipes na janela [inicio, fim], por pontuação por pessoa (docs/requisitos/ranking.md).
+     * Datas nulas assumem os últimos dias da janela padrão, terminando hoje.
+     */
+    List<RankingDepartamentoView> rankingDepartamentos(Long empresaId, LocalDate inicio, LocalDate fim);
 
-    List<RankingColaboradorView> rankingColaboradores(Long empresaId);
+    /** Ranking de colaboradores na janela [inicio, fim], por pontos ajustados pelo uso de IA. */
+    List<RankingColaboradorView> rankingColaboradores(Long empresaId, LocalDate inicio, LocalDate fim);
 
     /** RF33/RF36: valor mais recente de cada indicador por equipe; indicadorId opcional para comparar um indicador só. */
     List<IndicadorDepartamentoView> indicadoresPorDepartamento(Long empresaId, Long indicadorId);

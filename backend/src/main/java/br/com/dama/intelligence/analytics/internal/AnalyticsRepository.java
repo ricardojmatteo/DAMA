@@ -1,12 +1,11 @@
 package br.com.dama.intelligence.analytics.internal;
 
 import br.com.dama.intelligence.analytics.api.IndicadorDepartamentoView;
-import br.com.dama.intelligence.analytics.api.RankingColaboradorView;
-import br.com.dama.intelligence.analytics.api.RankingDepartamentoView;
 import br.com.dama.intelligence.analytics.api.VisaoConsolidadaView;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -36,25 +35,40 @@ class AnalyticsRepository {
                 empresaId).stream().findFirst();
     }
 
-    List<RankingDepartamentoView> rankingDepartamentos(Long empresaId) {
-        return jdbc.query(
-                "select departamento_id, departamento_nome, colaboradores_ativos, pontos_totais, " +
-                        "pontos_media_por_lancamento, posicao from dama.vw_ranking_departamento " +
-                        "where empresa_id = ? order by posicao",
-                (rs, i) -> new RankingDepartamentoView(
-                        rs.getLong("departamento_id"), rs.getString("departamento_nome"), rs.getLong("colaboradores_ativos"),
-                        rs.getBigDecimal("pontos_totais"), rs.getBigDecimal("pontos_media_por_lancamento"), rs.getLong("posicao")),
+    List<RankingRegras.Departamento> departamentos(Long empresaId) {
+        return jdbc.query("select departamento_id, nome from dama.departamento where empresa_id = ? order by nome",
+                (rs, i) -> new RankingRegras.Departamento(rs.getLong("departamento_id"), rs.getString("nome")),
                 empresaId);
     }
 
-    List<RankingColaboradorView> rankingColaboradores(Long empresaId) {
-        return jdbc.query(
-                "select colaborador_id, nome, departamento_id, pontos_totais, posicao " +
-                        "from dama.vw_ranking_colaborador where empresa_id = ? order by posicao",
-                (rs, i) -> new RankingColaboradorView(
-                        rs.getLong("colaborador_id"), rs.getString("nome"), rs.getLong("departamento_id"),
-                        rs.getBigDecimal("pontos_totais"), rs.getLong("posicao")),
+    List<RankingRegras.Colaborador> colaboradoresAtivos(Long empresaId) {
+        return jdbc.query("select colaborador_id, nome, departamento_id from dama.colaborador where empresa_id = ? and ativo " +
+                        "order by colaborador_id",
+                (rs, i) -> new RankingRegras.Colaborador(rs.getLong("colaborador_id"), rs.getString("nome"),
+                        rs.getLong("departamento_id")),
                 empresaId);
+    }
+
+    /** Tarefas entregues pelos colaboradores ativos da empresa entre o início do dia inicio e o fim do dia fim. */
+    List<RankingRegras.Tarefa> tarefasEntregues(Long empresaId, LocalDate inicio, LocalDate fim) {
+        return jdbc.query(
+                "select t.colaborador_id, t.story_points, t.urgencia, t.tokens_ia from dama.tarefa_entregue t " +
+                        "join dama.colaborador c on c.colaborador_id = t.colaborador_id " +
+                        "where c.empresa_id = ? and c.ativo and t.entregue_em >= ? and t.entregue_em < ?",
+                (rs, i) -> new RankingRegras.Tarefa(rs.getLong("colaborador_id"), rs.getBigDecimal("story_points"),
+                        rs.getString("urgencia"), rs.getLong("tokens_ia")),
+                empresaId, Timestamp.valueOf(inicio.atStartOfDay()), Timestamp.valueOf(fim.plusDays(1).atStartOfDay()));
+    }
+
+    /** Bônus do gestor da janela, somados por colaborador. */
+    List<RankingRegras.Bonus> bonusDoGestor(Long empresaId, LocalDate inicio, LocalDate fim) {
+        return jdbc.query(
+                "select b.colaborador_id, sum(b.pontos) as pontos from dama.bonus_gestor b " +
+                        "join dama.colaborador c on c.colaborador_id = b.colaborador_id " +
+                        "where c.empresa_id = ? and c.ativo and b.registrado_em >= ? and b.registrado_em < ? " +
+                        "group by b.colaborador_id",
+                (rs, i) -> new RankingRegras.Bonus(rs.getLong("colaborador_id"), rs.getBigDecimal("pontos")),
+                empresaId, Timestamp.valueOf(inicio.atStartOfDay()), Timestamp.valueOf(fim.plusDays(1).atStartOfDay()));
     }
 
     List<AnaliseGestaoRegras.MetaAberta> metasAbertas(Long empresaId) {
@@ -103,15 +117,6 @@ class AnalyticsRepository {
                         rs.getObject("colaborador_id", Long.class), rs.getString("colaborador_nome"),
                         rs.getObject("departamento_id", Long.class), rs.getString("departamento_nome"),
                         rs.getDate("periodo_referencia").toLocalDate(), rs.getBigDecimal("valor")),
-                empresaId);
-    }
-
-    List<AnaliseGestaoRegras.Equipe> equipes(Long empresaId) {
-        return jdbc.query(
-                "select departamento_id, departamento_nome, colaboradores_ativos, pontos_totais " +
-                        "from dama.vw_ranking_departamento where empresa_id = ? order by posicao",
-                (rs, i) -> new AnaliseGestaoRegras.Equipe(rs.getLong("departamento_id"), rs.getString("departamento_nome"),
-                        rs.getLong("colaboradores_ativos"), rs.getBigDecimal("pontos_totais")),
                 empresaId);
     }
 

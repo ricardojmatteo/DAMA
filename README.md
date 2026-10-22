@@ -78,4 +78,5 @@ Unitários para regras de metas, conquistas e análises de gestão; testes de in
 - [Arquitetura C4](docs/arquitetura/) e [ADRs](docs/adr/)
 - [Referência da API](docs/api/)
 - [Rastreabilidade e regras de negócio](docs/requisitos/)
+- [Como o ranking é calculado e o que falta para integrar com o Jira](docs/requisitos/ranking.md)
 - [Deliverable 2](Deliverable2/): [Qualidade de Software](Deliverable2/Qualidade%20de%20Software/), [Pesquisa Operacional](Deliverable2/Pesquisa%20Operacional/) e [Estatística Multivariada](Deliverable2/Estatistica%20Multivariada/)

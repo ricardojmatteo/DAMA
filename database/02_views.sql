@@ -43,32 +43,11 @@ FROM indicador_valor iv
 JOIN indicador i ON i.indicador_id = iv.indicador_id
 ORDER BY iv.periodo_referencia;
 
--- RF08/RF28 — ranking de colaboradores por pontuação, dentro da empresa
-CREATE OR REPLACE VIEW vw_ranking_colaborador AS
-SELECT c.empresa_id,
-       c.colaborador_id,
-       c.nome,
-       c.departamento_id,
-       COALESCE(SUM(p.pontos), 0) AS pontos_totais,
-       RANK() OVER (PARTITION BY c.empresa_id ORDER BY COALESCE(SUM(p.pontos), 0) DESC) AS posicao
-FROM colaborador c
-LEFT JOIN pontuacao p ON p.colaborador_id = c.colaborador_id
-WHERE c.ativo
-GROUP BY c.empresa_id, c.colaborador_id, c.nome, c.departamento_id;
-
--- RF14/RF36 — comparação entre equipes (departamentos) de uma mesma empresa
-CREATE OR REPLACE VIEW vw_ranking_departamento AS
-SELECT d.empresa_id,
-       d.departamento_id,
-       d.nome AS departamento_nome,
-       COUNT(DISTINCT c.colaborador_id) FILTER (WHERE c.ativo) AS colaboradores_ativos,
-       COALESCE(SUM(p.pontos), 0) AS pontos_totais,
-       COALESCE(AVG(p.pontos), 0) AS pontos_media_por_lancamento,
-       RANK() OVER (PARTITION BY d.empresa_id ORDER BY COALESCE(SUM(p.pontos), 0) DESC) AS posicao
-FROM departamento d
-LEFT JOIN colaborador c ON c.departamento_id = d.departamento_id
-LEFT JOIN pontuacao p ON p.colaborador_id = c.colaborador_id
-GROUP BY d.empresa_id, d.departamento_id, d.nome;
+-- RF08/RF28/RF14/RF36 — os rankings de colaborador e de equipe deixaram de ser views: dependem de uma janela
+-- de tempo e do uso de IA, então são calculados em AnalyticsService/RankingRegras (docs/requisitos/ranking.md).
+-- Os DROPs mantêm o script reexecutável em bancos criados com a versão anterior.
+DROP VIEW IF EXISTS vw_ranking_colaborador;
+DROP VIEW IF EXISTS vw_ranking_departamento;
 
 -- RF13 — visão consolidada de desempenho de uma empresa.
 -- Cada total vem de uma subconsulta própria: juntar colaborador, departamento,

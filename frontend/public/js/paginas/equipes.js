@@ -4,6 +4,7 @@ import { departamentos, indicadores } from '../dados.js';
 import { grafico, CORES } from '../graficos.js';
 import { h, fmt, painel, stat, tabela, select, vazio } from '../ui.js';
 import { navegar } from '../app.js';
+import { periodoRanking, seletorPeriodo } from './comum.js';
 
 export default async function (el, params) {
     const listaEquipes = await departamentos();
@@ -44,8 +45,9 @@ export default async function (el, params) {
 
 async function comparacao(el, params) {
     const e = sessao.empresaId;
+    const periodo = periodoRanking(params);
     const [ranking, todos, listaCompleta] = await Promise.all([
-        api.get(`/empresas/${e}/analytics/ranking-departamentos`),
+        api.get(`/empresas/${e}/analytics/ranking-departamentos?${periodo.consulta}`),
         api.get(`/empresas/${e}/analytics/indicadores-departamentos`),
         indicadores()
     ]);
@@ -63,12 +65,17 @@ async function comparacao(el, params) {
         { titulo: '#', valor: r => `${r.posicao}º` },
         { titulo: 'Equipe', valor: r => h('a', { href: `#/equipes?dep=${r.departamentoId}` }, r.departamentoNome) },
         { titulo: 'Ativos', classe: 'num', valor: r => fmt.num(r.colaboradoresAtivos) },
-        { titulo: 'Pontos', classe: 'num', valor: r => fmt.num(r.pontosTotais) },
-        { titulo: 'Pontos por pessoa', classe: 'num', valor: r => fmt.num(r.colaboradoresAtivos ? Number(r.pontosTotais) / r.colaboradoresAtivos : 0) }
-    ], ranking), { subtitulo: 'Sempre dentro da mesma empresa' }));
+        { titulo: 'Tarefas', classe: 'num', valor: r => fmt.num(r.tarefasEntregues) },
+        { titulo: 'Pontuação', classe: 'num', valor: r => fmt.num(r.pontuacaoTotal) },
+        { titulo: 'Pontuação por pessoa', classe: 'num', valor: r => h('span', { class: 'forte' }, fmt.num(r.pontuacaoPorPessoa)) },
+        { titulo: 'Nota', classe: 'num', valor: r => fmt.num(r.nota) }
+    ], ranking), {
+        subtitulo: 'Posição pela pontuação por pessoa (equipes grandes não levam vantagem). Sempre dentro da mesma empresa',
+        acoes: seletorPeriodo(periodo.dias, v => navegar('equipes', { ...Object.fromEntries(params), dias: v }))
+    }));
 
     el.append(h('div', { class: 'grade duas' },
-        painel('Pontos por pessoa', areaPontos),
+        painel('Pontuação por pessoa', areaPontos, { subtitulo: periodo.rotulo }),
         painel(indicador ? `${indicador.nome} por equipe` : 'Indicador por equipe', porEquipe.length ? areaIndicador : vazio('Nenhuma equipe tem valores deste indicador.'), {
             acoes: lista.length ? select(lista.map(i => ({ valor: i.indicadorId, rotulo: i.nome })), {
                 valor: indicadorId, aoMudar: v => navegar('equipes', { ...Object.fromEntries(params), ind: v })
@@ -79,8 +86,8 @@ async function comparacao(el, params) {
     grafico(areaPontos, 'bar', {
         labels: ranking.map(r => r.departamentoNome),
         datasets: [{
-            label: 'Pontos por pessoa', borderRadius: 6, backgroundColor: ranking.map((_, i) => CORES[i % CORES.length] + 'cc'),
-            data: ranking.map(r => r.colaboradoresAtivos ? Number(r.pontosTotais) / r.colaboradoresAtivos : 0)
+            label: 'Pontuação por pessoa', borderRadius: 6, backgroundColor: ranking.map((_, i) => CORES[i % CORES.length] + 'cc'),
+            data: ranking.map(r => Number(r.pontuacaoPorPessoa))
         }]
     }, { plugins: { legend: { display: false } } });
 

@@ -1,5 +1,7 @@
 package br.com.dama.intelligence.dashboard.internal;
 
+import br.com.dama.intelligence.analytics.api.AnalyticsFacade;
+import br.com.dama.intelligence.analytics.api.RankingDepartamentoView;
 import br.com.dama.intelligence.colaborador.api.ColaboradorFacade;
 import br.com.dama.intelligence.colaborador.api.ColaboradorView;
 import br.com.dama.intelligence.conquista.api.ConquistaFacade;
@@ -25,6 +27,7 @@ class DashboardServiceTest {
     private ColaboradorFacade colaboradores;
     private OrganizacaoFacade organizacao;
     private ConquistaFacade conquistas;
+    private AnalyticsFacade analytics;
     private DashboardRepository repo;
     private DashboardService service;
 
@@ -33,8 +36,9 @@ class DashboardServiceTest {
         colaboradores = mock(ColaboradorFacade.class);
         organizacao = mock(OrganizacaoFacade.class);
         conquistas = mock(ConquistaFacade.class);
+        analytics = mock(AnalyticsFacade.class);
         repo = mock(DashboardRepository.class);
-        service = new DashboardService(colaboradores, organizacao, conquistas, repo,
+        service = new DashboardService(colaboradores, organizacao, conquistas, analytics, repo,
                 Clock.fixed(Instant.parse("2026-10-05T12:00:00Z"), ZoneOffset.UTC));
     }
 
@@ -69,13 +73,15 @@ class DashboardServiceTest {
         when(repo.pontosDaEquipe(2L)).thenReturn(new BigDecimal("90"));
         when(repo.aiCreditsSaldoDaEquipe(2L)).thenReturn(new BigDecimal("40"));
         when(repo.conquistasDaEquipe(2L)).thenReturn(5L);
-        when(repo.posicaoNoRanking(2L)).thenReturn(1L);
+        when(analytics.rankingDepartamentos(1L, null, null)).thenReturn(List.of(
+                new RankingDepartamentoView(3L, "Comercial", 2, BigDecimal.TEN, BigDecimal.TEN, new BigDecimal("5"), BigDecimal.ZERO, 1),
+                new RankingDepartamentoView(2L, "TI", 4, BigDecimal.TEN, BigDecimal.TEN, new BigDecimal("2.5"), BigDecimal.ZERO, 2)));
         when(repo.membros(2L)).thenReturn(List.of(new MembroEquipeView(10L, "Ana", "Dev", BigDecimal.TEN, BigDecimal.ONE, 2)));
 
         var dashboard = service.daEquipe(2L);
 
         assertThat(dashboard).extracting(d -> d.nome(), d -> d.metasVencidas(), d -> d.posicaoNoRanking())
-                .containsExactly("TI", 1L, 1L);
+                .containsExactly("TI", 1L, 2L);
         verify(repo).contarMetasVencidasDaEquipe(2L, LocalDate.of(2026, 10, 5));
     }
 

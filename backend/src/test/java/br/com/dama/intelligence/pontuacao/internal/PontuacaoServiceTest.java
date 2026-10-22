@@ -21,6 +21,9 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class PontuacaoServiceTest {
@@ -99,6 +102,44 @@ class PontuacaoServiceTest {
         PontuacaoView automatico = pontuacao(10L, null, BigDecimal.ONE, "Desafio");
         when(repo.inserirPontuacao(10L, null, BigDecimal.ONE, "Desafio")).thenReturn(automatico);
         assertThat(service.creditarPontos(10L, BigDecimal.ONE, "Desafio")).isEqualTo(automatico);
+    }
+
+    @Test
+    void tarefaEntregueAssumeUrgenciaMediaETokensZeroQuandoOmitidosEAvisaOGestor() {
+        when(colaboradores.buscarPorId(10L)).thenReturn(colaborador(10L, 1L, true));
+        TarefaEntregueView tarefa = new TarefaEntregueView(7L, 10L, "DAMA-1", null, BigDecimal.valueOf(5), "MEDIA", 0, LocalDateTime.now());
+        when(repo.inserirTarefa(10L, "DAMA-1", null, BigDecimal.valueOf(5), "MEDIA", 0L, null)).thenReturn(tarefa);
+
+        assertThat(service.registrarTarefa(10L, new RegistrarTarefaCommand(" DAMA-1 ", null, BigDecimal.valueOf(5), null, null, null)))
+                .isEqualTo(tarefa);
+
+        verify(eventos).publishEvent(new DesempenhoAtualizadoEvent(10L));
+    }
+
+    @Test
+    void tarefaRepetidaGeraConflitoEColaboradorInativoEhRecusado() {
+        when(colaboradores.buscarPorId(10L)).thenReturn(colaborador(10L, 1L, true));
+        when(repo.inserirTarefa(any(), any(), any(), any(), any(), anyLong(), any()))
+                .thenThrow(new org.springframework.dao.DuplicateKeyException("duplicada"));
+        assertThatThrownBy(() -> service.registrarTarefa(10L, new RegistrarTarefaCommand("DAMA-1", null, BigDecimal.ONE, "alta", 100L, null)))
+                .isInstanceOf(br.com.dama.intelligence.shared.error.ConflictException.class);
+
+        when(colaboradores.buscarPorId(11L)).thenReturn(colaborador(11L, 1L, false));
+        assertThatThrownBy(() -> service.registrarTarefa(11L, new RegistrarTarefaCommand("DAMA-2", null, BigDecimal.ONE, null, null, null)))
+                .isInstanceOf(ValidationException.class);
+    }
+
+    @Test
+    void bonusDoGestorEhRegistradoParaColaboradorAtivo() {
+        when(colaboradores.buscarPorId(10L)).thenReturn(colaborador(10L, 1L, true));
+        BonusGestorView bonus = new BonusGestorView(3L, 10L, 2L, BigDecimal.TEN, "Mentoria", LocalDateTime.now());
+        when(repo.inserirBonus(any(), any(), eq(BigDecimal.TEN), eq("Mentoria"))).thenReturn(bonus);
+
+        assertThat(service.concederBonus(10L, new ConcederBonusCommand(BigDecimal.TEN, " Mentoria "))).isEqualTo(bonus);
+
+        when(colaboradores.buscarPorId(11L)).thenReturn(colaborador(11L, 1L, false));
+        assertThatThrownBy(() -> service.concederBonus(11L, new ConcederBonusCommand(BigDecimal.TEN, "x")))
+                .isInstanceOf(ValidationException.class);
     }
 
     private static RegraPontuacaoView regra(long id, boolean ativa) {

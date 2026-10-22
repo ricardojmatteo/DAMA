@@ -46,3 +46,32 @@ export async function seletorPessoa(params, aoMudar, permissao = 'COLABORADOR_LE
         select(itens, { valor: id, aoMudar }));
     return { elemento, id };
 }
+
+// ---------- janela de tempo do ranking ----------
+
+const PERIODOS = [
+    { valor: '7', rotulo: 'Últimos 7 dias' },
+    { valor: '30', rotulo: 'Últimos 30 dias' },
+    { valor: '90', rotulo: 'Últimos 90 dias' },
+    { valor: '365', rotulo: 'Último ano' },
+    { valor: 'todo', rotulo: 'Todo o período' }
+];
+
+function iso(data) {
+    const p = n => String(n).padStart(2, '0');
+    return `${data.getFullYear()}-${p(data.getMonth() + 1)}-${p(data.getDate())}`;
+}
+
+/** Período escolhido na URL (?dias=7|30|90|365|todo; padrão 30) e a query string que o backend espera. */
+export function periodoRanking(params) {
+    const dias = PERIODOS.some(p => p.valor === params.get('dias')) ? params.get('dias') : '30';
+    const hoje = new Date();
+    const inicio = new Date(hoje);
+    if (dias === 'todo') inicio.setFullYear(2000, 0, 1);
+    else inicio.setDate(hoje.getDate() - (Number(dias) - 1));
+    return { dias, consulta: `inicio=${iso(inicio)}&fim=${iso(hoje)}`, rotulo: PERIODOS.find(p => p.valor === dias).rotulo };
+}
+
+export function seletorPeriodo(dias, aoMudar) {
+    return select(PERIODOS, { valor: dias, aoMudar });
+}

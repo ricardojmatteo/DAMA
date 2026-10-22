@@ -96,6 +96,8 @@ Erros de negócio voltam como `400` (regra violada), `404` (não encontrado), `4
 | POST | `/colaboradores/{id}/ai-credits/transacoes` | AI_CREDITS_GERENCIAR | Crédito manual ou débito (recusado sem saldo) |
 | GET | `/colaboradores/{id}/ai-credits/saldo` | AI_CREDITS_LER | Saldo e nível de autonomia |
 | GET | `/colaboradores/{id}/ai-credits/historico` | AI_CREDITS_LER | Movimentações |
+| POST / GET | `/colaboradores/{id}/tarefas` | DESEMPENHO_ESCREVER / GAMIFICACAO_LER | Tarefas entregues (Jira): `{ "chave", "storyPoints", "urgencia", "tokensIa" }`; base do ranking |
+| POST / GET | `/colaboradores/{id}/bonus` | DESEMPENHO_ESCREVER / GAMIFICACAO_LER | Bônus do gestor (`{ "pontos", "motivo" }`), até 15% dos pontos líquidos no ranking |
 | GET / POST | `/ai-credits/niveis` | LER / GERENCIAR | Níveis de autonomia |
 
 ## Analytics e auditoria
@@ -103,8 +105,8 @@ Erros de negócio voltam como `400` (regra violada), `404` (não encontrado), `4
 | Método | Caminho | Permissão | O que faz |
 |---|---|---|---|
 | GET | `/empresas/{empresaId}/analytics/visao-consolidada` | ANALYTICS_LER | Totais da empresa |
-| GET | `/empresas/{empresaId}/analytics/ranking-colaboradores` | ANALYTICS_LER ou GAMIFICACAO_LER | Ranking por pontos |
-| GET | `/empresas/{empresaId}/analytics/ranking-departamentos` | ANALYTICS_LER | Comparação entre equipes |
+| GET | `/empresas/{empresaId}/analytics/ranking-colaboradores?inicio&fim` | ANALYTICS_LER ou GAMIFICACAO_LER | Ranking do período (padrão: 30 dias): tarefas entregues × urgência − uso de IA + bônus do gestor, nota de 0 a 10. Regras em [ranking.md](../requisitos/ranking.md) |
+| GET | `/empresas/{empresaId}/analytics/ranking-departamentos?inicio&fim` | ANALYTICS_LER | Comparação entre equipes do período, por pontuação por pessoa (nota de 0 a 10) |
 | GET | `/empresas/{empresaId}/analytics/indicadores-departamentos?indicadorId` | ANALYTICS_LER | Último valor de cada indicador por equipe |
 | GET | `/empresas/{empresaId}/analytics/alertas` | ANALYTICS_LER | Análises de gestão (onde agir); as regras rodam no `alert-service` ([ADR-0009](../adr/0009-alert-service-node-para-alertas-de-gestao.md)) ou, se ele estiver fora do ar, no próprio backend |
 | GET | `/empresas/{empresaId}/auditoria?entidade&entidadeId` | PERFIL_GERENCIAR | Eventos de auditoria |

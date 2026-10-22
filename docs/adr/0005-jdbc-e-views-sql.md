@@ -11,7 +11,7 @@ Boa parte do DAMA é leitura agregada: rankings, visão consolidada, dashboards,
 
 - O schema é mantido em scripts SQL versionados (`database/01_schema.sql`, `02_views.sql`, `03_seed.sql`).
 - Os repositórios usam `JdbcTemplate` com SQL explícito.
-- Agregações ficam em views (`vw_ranking_colaborador`, `vw_visao_consolidada_empresa`...) ou em consultas do próprio repositório; saldos e totais nunca são armazenados.
+- Agregações ficam em views (`vw_visao_consolidada_empresa`...) ou em consultas do próprio repositório; saldos e totais nunca são armazenados.
 
 ## Alternativas consideradas
 
