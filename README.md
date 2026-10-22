@@ -14,7 +14,7 @@ DAMA/
 ├── database/         Scripts PostgreSQL: schema, views, seed e dados de demonstração
 ├── docs/             Produto, arquitetura (C4), ADRs, API e rastreabilidade
 ├── Deliverable1/     Entregas acadêmicas do Deliverable 1 por disciplina
-├── Deliverable2/     Entregas do Deliverable 2 (índice por disciplina, Qualidade de Software, Pesquisa Operacional, Estatística Multivariada)
+├── Deliverable2/     Entregas do Deliverable 2 (índice por disciplina, Qualidade, Pesquisa Operacional, Estatística, Machine Learning, Análise Preditiva)
 ├── projetos-aula/    Projetos-modelo das aulas (camadas, modular, microservices)
 └── docker-compose.yml
 ```
@@ -79,4 +79,4 @@ Unitários para regras de metas, conquistas e análises de gestão; testes de in
 - [Referência da API](docs/api/)
 - [Rastreabilidade e regras de negócio](docs/requisitos/)
 - [Como o ranking é calculado e o que falta para integrar com o Jira](docs/requisitos/ranking.md)
-- [Deliverable 2](Deliverable2/): [Qualidade de Software](Deliverable2/Qualidade%20de%20Software/), [Pesquisa Operacional](Deliverable2/Pesquisa%20Operacional/) e [Estatística Multivariada](Deliverable2/Estatistica%20Multivariada/)
+- [Deliverable 2](Deliverable2/): [Qualidade de Software](Deliverable2/Qualidade%20de%20Software/), [Pesquisa Operacional](Deliverable2/Pesquisa%20Operacional/), [Estatística Multivariada](Deliverable2/Estatistica%20Multivariada/), [Machine Learning](Deliverable2/Machine%20Learning/) e [Análise Preditiva](Deliverable2/Analise%20Preditiva/)

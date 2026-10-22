@@ -1,0 +1,9 @@
+tabela,linhas,colunas,celulas_nulas,colunas_com_nulos,linhas_duplicadas,ausencias_disfarcadas,numeros_negativos,cardinalidade
+employees,2356,8,45,cost_center (1.9%),0,0,0,"job_role: 75, seniority: 5, hire_date: 1423, cost_center: 156"
+departments,161,3,0,—,0,0,0,department_name: 31
+companies,18,5,0,—,0,0,0,"company_name: 18, industry: 6, company_size: 3"
+ai_tools,15,5,0,—,0,0,0,"tool_name: 15, provider: 11, tool_category: 5, licensing_type: 2"
+ai_licenses,5605,7,1574,expiration_date (28.1%),0,0,0,"license_type: 3, assigned_date: 367, expiration_date: 460, license_status: 3"
+approved_ai_tools,105,5,48,allowed_departments (45.7%),0,0,0,"approval_status: 3, approval_date: 77, allowed_departments: 14"
+training_records,1597,10,1356,"completion_date (42.5%), score (42.5%)",0,0,0,"course_name: 12, course_category: 8, enrollment_date: 411, completion_date: 371, completion_status: 4"
+ai_usage_logs,269515,7,0,—,0,0,0,request_status: 4

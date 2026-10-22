@@ -1,0 +1,19 @@
+company_id,empresa,setor,inicio_do_uso,meses_com_uso,requisicoes_jul2026,variacao_jan_jul_2026,usa_ferramenta_de_consumo
+C01,NexoCode Solucoes,Tecnologia / Desenvolvimento de Software,2025-06,14,372716,0.44741267159860976,True
+C02,Vortice Software,Tecnologia / Desenvolvimento de Software,2025-06,14,149743,0.4350759499736452,True
+C03,Piloto Digital Sistemas,Tecnologia / Desenvolvimento de Software,2025-08,12,22227,0.4207094918504315,True
+C04,Cronos Tech Labs,Tecnologia / Desenvolvimento de Software,2025-06,14,64093,0.015061290424756901,True
+C05,ByteFlow Engenharia de Software,Tecnologia / Desenvolvimento de Software,2025-12,8,11476,0.22593739985044325,False
+C06,Banco Alterosa S.A.,Financeiro,2025-07,13,29355,0.636561297875899,False
+C07,Capital Sul Investimentos,Financeiro,2026-02,6,5166,,False
+C08,Fincredi Solucoes Financeiras,Financeiro,2025-09,11,5066,0.8776871756856932,False
+C09,Metalurgica Vale Forte,Industria,2025-11,9,6629,0.12718925352831145,False
+C10,Quimica Bandeirantes,Industria,2025-10,10,7311,1.2961683417085426,False
+C11,TextilNorte Manufatura,Industria,2026-04,4,428,,False
+C12,Compra Certa Varejo,Varejo,2025-08,12,13751,0.5722616053052825,False
+C13,Lojas Formosa,Varejo,2026-01,7,4737,0.24625098658247824,False
+C14,MercadoPrime E-commerce,Varejo,2025-06,14,28250,0.6625470809792844,True
+C15,Prisma Consultoria Empresarial,Servicos,2025-06,14,24081,0.5850062528796156,True
+C16,ServPro Facilities,Servicos,2026-03,5,1152,,False
+C17,Ideia Fresca Marketing,Marketing,2025-06,14,19381,0.5305219932085603,True
+C18,Estrela Marketing Digital,Marketing,2025-07,13,26179,0.48088019006674965,True
