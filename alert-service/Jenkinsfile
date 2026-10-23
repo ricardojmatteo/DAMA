@@ -1,0 +1,56 @@
+pipeline {
+  agent any
+
+  options {
+    skipDefaultCheckout(true)
+    disableConcurrentBuilds()
+  }
+
+  environment {
+    IMAGE_NAME = 'dama-alert-service'
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+
+    stage('Verificar ambiente Node') {
+      steps {
+        dir('alert-service') {
+          sh '''
+            node --version
+            npm --version
+            node --check src/regras.js
+            node --check src/server.js
+          '''
+        }
+      }
+    }
+
+    stage('Testes unitarios e HTTP') {
+      steps {
+        dir('alert-service') {
+          // O servico nao tem dependencias externas; node --test e suficiente.
+          sh 'npm test'
+        }
+      }
+    }
+
+    stage('Imagem Docker') {
+      steps {
+        dir('alert-service') {
+          sh 'docker build --pull -t ${IMAGE_NAME}:${BUILD_NUMBER} .'
+        }
+      }
+    }
+  }
+
+  post {
+    always {
+      deleteDir()
+    }
+  }
+}

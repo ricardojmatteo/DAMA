@@ -1,0 +1,64 @@
+pipeline {
+  agent any
+
+  options {
+    skipDefaultCheckout(true)
+    disableConcurrentBuilds()
+  }
+
+  environment {
+    IMAGE_NAME = 'dama-frontend'
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+
+    stage('Verificar ambiente Node') {
+      steps {
+        dir('frontend') {
+          sh '''
+            node --version
+            npm --version
+            node --check server.js
+          '''
+        }
+      }
+    }
+
+    stage('Instalar dependencias') {
+      steps {
+        dir('frontend') {
+          // package-lock.json existe: npm ci torna a instalacao reprodutivel.
+          sh 'npm ci'
+        }
+      }
+    }
+
+    stage('Testes automatizados') {
+      steps {
+        dir('frontend') {
+          // Executa os testes quando o script for adicionado; hoje o modulo ainda nao o possui.
+          sh 'npm test --if-present'
+        }
+      }
+    }
+
+    stage('Imagem Docker') {
+      steps {
+        dir('frontend') {
+          sh 'docker build --pull -t ${IMAGE_NAME}:${BUILD_NUMBER} .'
+        }
+      }
+    }
+  }
+
+  post {
+    always {
+      deleteDir()
+    }
+  }
+}
