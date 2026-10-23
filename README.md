@@ -80,3 +80,7 @@ Unitários para regras de metas, conquistas e análises de gestão; testes de in
 - [Rastreabilidade e regras de negócio](docs/requisitos/)
 - [Como o ranking é calculado e o que falta para integrar com o Jira](docs/requisitos/ranking.md)
 - [Deliverable 2](Deliverable2/): [Qualidade de Software](Deliverable2/Qualidade%20de%20Software/), [Pesquisa Operacional](Deliverable2/Pesquisa%20Operacional/), [Estatística Multivariada](Deliverable2/Estatistica%20Multivariada/), [Machine Learning](Deliverable2/Machine%20Learning/) e [Análise Preditiva](Deliverable2/Analise%20Preditiva/)
+
+## Uso de IA
+
+Este projeto foi desenvolvido com o auxílio de ferramentas de inteligência artificial generativa, usadas para apoiar a codificação, a análise de dados, a revisão e a redação da documentação. A equipe define o escopo e as decisões e responde pelo conteúdo entregue.
