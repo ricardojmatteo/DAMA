@@ -50,7 +50,7 @@ pipeline {
     stage('Imagem Docker') {
       steps {
         dir('frontend') {
-          bat 'docker build --pull -t ${IMAGE_NAME}:${BUILD_NUMBER} .'
+         bat 'docker build --pull -t %IMAGE_NAME%:%BUILD_NUMBER% .'
         }
       }
     }
