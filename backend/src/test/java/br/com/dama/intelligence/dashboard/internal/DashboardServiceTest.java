@@ -74,8 +74,8 @@ class DashboardServiceTest {
         when(repo.aiCreditsSaldoDaEquipe(2L)).thenReturn(new BigDecimal("40"));
         when(repo.conquistasDaEquipe(2L)).thenReturn(5L);
         when(analytics.rankingDepartamentos(1L, null, null)).thenReturn(List.of(
-                new RankingDepartamentoView(3L, "Comercial", 2, BigDecimal.TEN, BigDecimal.TEN, new BigDecimal("5"), BigDecimal.ZERO, 1),
-                new RankingDepartamentoView(2L, "TI", 4, BigDecimal.TEN, BigDecimal.TEN, new BigDecimal("2.5"), BigDecimal.ZERO, 2)));
+                new RankingDepartamentoView(3L, "Comercial", 2, 4L, BigDecimal.TEN, new BigDecimal("5"), BigDecimal.ZERO, 1),
+                new RankingDepartamentoView(2L, "TI", 4, 6L, BigDecimal.TEN, new BigDecimal("2.5"), BigDecimal.ZERO, 2)));
         when(repo.membros(2L)).thenReturn(List.of(new MembroEquipeView(10L, "Ana", "Dev", BigDecimal.TEN, BigDecimal.ONE, 2)));
 
         var dashboard = service.daEquipe(2L);
