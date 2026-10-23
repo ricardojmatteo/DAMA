@@ -20,7 +20,7 @@ pipeline {
     stage('Verificar ambiente Node') {
       steps {
         dir('alert-service') {
-          sh '''
+          bat '''
             node --version
             npm --version
             node --check src/regras.js
@@ -34,7 +34,7 @@ pipeline {
       steps {
         dir('alert-service') {
           // O servico nao tem dependencias externas; node --test e suficiente.
-          sh 'npm test'
+          bat 'npm test'
         }
       }
     }
@@ -42,7 +42,7 @@ pipeline {
     stage('Imagem Docker') {
       steps {
         dir('alert-service') {
-          sh 'docker build --pull -t ${IMAGE_NAME}:${BUILD_NUMBER} .'
+          bat 'docker build --pull -t ${IMAGE_NAME}:${BUILD_NUMBER} .'
         }
       }
     }

@@ -20,7 +20,7 @@ pipeline {
     stage('Verificar ambiente Node') {
       steps {
         dir('frontend') {
-          sh '''
+          bat '''
             node --version
             npm --version
             node --check server.js
@@ -33,7 +33,7 @@ pipeline {
       steps {
         dir('frontend') {
           // package-lock.json existe: npm ci torna a instalacao reprodutivel.
-          sh 'npm ci'
+          bat 'npm ci'
         }
       }
     }
@@ -42,7 +42,7 @@ pipeline {
       steps {
         dir('frontend') {
           // Executa os testes quando o script for adicionado; hoje o modulo ainda nao o possui.
-          sh 'npm test --if-present'
+          bat 'npm test --if-present'
         }
       }
     }
@@ -50,7 +50,7 @@ pipeline {
     stage('Imagem Docker') {
       steps {
         dir('frontend') {
-          sh 'docker build --pull -t ${IMAGE_NAME}:${BUILD_NUMBER} .'
+          bat 'docker build --pull -t ${IMAGE_NAME}:${BUILD_NUMBER} .'
         }
       }
     }
