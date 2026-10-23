@@ -42,7 +42,7 @@ pipeline {
     stage('Imagem Docker') {
       steps {
         dir('alert-service') {
-          bat 'docker build --pull -t ${IMAGE_NAME}:${BUILD_NUMBER} .'
+          bat 'docker build --pull -t %IMAGE_NAME%:%BUILD_NUMBER% .'
         }
       }
     }
