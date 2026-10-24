@@ -91,7 +91,7 @@ A Indústria tem a menor maturidade e o segundo maior investimento. O Marketing 
 
 ![Quadrantes](figuras/fig05_quadrantes.png)
 
-**27 departamentos estão no quadrante de desperdício**, com investimento acima da mediana e maturidade abaixo dela. São o primeiro alvo da realocação de licenças proposta no [modelo de Pesquisa Operacional](../Pesquisa%20Operacional/).
+**27 departamentos estão no quadrante de desperdício**, com investimento acima da mediana e maturidade abaixo dela. São o primeiro alvo da realocação de licenças proposta no [modelo de Pesquisa Operacional](../07_Pesquisa_Operacional_e_Calculo_Aplicado/).
 
 ![Grupos](figuras/fig07_clusters.png)
 

@@ -122,7 +122,7 @@ Para agosto de 2026, `resultados/recomendacao_ago2026.csv` classifica cada colab
 - **Revisar** (com assento e probabilidade abaixo de 20%): 1.707 assentos, cerca de R$ 219 mil por mês.
 - **Considerar** (sem assento e probabilidade acima de 80%): 2.032 pares.
 
-A decisão de quem recebe cada assento, dentro do orçamento e das regras de governança, é do [modelo da Pesquisa Operacional](../Pesquisa%20Operacional/). A probabilidade deste modelo pode substituir o valor histórico que a PO usa hoje.
+A decisão de quem recebe cada assento, dentro do orçamento e das regras de governança, é do [modelo da Pesquisa Operacional](../07_Pesquisa_Operacional_e_Calculo_Aplicado/). A probabilidade deste modelo pode substituir o valor histórico que a PO usa hoje.
 
 ## 6. Limitações
 

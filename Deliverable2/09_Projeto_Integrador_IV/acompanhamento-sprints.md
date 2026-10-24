@@ -1,6 +1,6 @@
 # Acompanhamento das sprints
 
-Fonte: exportação do Jira de 20/10/2026 em `Deliverable2/Qualidade de Software/evidencias/jira-sprint3-2026-10-20.csv` (118 issues, projeto SMAN). Os números abaixo foram contados nesse arquivo. Não há datas de início e fim das sprints na exportação, então elas não aparecem aqui: **a confirmar pela equipe**.
+Fonte: exportação do Jira de 20/10/2026 em `Deliverable2/04_Qualidade_de_Software/evidencias/jira-sprint3-2026-10-20.csv` (118 issues, projeto SMAN). Os números abaixo foram contados nesse arquivo. Não há datas de início e fim das sprints na exportação, então elas não aparecem aqui: **a confirmar pela equipe**.
 
 ## Quadro
 

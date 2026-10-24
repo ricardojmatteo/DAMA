@@ -21,8 +21,8 @@ Dar **AI Credits** pelo uso produtivo de IA, e usar o saldo para liberar **níve
 ## Evidências de apoio das outras disciplinas
 
 Resultados dos dados sintéticos do projeto, que dão sentido ao desenho, mas **não validam a hipótese com usuários**:
-- **Estatística Multivariada:** treinamento sozinho não move o uso nem reduz incidentes; o grupo "uso sem capacitação" é o de maior risco de governança. Isso apoia ligar o acesso a um critério além do curso ([README](../Estatistica%20Multivariada/README.md)).
-- **Pesquisa Operacional:** exigir capacitação para licenças além da básica reduz o valor da alocação em 30%, o que mostra o peso do critério de acesso ([README](../Pesquisa%20Operacional/README.md)).
+- **Estatística Multivariada:** treinamento sozinho não move o uso nem reduz incidentes; o grupo "uso sem capacitação" é o de maior risco de governança. Isso apoia ligar o acesso a um critério além do curso ([README](../02_Estatistica_Multivariada/README.md)).
+- **Pesquisa Operacional:** exigir capacitação para licenças além da básica reduz o valor da alocação em 30%, o que mostra o peso do critério de acesso ([README](../07_Pesquisa_Operacional_e_Calculo_Aplicado/README.md)).
 
 ## Situação
 

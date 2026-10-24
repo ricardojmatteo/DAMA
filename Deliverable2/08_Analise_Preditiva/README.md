@@ -99,7 +99,7 @@ A faixa do total soma as faixas das empresas, o que supõe que todas erram junta
 - **Consumo.** O custo vem dos logs de uso multiplicados pelo preço por token, não das faturas.
   - 4,5% dos lançamentos de consumo não têm fatura. Onde a fatura existe, ela fica entre −4% e +5% do calculado.
   - Os tokens são previstos por empresa e multiplicados pelo preço médio da empresa em mai a jul/2026. O câmbio é de R$ 5,50 por US$, a mesma premissa da Pesquisa Operacional.
-- **Assentos.** São contratuais e não se preveem com série histórica. A premissa é manter os assentos e o preço de jul/2026. Realocar licenças, como propõem o [Machine Learning](../Machine%20Learning/) e a [Pesquisa Operacional](../Pesquisa%20Operacional/), reduz esse valor.
+- **Assentos.** São contratuais e não se preveem com série histórica. A premissa é manter os assentos e o preço de jul/2026. Realocar licenças, como propõem o [Machine Learning](../05_Machine_Learning/) e a [Pesquisa Operacional](../07_Pesquisa_Operacional_e_Calculo_Aplicado/), reduz esse valor.
 - **Orçamento.** Média mensal orçada em 2026, por centro de custo.
 
 | Centro de custo | Orçamento mensal | Custo previsto | % do orçamento |

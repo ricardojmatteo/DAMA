@@ -4,7 +4,7 @@ Plano em formato 5W2H, derivado das auditorias em [auditorias.md](auditorias.md)
 
 | # | O quê | Por quê | Origem | Quem (sugerido) | Quando | Onde | Como | Quanto |
 |---|---|---|---|---|---|---|---|---|
-| 1 | Definir a Definition of Done e o checklist de revisão de código | Não há critério escrito para dar uma issue como pronta | AUD-01, maturidade | Time inteiro | Fim da Sprint 3 | `Deliverable2/Qualidade de Software/` | Escrever em 8 a 10 itens (testes passando, PR revisado, doc atualizada) e colar no quadro | 2 h |
+| 1 | Definir a Definition of Done e o checklist de revisão de código | Não há critério escrito para dar uma issue como pronta | AUD-01, maturidade | Time inteiro | Fim da Sprint 3 | `Deliverable2/04_Qualidade_de_Software/` | Escrever em 8 a 10 itens (testes passando, PR revisado, doc atualizada) e colar no quadro | 2 h |
 | 2 | Parar de atualizar o quadro em lote | 22 issues resolvidas em 70 minutos distorcem lead time e burndown | AUD-01 #3 | Todos os responsáveis | Imediato | Jira | Mover o cartão no dia em que o estado muda; revisar o quadro na daily | Sem custo |
 | 3 | Preencher a meta de cada sprint | Sprints 2 e 3 sem objetivo | AUD-01 #4 | Scrum Master | Próxima planning | Jira | Uma frase por sprint, ligada à entrega do deliverable | 15 min |
 | 4 | Limitar trabalho em andamento | 31 issues abertas ao mesmo tempo | AUD-01 #6 | Time inteiro | Fim da Sprint 3 | Quadro | Limite de 2 cartões por pessoa em Dev e Code Review | Sem custo |

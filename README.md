@@ -79,7 +79,7 @@ Unitários para regras de metas, conquistas e análises de gestão; testes de in
 - [Referência da API](docs/api/)
 - [Rastreabilidade e regras de negócio](docs/requisitos/)
 - [Como o ranking é calculado e o que falta para integrar com o Jira](docs/requisitos/ranking.md)
-- [Deliverable 2](Deliverable2/): [Qualidade de Software](Deliverable2/Qualidade%20de%20Software/), [Pesquisa Operacional](Deliverable2/Pesquisa%20Operacional/), [Estatística Multivariada](Deliverable2/Estatistica%20Multivariada/), [Machine Learning](Deliverable2/Machine%20Learning/) e [Análise Preditiva](Deliverable2/Analise%20Preditiva/)
+- [Deliverable 2](Deliverable2/): [Qualidade de Software](Deliverable2/04_Qualidade_de_Software/), [Pesquisa Operacional](Deliverable2/07_Pesquisa_Operacional_e_Calculo_Aplicado/), [Estatística Multivariada](Deliverable2/02_Estatistica_Multivariada/), [Machine Learning](Deliverable2/05_Machine_Learning/) e [Análise Preditiva](Deliverable2/08_Analise_Preditiva/)
 
 ## Uso de IA
 

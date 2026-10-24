@@ -26,7 +26,7 @@ Correções feitas a partir do feedback da pré-avaliação, registrado no épic
 - A ablação mostra que o sinal é da unidade: só com o departamento, o ROC-AUC é 0,704. Só com cursos e tokens, 0,542; só com incidentes anteriores, 0,480. Unidades menores têm mais incidentes por colaborador.
 - Para encontrar 6 dos 9 incidentes do teste, o modelo sinaliza 33% dos colaboradores, com precisão de 2,9%.
 
-O modelo não sustenta decisão sobre pessoas. Isso é coerente com a Estatística Multivariada, que não confirmou a hipótese H2. Por isso, no D2 a disciplina passou a prever demanda e custo de IA (`Deliverable2/Analise Preditiva`).
+O modelo não sustenta decisão sobre pessoas. Isso é coerente com a Estatística Multivariada, que não confirmou a hipótese H2. Por isso, no D2 a disciplina passou a prever demanda e custo de IA (`Deliverable2/08_Analise_Preditiva`).
 
 ## Machine Learning — `Deliverable1/machine-learning-ia/main_corrigido.ipynb`
 
@@ -44,7 +44,7 @@ Não há feedback registrado no Jira para este notebook. As correções vêm da 
 
 **Resultado:** a conclusão do D1 se mantém com a validação correta. O melhor modelo (Random Forest balanceada) tem ROC-AUC de 0,90 na validação cruzada. No teste, tem recall de 0,79 e precisão de 0,38, perto do recall de 0,80 e da precisão de 0,43 da regressão logística balanceada original.
 
-No D2, o modelo passou a prever o uso de cada ferramenta no mês seguinte, com histórico e validação temporal (`Deliverable2/Machine Learning`).
+No D2, o modelo passou a prever o uso de cada ferramenta no mês seguinte, com histórico e validação temporal (`Deliverable2/05_Machine_Learning`).
 
 ## Estatística Multivariada — `Deliverable1/EstatisticaMulti/relatorioinicialcorrigido.rmd` (e `.html`)
 
@@ -55,14 +55,14 @@ O relatório do D1 testou duas hipóteses com correlações simples. Ele mesmo r
 | Base única por colaborador, com nulos tratados | Junção de quatro bases (cadastro, treinamentos, uso de IA, segurança) em uma matriz analítica por colaborador, com ausências estruturais tratadas e a tabela exportada (`tabela_analitica_final.csv`) | `relatorioinicialcorrigido.rmd`, seções 3 e 4 |
 | H1 — treinamento aumenta o uso de IA | Confirmada, com efeito fraco: correlação de 0,11; média de tokens de 7.003.698 entre treinados e 5.390.459 entre não treinados | `resumo_hipoteses.csv` |
 | H2 — treinamento reduz incidentes | Não confirmada: correlação de −0,02; 0,0255 incidentes por colaborador entre treinados e 0,031 entre não treinados | `resumo_hipoteses.csv` |
-| Correlações simples não controlam por setor, cargo e exposição | Hipóteses retestadas com regressão linear múltipla e logística com controles (setor, senioridade, tempo de casa e licenças) | `Deliverable2/Estatistica Multivariada` (SMAN-251) |
+| Correlações simples não controlam por setor, cargo e exposição | Hipóteses retestadas com regressão linear múltipla e logística com controles (setor, senioridade, tempo de casa e licenças) | `Deliverable2/02_Estatistica_Multivariada` (SMAN-251) |
 
 **O que o reteste revelou** (2.158 colaboradores ativos)
 - **H1 era confundida pelo setor.** O efeito de cada curso sobre o log do uso mensal cai de 0,499 (p < 0,001; R² = 0,01) para 0,055 (p = 0,51; R² = 0,33) quando o setor entra no modelo. As empresas de tecnologia treinam mais e também usam mais IA.
 - **H2 continua não confirmada.** A razão de chances por curso é 0,84 (IC 95%: 0,55–1,27) sem controles e 0,82 (IC 95%: 0,54–1,25) com eles. Os incidentes são raros (64 colaboradores, 3,0%), o que limita o poder dos testes.
 - A conclusão do D1 ("a hipótese de senso comum não se sustenta") se mantém, agora com controles.
 
-Além do reteste, o D2 construiu indicadores de maturidade por departamento (análise fatorial, índices IMIA e IINV, agrupamento e validação), descritos em `Deliverable2/Estatistica Multivariada/README.md`.
+Além do reteste, o D2 construiu indicadores de maturidade por departamento (análise fatorial, índices IMIA e IINV, agrupamento e validação), descritos em `Deliverable2/02_Estatistica_Multivariada/README.md`.
 
 ## Pesquisa Operacional — `Deliverable1/PesquisaOperacional/DELIVERABLE 1 LUCY.docx`
 
@@ -75,7 +75,7 @@ O D1 modelou um problema de programação linear com duas variáveis: licenças 
 
 | Problema do D1 | O que foi feito no D2 | Onde |
 |---|---|---|
-| Resultado do modelo não apresentado no documento | O notebook resolve o modelo do D1 e reproduz o ótimo x₁ = 40, x₂ = 0, Z = 2.000, com R$ 200 de folga no orçamento e preço-sombra de 50 para os capacitados: o limite era a capacitação, não o dinheiro | `Deliverable2/Pesquisa Operacional/modelo_otimizacao_licencas.ipynb` |
-| Custos, valores e número de capacitados supostos | Coeficientes extraídos de faturamento, orçamentos, logs de uso, treinamentos e ferramentas aprovadas | `Deliverable2/Pesquisa Operacional/README.md`, seção 2 |
+| Resultado do modelo não apresentado no documento | O notebook resolve o modelo do D1 e reproduz o ótimo x₁ = 40, x₂ = 0, Z = 2.000, com R$ 200 de folga no orçamento e preço-sombra de 50 para os capacitados: o limite era a capacitação, não o dinheiro | `Deliverable2/07_Pesquisa_Operacional_e_Calculo_Aplicado/modelo_otimizacao_licencas.ipynb` |
+| Custos, valores e número de capacitados supostos | Coeficientes extraídos de faturamento, orçamentos, logs de uso, treinamentos e ferramentas aprovadas | `Deliverable2/07_Pesquisa_Operacional_e_Calculo_Aplicado/README.md`, seção 2 |
 | Só duas variáveis e duas restrições | Decisão de quem recebe cada licença (1.554 variáveis binárias), com restrições de orçamento, governança, categoria, cobertura, autonomia, capacidade de treino e transição | idem, seção 1 |
-| Sem análise de sensibilidade | 12 cenários, curva de orçamento, preço-sombra, elasticidade e aplicação às 18 empresas | `Deliverable2/Pesquisa Operacional/resultados/` |
+| Sem análise de sensibilidade | 12 cenários, curva de orçamento, preço-sombra, elasticidade e aplicação às 18 empresas | `Deliverable2/07_Pesquisa_Operacional_e_Calculo_Aplicado/resultados/` |
