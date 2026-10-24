@@ -2,8 +2,9 @@ pipeline {
   agent any
   stages {
     stage('Checkout') { steps { checkout scm } }
-    stage('Testes (unitários + integração)') { steps { dir('backend') { sh 'mvn -B clean verify' } } }
-    stage('Imagem Docker') { steps { dir('backend') { sh 'docker build -t dama-backend:${BUILD_NUMBER} .' } } }
+    stage('Testes (unitários + integração)') { steps { dir('backend') { bat 'mvn -B clean verify' } } }
+    stage('Imagem Docker') { steps { dir('backend') { bat 'docker build -t dama-backend:${BUILD_NUMBER} .' } } }
   }
   post { always { junit allowEmptyResults: true, testResults: 'backend/target/surefire-reports/*.xml' } }
 }
+  

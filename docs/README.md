@@ -5,6 +5,7 @@
 | [produto/](produto/) | Documento de visão, documento completo (requisitos, backlog, marketing) e resumo do produto |
 | [arquitetura/](arquitetura/) | Diagramas C4: contexto, contêineres e componentes do backend |
 | [adr/](adr/) | Registros de decisão de arquitetura (ADRs) |
+| [qualidade/](qualidade/) | Evidências de TDD e instruções dos pipelines Jenkins |
 | [api/](api/) | Endpoints da API REST, permissões e exemplos |
 | [requisitos/](requisitos/) | Rastreabilidade história → requisito → endpoint → teste e regras de negócio adotadas |
 
