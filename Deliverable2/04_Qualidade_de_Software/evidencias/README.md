@@ -7,18 +7,6 @@
 | `backend-surefire-2026-09-29/` | Relatórios do Maven Surefire da última execução do backend: 31 testes em 4 classes, 0 falhas, 9 de integração pulados por falta de Docker | `cd backend && mvn test` na máquina da equipe em 29/09/2026 (copiados de `backend/target/surefire-reports`) |
 | `inventario-testes.csv` | Os 88 casos automatizados com ID, nível, classe, caso e história | Leitura das anotações `@Test` em `backend/src/test` e das chamadas `test(...)` em `alert-service/test` |
 
-## Pendente
+## Execução completa do backend
 
-A execução completa do backend com cobertura ainda não foi feita. Ela precisa de uma máquina com Docker e acesso ao Maven Central:
-
-```bash
-cd backend
-mvn -B clean verify          # roda unitários + integração (Testcontainers) e a regra de 70% do JaCoCo
-```
-
-Depois, salvar aqui:
-
-- `backend/target/surefire-reports/*.txt`, numa pasta `backend-surefire-AAAA-MM-DD/`;
-- o resumo de `backend/target/site/jacoco/index.html`, como print ou o `jacoco.csv`.
-
-Por fim, registrar o resultado nas partes 4 e 5 do [documento de Qualidade](../DAMA_Qualidade_de_Software_Deliverable2.docx).
+Feita em 23/10/2026 com `mvn -B clean verify`, com Docker: 82 testes, 0 falhas, 0 pulados, e a regra de 70% de cobertura do JaCoCo atendida. Os prints estão no [documento de evidências de testes](../../03_Modelagem_e_Construcao_de_Software/DAMA%20Intelligence%20evidências%20de%20testes%20e%20cobertura%20JaCoCo.docx).
