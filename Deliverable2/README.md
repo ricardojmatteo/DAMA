@@ -4,7 +4,7 @@ Entregas do Deliverable 2 por disciplina. As que são código ou documentação 
 
 | # | Disciplina | Onde está | Situação | Jira |
 |---|---|---|---|---|
-| 00 | Correções do Deliverable 1 | [00_Correcoes_Deliverable_1/](00_Correcoes_Deliverable_1/) e notebooks `_corrigido` no `Deliverable1/` | Parcial. Machine Learning, Análise Preditiva, Estatística Multivariada e Pesquisa Operacional documentados; faltam Marketing, Modelagem de Software, Interface e Qualidade | SMAN-193, SMAN-78 |
+| 00 | Correções do Deliverable 1 | [00_Correcoes_Deliverable_1/](00_Correcoes_Deliverable_1/) e arquivos `_corrigido` no [`Deliverable1/`](../Deliverable1/) | Parcial. Machine Learning, Análise Preditiva, Estatística Multivariada e Pesquisa Operacional documentados; faltam Marketing, Modelagem de Software, Interface e Qualidade | SMAN-193, SMAN-78 |
 | 01 | Marketing Estratégico | [01_Marketing_Estrategico/](01_Marketing_Estrategico/) | Parcial. Segmentação, posicionamento, proposta de valor e Business Model Canvas prontos; falta o Pitch Deck | SMAN-194 |
 | 02 | Estatística Multivariada | [02_Estatistica_Multivariada/](02_Estatistica_Multivariada/) | Pronto | SMAN-195 |
 | 03 | Modelagem e Construção de Software | [03_Modelagem_e_Construcao_de_Software/](03_Modelagem_e_Construcao_de_Software/), `backend/`, `alert-service/`, `frontend/`, [`docs/arquitetura`](../docs/arquitetura/), [`docs/adr`](../docs/adr/), Jenkinsfiles do `backend`, `alert-service` e `frontend`, [`docs/qualidade`](../docs/qualidade/) | Parcial. CI dos três serviços no main, com prints dos pipelines do alert-service e do frontend; faltam evidência de teste escrito antes do código (TDD) e o plano de inovação por sprint | SMAN-196 |

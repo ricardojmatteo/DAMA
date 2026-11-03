@@ -1,6 +1,6 @@
 # Estatística Multivariada — Deliverable 2
 
-**Indicadores organizacionais de maturidade no uso de IA.** O trabalho continua o relatório do D1 (`Deliverable1/EstatisticaMulti`), que testou H1 e H2 com correlações simples. A conclusão do D1 pedia uma análise mais completa, controlando por área, cargo e exposição às ferramentas.
+**Indicadores organizacionais de maturidade no uso de IA.** O trabalho continua o relatório do D1 (`Deliverable1/02_Estatistica_Multivariada`), que testou H1 e H2 com correlações simples. A conclusão do D1 pedia uma análise mais completa, controlando por área, cargo e exposição às ferramentas.
 
 ## Arquivos
 
@@ -58,6 +58,6 @@ H1 era confundida pelo setor, e H2 continua não confirmada. No teste, o modelo 
 
 ## Como rodar
 
-Abra o `analise_multivariada.Rmd` no RStudio e clique em Knit. Os dados são lidos de `Deliverable1/machine-learning-ia/Data/csv/`.
+Abra o `analise_multivariada.Rmd` no RStudio e clique em Knit. Os dados são lidos de `Deliverable1/05_Machine_Learning/Data/csv/`.
 
 Jira: SMAN-195.

@@ -41,7 +41,7 @@
 | `resultados/orcamento_previsto_por_empresa.csv` | O mesmo, somado por empresa |
 | `figuras/fig1` a `fig5` | Demanda total, erro por horizonte, previsão total, previsão de seis empresas, centros de custo acima do orçamento |
 
-Para rodar: Python 3 com `pandas`, `numpy`, `scikit-learn`, `statsmodels` e `matplotlib`, a partir desta pasta. Os dados vêm de `Deliverable1/machine-learning-ia/Data/csv`. O notebook leva poucos segundos.
+Para rodar: Python 3 com `pandas`, `numpy`, `scikit-learn`, `statsmodels` e `matplotlib`, a partir desta pasta. Os dados vêm de `Deliverable1/05_Machine_Learning/Data/csv`. O notebook leva poucos segundos.
 
 ## 1. Do D1 ao D2
 
@@ -53,7 +53,7 @@ Para rodar: Python 3 com `pandas`, `numpy`, `scikit-learn`, `statsmodels` e `mat
 | Validação | Nenhuma (o notebook não rodava) → na versão corrigida, validação cruzada estratificada repetida | Backtest com origem móvel (7 origens × 18 empresas × 3 horizontes) e intervalos calibrados |
 | Resultado | ROC-AUC de 0,701 na validação cruzada e 0,644 no teste; o sinal é a unidade, não a pessoa | WAPE de 5,8%; previsão até jan/2027; centros de custo em risco |
 
-A versão corrigida do D1 está em `Deliverable1/AnalisePreditiva/DAMAAnalisePreditiva1_corrigido.ipynb`. Ela atende às 19 tarefas do épico SMAN-78 e ao ponto de rigor temporal do feedback:
+A versão corrigida do D1 está em `Deliverable1/08_Analise_Preditiva/DAMAAnalisePreditiva1_corrigido.ipynb`. Ela atende às 19 tarefas do épico SMAN-78 e ao ponto de rigor temporal do feedback:
 - diagnóstico da base;
 - baseline da classe majoritária;
 - ROC-AUC, PR-AUC e justificativa pelo custo do erro;
