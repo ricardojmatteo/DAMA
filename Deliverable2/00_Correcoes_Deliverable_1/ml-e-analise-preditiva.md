@@ -2,7 +2,7 @@
 
 **DAMA Intelligence** · Ana Luiza Proença, Gustavo Gomes, Kaique Lira e Ricardo Matteo · Ciência de Dados e Negócios, ESPM, 4º semestre, 2026
 
-Os notebooks originais do D1 foram mantidos para comparação. Para Machine Learning e Análise Preditiva, as versões corrigidas ficam ao lado dos originais, com o sufixo `_corrigido`, seguindo a convenção do `Deliverable1/README.md`.
+Para Machine Learning e Análise Preditiva, o `Deliverable1/` mantém só as versões corrigidas, com o sufixo `_corrigido`. Os notebooks originais estão no histórico do Git.
 
 ## Análise Preditiva — `Deliverable1/08_Analise_Preditiva/DAMAAnalisePreditiva1_corrigido.ipynb`
 

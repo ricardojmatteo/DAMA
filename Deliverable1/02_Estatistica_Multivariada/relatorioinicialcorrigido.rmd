@@ -14,12 +14,11 @@ library(ggplot2)
 library(tidyr)
 library(knitr)
 library(tidyverse)
-# Os CSVs ficam em Deliverable1/02_Estatistica_Multivariada/dados (caminho relativo a este .rmd)
+# Os CSVs ficam em Deliverable1/05_Machine_Learning/Data/csv (caminho relativo a este .rmd)
 library(readxl)
 options(scipen = 99)
 list.files()
-file.exists("dados/employees.csv")
-knitr::opts_knit$set(root.dir = "dados")
+file.exists("../05_Machine_Learning/Data/csv/employees.csv")
 ```
 
 # 1. Base de Dados e Legendas das Variáveis
@@ -35,17 +34,17 @@ As bases seguem uma lógica de modelagem dimensional. O arquivo `employees` atua
 O relacionamento entre todas elas é feito através da chave primária/estrangeira `employee_id` em um modelo Star Schema. Para a análise estatística, as tabelas Fato são agregadas e unidas à Dimensão via cruzamento direto (`merge`), formando uma única Tabela Analítica (ABT).
 ```{r importacao_etl3, include=FALSE}
 list.files()
-file.exists("dados/employees.csv")
+file.exists("../05_Machine_Learning/Data/csv/employees.csv")
 ```
 # 3. Preparação dos Dados (ETL) e Tratamento de Valores Ausentes
 
 Nesta etapa, os dados transacionais são agrupados por colaborador e unidos à base principal utilizando funções nativas do R para estruturar o código passo a passo.
 
 ```{r importacao_etl, echo=FALSE}
-employees        <- read.csv("employees.csv")
-training_records <- read.csv("training_records.csv")
-ai_usage_logs    <- read.csv("ai_usage_logs.csv")
-security_events  <- read.csv("security_events.csv")
+employees        <- read.csv("../05_Machine_Learning/Data/csv/employees.csv")
+training_records <- read.csv("../05_Machine_Learning/Data/csv/training_records.csv")
+ai_usage_logs    <- read.csv("../05_Machine_Learning/Data/csv/ai_usage_logs.csv")
+security_events  <- read.csv("../05_Machine_Learning/Data/csv/security_events.csv")
 
 # Treinamentos
 treinos_concluidos <- subset(training_records, completion_status == "Concluido")

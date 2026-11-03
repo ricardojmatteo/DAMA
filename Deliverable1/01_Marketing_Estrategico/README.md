@@ -10,3 +10,5 @@
 | Análise da concorrência | [Documento Completo](DAMA-Intelligence-Documento-Completo.docx), seções 7 a 9 | No repositório |
 | Análise SWOT e SWOT cruzada | Base citada pelos códigos F, W, O, A, FO, FA, DO e DA em [Projeto DAMA — Sprint 2.docx](Projeto%20DAMA%20—%20Sprint%202.docx) | Matriz completa fora do repositório |
 | Diagnóstico estratégico | [Documento Completo](DAMA-Intelligence-Documento-Completo.docx), "10. Diagnóstico Competitivo Final" | No repositório |
+
+[Projeto DAMA — Sprint 2.docx](Projeto%20DAMA%20—%20Sprint%202.docx) é o trabalho de Marketing do Deliverable 2, mantido aqui para mostrar a evolução da disciplina. O arquivo da Sprint 1 não está disponível.

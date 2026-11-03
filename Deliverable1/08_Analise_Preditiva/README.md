@@ -4,6 +4,6 @@
 
 | Entrega | Onde está | Situação |
 |---|---|---|
-| Definição dos problemas de previsão | [DAMAAnalisePreditiva1.ipynb](DAMAAnalisePreditiva1.ipynb) e [versão corrigida](DAMAAnalisePreditiva1_corrigido.ipynb) | Pronto |
-| Seleção das variáveis | Mesmos notebooks | Pronto |
+| Definição dos problemas de previsão | [DAMAAnalisePreditiva1_corrigido.ipynb](DAMAAnalisePreditiva1_corrigido.ipynb) | Pronto |
+| Seleção das variáveis | Mesmo notebook | Pronto |
 | Base utilizada | [05_Machine_Learning/Data](../05_Machine_Learning/Data/) | Pronto |
