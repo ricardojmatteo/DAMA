@@ -8,7 +8,7 @@ Esta pasta reúne a documentação do Projeto Integrador que não é código nem
 
 | Entrega | Onde | Situação | Jira |
 |---|---|---|---|
-| MVP funcional | Raiz do repositório: `docker compose up --build` e http://localhost:3000 | Código pronto. **Falta registrar a execução** (prints ou vídeo): o ambiente de documentação não tem Docker | SMAN-190 |
+| MVP funcional | Raiz do repositório: `docker compose up --build` e http://localhost:3000 | Código pronto. **Falta registrar a execução** (prints ou vídeo) | SMAN-190 |
 | Acompanhamento das sprints | [acompanhamento-sprints.md](acompanhamento-sprints.md) | Quadro e números extraídos do Jira. Atas completas de Review e Retro: **a confirmar pela equipe** | SMAN-298, 188, 189 |
 | Atas das Sprints 2 e 3 | [sprint-2-review-retro.md](sprint-2-review-retro.md) e [sprint-3-review-retro.md](sprint-3-review-retro.md) | Rascunho com os dados do Jira; falta o que foi dito nas cerimônias | SMAN-188, 189 |
 | Hipótese de inovação | [hipotese-de-inovacao.md](hipotese-de-inovacao.md) | Situação parcial, sem resultado de validação | SMAN-191 |

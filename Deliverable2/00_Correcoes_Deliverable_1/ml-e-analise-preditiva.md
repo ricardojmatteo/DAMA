@@ -2,7 +2,7 @@
 
 **DAMA Intelligence** · Ana Luiza Proença, Gustavo Gomes, Kaique Lira e Ricardo Matteo · Ciência de Dados e Negócios, ESPM, 4º semestre, 2026
 
-Este arquivo entra na pasta `00_Correcoes_Deliverable_1`. Os notebooks originais do D1 foram mantidos para comparação. Para Machine Learning e Análise Preditiva, as versões corrigidas ficam ao lado dos originais, com o sufixo `_corrigido`, seguindo a convenção do `Deliverable1/README.md`.
+Os notebooks originais do D1 foram mantidos para comparação. Para Machine Learning e Análise Preditiva, as versões corrigidas ficam ao lado dos originais, com o sufixo `_corrigido`, seguindo a convenção do `Deliverable1/README.md`.
 
 ## Análise Preditiva — `Deliverable1/AnalisePreditiva/DAMAAnalisePreditiva1_corrigido.ipynb`
 
@@ -55,14 +55,14 @@ O relatório do D1 testou duas hipóteses com correlações simples. Ele mesmo r
 | Base única por colaborador, com nulos tratados | Junção de quatro bases (cadastro, treinamentos, uso de IA, segurança) em uma matriz analítica por colaborador, com ausências estruturais tratadas e a tabela exportada (`tabela_analitica_final.csv`) | `relatorioinicialcorrigido.rmd`, seções 3 e 4 |
 | H1 — treinamento aumenta o uso de IA | Confirmada, com efeito fraco: correlação de 0,11; média de tokens de 7.003.698 entre treinados e 5.390.459 entre não treinados | `resumo_hipoteses.csv` |
 | H2 — treinamento reduz incidentes | Não confirmada: correlação de −0,02; 0,0255 incidentes por colaborador entre treinados e 0,031 entre não treinados | `resumo_hipoteses.csv` |
-| Correlações simples não controlam por setor, cargo e exposição | Hipóteses retestadas com regressão linear múltipla e logística com controles (setor, senioridade, tempo de casa e licenças) | `Deliverable2/02_Estatistica_Multivariada` (SMAN-251) |
+| Correlações simples não controlam por setor, cargo e exposição | Hipóteses retestadas com regressão logística com controles (setor, senioridade, tempo de casa e licenças) | `Deliverable2/02_Estatistica_Multivariada` (SMAN-251) |
 
-**O que o reteste revelou** (2.158 colaboradores ativos)
-- **H1 era confundida pelo setor.** O efeito de cada curso sobre o log do uso mensal cai de 0,499 (p < 0,001; R² = 0,01) para 0,055 (p = 0,51; R² = 0,33) quando o setor entra no modelo. As empresas de tecnologia treinam mais e também usam mais IA.
-- **H2 continua não confirmada.** A razão de chances por curso é 0,84 (IC 95%: 0,55–1,27) sem controles e 0,82 (IC 95%: 0,54–1,25) com eles. Os incidentes são raros (64 colaboradores, 3,0%), o que limita o poder dos testes.
+**O que o reteste revelou**
+- **H1 era confundida pelo setor.** Cada curso concluído multiplica a chance de usar IA por 1,37 (p < 0,001). Com os controles, a razão de chances cai para 1,04 (p = 0,642). As empresas de tecnologia treinam mais e também usam mais IA.
+- **H2 continua não confirmada.** A razão de chances por curso é 0,89 (IC 95%: 0,55–1,45) sem controles e 0,81 (IC 95%: 0,49–1,33) com eles. Os incidentes são raros (64 colaboradores, 3,0%), o que limita o poder dos testes.
 - A conclusão do D1 ("a hipótese de senso comum não se sustenta") se mantém, agora com controles.
 
-Além do reteste, o D2 construiu indicadores de maturidade por departamento (análise fatorial, índices IMIA e IINV, agrupamento e validação), descritos em `Deliverable2/02_Estatistica_Multivariada/README.md`.
+Além do reteste, o D2 construiu indicadores de maturidade por departamento (índices IMIA e IINV e agrupamento), descritos em `Deliverable2/02_Estatistica_Multivariada/README.md`.
 
 ## Pesquisa Operacional — `Deliverable1/PesquisaOperacional/DELIVERABLE 1 LUCY.docx`
 

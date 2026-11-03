@@ -20,7 +20,7 @@ Os `Jenkinsfile` usam `dir(...)` porque o repositorio e um monorepo: o checkout 
 
 Java/JDK 21 **nao e necessario** nos jobs `alert-service` e `frontend`, pois eles sao servicos Node.js. Configurar um JDK nesses jobs nao aumenta a cobertura nem participa da compilacao.
 
-Para um job Maven separado, configure JDK 21 no agente ou como ferramenta global do Jenkins e confirme com `java -version` antes de `mvn clean verify`. O ambiente local usado nesta verificacao possui JDK 21. O `backend/pom.xml` atualmente declara alvo Java 17; JDK 21 pode compila-lo, desde que a compatibilidade de linguagem continue sendo Java 17.
+Para um job Maven separado, configure JDK 21 no agente ou como ferramenta global do Jenkins e confirme com `java -version` antes de `mvn clean verify`. O `backend/pom.xml` atualmente declara alvo Java 17; JDK 21 pode compila-lo, desde que a compatibilidade de linguagem continue sendo Java 17.
 
 ## Validacao local equivalente
 

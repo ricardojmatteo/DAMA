@@ -21,4 +21,4 @@ Depois, salvar aqui:
 - `backend/target/surefire-reports/*.txt`, numa pasta `backend-surefire-AAAA-MM-DD/`;
 - o resumo de `backend/target/site/jacoco/index.html`, como print ou o `jacoco.csv`.
 
-Por fim, registrar o resultado na seção 8 do [plano de testes](../plano-de-testes.md) e em [metricas.md](../metricas.md).
+Por fim, registrar o resultado nas partes 4 e 5 do [documento de Qualidade](../DAMA_Qualidade_de_Software_Deliverable2.docx).
