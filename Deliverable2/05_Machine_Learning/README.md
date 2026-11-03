@@ -1,6 +1,6 @@
 # Machine Learning — Deliverable 2
 
-**Quem vai usar cada ferramenta de IA no próximo mês?** Um modelo estima, para cada colaborador × ferramenta por assento, a probabilidade de uso no mês seguinte. Com ela, o DAMA recomenda quem deve receber, manter ou devolver cada licença. O trabalho continua o modelo do Deliverable 1 (`Deliverable1/machine-learning-ia`), agora com histórico de uso e validação temporal.
+**Quem vai usar cada ferramenta de IA no próximo mês?** Um modelo estima, para cada colaborador × ferramenta por assento, a probabilidade de uso no mês seguinte. Com ela, o DAMA recomenda quem deve receber, manter ou devolver cada licença. O trabalho continua o modelo do Deliverable 1 (`Deliverable1/05_Machine_Learning`), agora com histórico de uso e validação temporal.
 
 **DAMA Intelligence** · Ana Luiza Proença, Gustavo Gomes, Kaique Lira e Ricardo Matteo · Ciência de Dados e Negócios, ESPM, 4º semestre, 2026
 
@@ -40,7 +40,7 @@
 | `resultados/recomendacao_ago2026_por_empresa.csv` | Resumo por empresa: assentos, usuários esperados, assentos a revisar e custo |
 | `figuras/fig1` a `fig5` | Curvas ROC e precisão × recall, calibração, backtest mensal, importância e realocação |
 
-Para rodar: Python 3 com `pandas`, `numpy`, `scikit-learn` e `matplotlib`, a partir desta pasta. Os dados vêm de `Deliverable1/machine-learning-ia/Data/csv`, a mesma base da Estatística e da Pesquisa Operacional. O notebook leva cerca de 7 minutos.
+Para rodar: Python 3 com `pandas`, `numpy`, `scikit-learn` e `matplotlib`, a partir desta pasta. Os dados vêm de `Deliverable1/05_Machine_Learning/Data/csv`, a mesma base da Estatística e da Pesquisa Operacional. O notebook leva cerca de 7 minutos.
 
 ## 1. Do D1 ao D2
 
@@ -54,7 +54,7 @@ Para rodar: Python 3 com `pandas`, `numpy`, `scikit-learn` e `matplotlib`, a par
 | Métricas | Acurácia, recall, F1 | PR-AUC (principal), ROC-AUC, Brier, calibração, precisão, recall, F1 e subgrupos |
 | Uso | Classificação | Recomendação de licenças e entrada para a Pesquisa Operacional |
 
-As correções do D1 estão em `Deliverable1/machine-learning-ia/main_corrigido.ipynb`. A principal é o alvo, que media o tempo de exposição junto com a intensidade de uso.
+As correções do D1 estão em `Deliverable1/05_Machine_Learning/main_corrigido.ipynb`. A principal é o alvo, que media o tempo de exposição junto com a intensidade de uso.
 
 ## 2. Dados, alvo e variáveis
 

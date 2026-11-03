@@ -4,7 +4,7 @@
 
 Os notebooks originais do D1 foram mantidos para comparação. Para Machine Learning e Análise Preditiva, as versões corrigidas ficam ao lado dos originais, com o sufixo `_corrigido`, seguindo a convenção do `Deliverable1/README.md`.
 
-## Análise Preditiva — `Deliverable1/AnalisePreditiva/DAMAAnalisePreditiva1_corrigido.ipynb`
+## Análise Preditiva — `Deliverable1/08_Analise_Preditiva/DAMAAnalisePreditiva1_corrigido.ipynb`
 
 Correções feitas a partir do feedback da pré-avaliação, registrado no épico **SMAN-78** ("Correção — Análise Preditiva"), e da revisão do notebook.
 
@@ -28,7 +28,7 @@ Correções feitas a partir do feedback da pré-avaliação, registrado no épic
 
 O modelo não sustenta decisão sobre pessoas. Isso é coerente com a Estatística Multivariada, que não confirmou a hipótese H2. Por isso, no D2 a disciplina passou a prever demanda e custo de IA (`Deliverable2/08_Analise_Preditiva`).
 
-## Machine Learning — `Deliverable1/machine-learning-ia/main_corrigido.ipynb`
+## Machine Learning — `Deliverable1/05_Machine_Learning/main_corrigido.ipynb`
 
 Não há feedback registrado no Jira para este notebook. As correções vêm da revisão feita no D2.
 
@@ -46,7 +46,7 @@ Não há feedback registrado no Jira para este notebook. As correções vêm da 
 
 No D2, o modelo passou a prever o uso de cada ferramenta no mês seguinte, com histórico e validação temporal (`Deliverable2/05_Machine_Learning`).
 
-## Estatística Multivariada — `Deliverable1/EstatisticaMulti/relatorioinicialcorrigido.rmd` (e `.html`)
+## Estatística Multivariada — `Deliverable1/02_Estatistica_Multivariada/relatorioinicialcorrigido.rmd` (e `.html`)
 
 O relatório do D1 testou duas hipóteses com correlações simples. Ele mesmo registra, na conclusão, o que faltava: uma análise multivariada que controle por área, cargo e exposição às ferramentas. As correções seguem esse apontamento. Não há feedback desta disciplina registrado no Jira além do que está abaixo.
 
@@ -64,7 +64,7 @@ O relatório do D1 testou duas hipóteses com correlações simples. Ele mesmo r
 
 Além do reteste, o D2 construiu indicadores de maturidade por departamento (índices IMIA e IINV e agrupamento), descritos em `Deliverable2/02_Estatistica_Multivariada/README.md`.
 
-## Pesquisa Operacional — `Deliverable1/PesquisaOperacional/DELIVERABLE 1 LUCY.docx`
+## Pesquisa Operacional — `Deliverable1/07_Pesquisa_Operacional_e_Calculo_Aplicado/DELIVERABLE 1 LUCY.docx`
 
 O D1 modelou um problema de programação linear com duas variáveis: licenças de Copiloto de Desenvolvimento (x₁) e de Assistente Generativo (x₂).
 - **Objetivo:** maximizar Z = 50x₁ + 30x₂.

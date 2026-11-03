@@ -1,6 +1,6 @@
 # Pesquisa Operacional e Cálculo Aplicado — Deliverable 2
 
-**Alocação ótima de licenças de IA**: quem deve receber qual ferramenta, dentro do orçamento e das regras de governança. O trabalho continua o modelo do Deliverable 1 (`Deliverable1/PesquisaOperacional`), agora com os dados da base do projeto.
+**Alocação ótima de licenças de IA**: quem deve receber qual ferramenta, dentro do orçamento e das regras de governança. O trabalho continua o modelo do Deliverable 1 (`Deliverable1/07_Pesquisa_Operacional_e_Calculo_Aplicado`), agora com os dados da base do projeto.
 
 ## Resumo dos resultados
 
@@ -213,6 +213,6 @@ pip install pandas matplotlib scipy pulp==2.9.0
 jupyter notebook modelo_otimizacao_licencas.ipynb
 ```
 
-Os dados são lidos de `Deliverable1/machine-learning-ia/Data/csv/`. O PuLP 2.9 traz o solver CBC embutido; a versão 4 mudou a API e não roda este notebook sem ajustes. Para analisar outra empresa, basta trocar `EMPRESA` na primeira célula.
+Os dados são lidos de `Deliverable1/05_Machine_Learning/Data/csv/`. O PuLP 2.9 traz o solver CBC embutido; a versão 4 mudou a API e não roda este notebook sem ajustes. Para analisar outra empresa, basta trocar `EMPRESA` na primeira célula.
 
 Jira: SMAN-199.

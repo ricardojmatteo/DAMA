@@ -58,7 +58,7 @@ library(writexl)
 
 ```{r parametros}
 # Pasta com os CSVs do projeto (ajuste se o Rmd estiver em outro lugar)
-pasta_dados = "../../Deliverable1/machine-learning-ia/Data/csv/"
+pasta_dados = "../../Deliverable1/05_Machine_Learning/Data/csv/"
 
 meses = paste0("2026-0", 1:7)  # janeiro a julho de 2026
 cambio = 5.50                  # premissa: R$ por US$
