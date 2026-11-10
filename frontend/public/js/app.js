@@ -99,7 +99,9 @@ function telaLogin(mensagem = '') {
         h('div', { class: 'caixa' },
             h('div', { class: 'logo' },
                 h('h1', {}, 'DAMA'),
-                h('small', {}, 'Desempenho, gamificação e AI Credits')),
+                h('small', { class: 'slogan' }, 'Elegância em movimento')),
+            h('p', { class: 'muted', style: 'text-align:center;margin:-8px 0 18px;font-size:13px' },
+                'Desempenho, gamificação e AI Credits'),
             painel('Entrar', [
                 form,
                 h('p', { class: 'muted', style: 'margin-top:14px;font-size:12px' }, 'Usuários de demonstração:'),

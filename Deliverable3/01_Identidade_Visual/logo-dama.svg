@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="DAMA — Elegância em movimento">
+  <defs>
+    <style>@import url('https://fonts.googleapis.com/css2?family=Hind:wght@600&amp;family=Montserrat:wght@700&amp;display=swap');</style>
+    <linearGradient id="texto" x1="0" y1="0" x2="1" y2="0.2">
+      <stop offset="0" stop-color="#FFE3C2"/>
+      <stop offset="0.3" stop-color="#FFB061"/>
+      <stop offset="0.62" stop-color="#FF7A1A"/>
+      <stop offset="1" stop-color="#E0570B"/>
+    </linearGradient>
+    <filter id="blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="70"/></filter>
+    <filter id="blur-fino" x="-10%" y="-200%" width="120%" height="500%"><feGaussianBlur stdDeviation="2"/></filter>
+  </defs>
+  <rect width="1200" height="675" fill="#0B0907"/>
+  <g filter="url(#blur)">
+    <ellipse cx="350" cy="110" rx="560" ry="150" fill="#FF8A2A" opacity="0.42" transform="rotate(-18 350 110)"/>
+    <ellipse cx="960" cy="230" rx="450" ry="120" fill="#C24E10" opacity="0.5" transform="rotate(-24 960 230)"/>
+    <ellipse cx="620" cy="620" rx="500" ry="130" fill="#F2B27A" opacity="0.22" transform="rotate(-10 620 620)"/>
+  </g>
+  <g filter="url(#blur-fino)">
+    <rect x="180" y="250" width="840" height="3" rx="1.5" fill="#FFD2A3" opacity="0.35" transform="rotate(-14 600 251)"/>
+    <rect x="290" y="390" width="620" height="2" rx="1" fill="#FFB061" opacity="0.3" transform="rotate(-14 600 391)"/>
+  </g>
+  <text x="625" y="355" text-anchor="middle" font-family="Montserrat, 'Segoe UI', Arial, sans-serif" font-weight="700" font-size="168" letter-spacing="50" fill="url(#texto)">DAMA</text>
+  <line x1="300" y1="433" x2="372" y2="433" stroke="#FF8A2A" stroke-width="1.5"/>
+  <text x="600" y="440" text-anchor="middle" font-family="Hind, 'Segoe UI', Arial, sans-serif" font-weight="600" font-size="22" letter-spacing="5.5" fill="#F6DCC4">ELEGÂNCIA EM MOVIMENTO</text>
+  <line x1="828" y1="433" x2="900" y2="433" stroke="#FF8A2A" stroke-width="1.5"/>
+</svg>
