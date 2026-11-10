@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Ícone DAMA">
+  <defs>
+    <style>@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&amp;display=swap');</style>
+    <clipPath id="forma"><rect width="512" height="512" rx="116"/></clipPath>
+    <filter id="blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="40"/></filter>
+  </defs>
+  <g clip-path="url(#forma)">
+    <rect width="512" height="512" fill="#FF7A1A"/>
+    <ellipse cx="200" cy="190" rx="320" ry="70" fill="#FFD2A3" opacity="0.55" filter="url(#blur)" transform="rotate(-20 200 190)"/>
+  </g>
+  <text x="256" y="350" text-anchor="middle" font-family="Montserrat, 'Segoe UI', Arial, sans-serif" font-weight="700" font-size="290" fill="#0B0907">D</text>
+</svg>
