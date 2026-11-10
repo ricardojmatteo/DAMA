@@ -6,7 +6,7 @@ Para Machine Learning e Análise Preditiva, o `Deliverable1/` mantém só as ver
 
 ## Análise Preditiva — `Deliverable1/08_Analise_Preditiva/DAMAAnalisePreditiva1_corrigido.ipynb`
 
-Correções feitas a partir do feedback da pré-avaliação, registrado no épico **SMAN-78** ("Correção — Análise Preditiva"), e da revisão do notebook.
+Correções feitas a partir do feedback da pré-avaliação, registrado no épico **SMAN-78** ("Correção — Análise Preditiva"), da revisão do notebook e do feedback do checkpoint do D2.
 
 | Apontamento | Tarefas | O que foi feito |
 |---|---|---|
@@ -19,12 +19,14 @@ Correções feitas a partir do feedback da pré-avaliação, registrado no épic
 | *Encontrado na revisão:* ordem da senioridade errada | SMAN-163 | A ordem tinha "Diretor", que não existe na base, e "Gerente" virava categoria desconhecida. Agora: Junior < Pleno < Senior < Especialista < Gerente |
 | *Encontrado na revisão:* imputação pela mediana | SMAN-160 | Colaborador sem curso ou sem uso de IA tem zero, não dado faltante. A imputação passou a ser por zero |
 | *Encontrado na revisão:* tokens incompletos | — | O total somava só os tokens de entrada. Agora soma entrada e saída |
+| *Checkpoint do D2:* seleção e teste misturados | — (feedback do checkpoint) | A validação cruzada que escolhia a configuração rodava na base inteira, inclusive nas linhas do teste, e o limiar era escolhido na curva do teste. Agora a divisão treino/teste vem antes de tudo: validação cruzada, ablação e limiar (previsões fora da dobra) usam só o treino, e o teste é usado uma única vez |
+| *Checkpoint do D2:* reprodutibilidade | — (feedback do checkpoint) | O notebook procura a pasta de dados sozinho: variável `DAMA_DADOS`, a própria pasta (Colab), `dados/` ou `Deliverable1/05_Machine_Learning/Data/csv` no repositório. Se não achar, diz o que fazer. Não há cópia do notebook em `00_Correcoes_Deliverable_1`: a única versão é a de `Deliverable1/08_Analise_Preditiva`, que lê `../05_Machine_Learning/Data/csv` |
 
-**O que a correção revelou**
-- Com o corte temporal, sobram 31 incidentes em 2.039 colaboradores (1,5%).
-- O melhor modelo tem PR-AUC de 0,082 ± 0,059 (sorteio: 0,015) e ROC-AUC de 0,701 ± 0,064 na validação cruzada. No teste, cai para 0,644.
-- A ablação mostra que o sinal é da unidade: só com o departamento, o ROC-AUC é 0,704. Só com cursos e tokens, 0,542; só com incidentes anteriores, 0,480. Unidades menores têm mais incidentes por colaborador.
-- Para encontrar 6 dos 9 incidentes do teste, o modelo sinaliza 33% dos colaboradores, com precisão de 2,9%.
+**O que a correção revelou** (números da versão com escolha só no treino)
+- Com o corte temporal, sobram 31 incidentes em 2.039 colaboradores (1,5%): 22 no treino (1.427 colaboradores) e 9 no teste (612).
+- Na validação cruzada do treino, o melhor modelo tem PR-AUC de 0,070 ± 0,048 (sorteio: 0,015) e ROC-AUC de 0,694 ± 0,108. No teste, o ROC-AUC é 0,644 e a PR-AUC, 0,025.
+- Com o limiar escolhido no treino, o modelo encontra 5 dos 9 incidentes do teste sinalizando 31% dos colaboradores, com precisão de 2,6%. Com o limiar escolhido na curva do teste, como antes, eram 6 de 9: o número anterior era otimista.
+- A ablação no treino não separa as fontes de sinal: só com o departamento, ROC-AUC de 0,657; só com cursos e tokens, 0,658; só com incidentes anteriores, 0,508. Na versão anterior, com a validação cruzada na base inteira, eram 0,704, 0,542 e 0,480. A leitura "o sinal é da unidade, não da pessoa" dependia das linhas do teste e foi retirada.
 
 O modelo não sustenta decisão sobre pessoas. Isso é coerente com a Estatística Multivariada, que não confirmou a hipótese H2. Por isso, no D2 a disciplina passou a prever demanda e custo de IA (`Deliverable2/08_Analise_Preditiva`).
 
