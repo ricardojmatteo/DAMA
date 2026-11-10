@@ -1,7 +1,8 @@
 # Produto
 
+- [visao.md](visao.md) — **visão revisada (Deliverable 2)**: governança de IA, necessidades por persona, AI Maturity Score e hipótese de inovação mensurável. Substitui o DocVisao.
 - [DocVisao.doc](DocVisao.doc) — documento de visão do produto (Deliverable 1).
-- [DAMA-Intelligence-Documento-Completo.docx](DAMA-Intelligence-Documento-Completo.docx) — ideia central, hipótese de inovação, personas, regras de negócio, requisitos, MVPs, backlog, critérios de aceitação e a análise de negócio e marketing.
+- [DAMA-Intelligence-Documento-Completo.docx](DAMA-Intelligence-Documento-Completo.docx) — documento do D1. Requisitos, priorização e critérios de aceite atualizados estão em [docs/requisitos](../requisitos/). Contém ideia central, hipótese de inovação, personas, regras de negócio, requisitos, MVPs, backlog, critérios de aceitação e a análise de negócio e marketing.
 
 ## Resumo
 
