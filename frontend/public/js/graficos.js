@@ -2,7 +2,7 @@
 
 const ativos = new Set();
 
-export const CORES = ['#ff3b00', '#5aa9ff', '#2fd67b', '#ffa726', '#c77dff', '#ff4d6a', '#4dd0e1', '#f06292'];
+export const CORES = ['#ff7a1a', '#5aa9ff', '#2fd67b', '#ffa726', '#c77dff', '#ff4d6a', '#4dd0e1', '#f06292'];
 
 export function destruirGraficos() {
     for (const grafico of ativos) grafico.destroy();

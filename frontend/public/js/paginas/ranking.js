@@ -48,7 +48,7 @@ export default async function (el, params, recarregar) {
         labels: top.map(r => r.nome.split(' ')[0]),
         datasets: [{
             label: 'Pontuação', data: top.map(r => Number(r.pontuacao)),
-            backgroundColor: top.map(r => r.colaboradorId === sessao.id ? '#ffa726' : '#ff3b00cc'), borderRadius: 6
+            backgroundColor: top.map(r => r.colaboradorId === sessao.id ? '#ffd2a3' : '#ff7a1acc'), borderRadius: 6
         }]
     }, { indexAxis: 'y', plugins: { legend: { display: false } } });
 
