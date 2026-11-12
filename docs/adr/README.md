@@ -9,7 +9,10 @@ Cada decisão relevante vira um arquivo numerado a partir do [template](0000-tem
 | [0003](0003-microservices-como-estudo.md) | Microservices mantidos como estudo, não como arquitetura do produto | Aceita |
 | [0004](0004-alert-service-node-via-alertclient.md) | Serviço Node.js de alertas acessado pela interface `AlertClient` | Aceita (projetos de aula) |
 | [0005](0005-jdbc-e-views-sql.md) | Persistência com JdbcTemplate e views SQL, sem JPA | Aceita |
-| [0006](0006-autenticacao-por-cabecalho.md) | Autenticação simplificada por cabeçalho `X-Colaborador-Id` | Aceita, provisória |
+| [0006](0006-autenticacao-por-cabecalho.md) | Autenticação simplificada por cabeçalho `X-Colaborador-Id` | Substituída pela 0010 |
 | [0007](0007-conquistas-por-eventos-de-dominio.md) | Conquistas avaliadas por evento de domínio | Aceita |
 | [0008](0008-front-spa-com-bff-node.md) | Front-end SPA em JavaScript puro com BFF Node/Express | Aceita |
 | [0009](0009-alert-service-node-para-alertas-de-gestao.md) | Alertas de gestão calculados por um serviço Node.js (`alert-service`) | Aceita |
+| [0010](0010-autenticacao-jwt.md) | Autenticação por e-mail e senha com token JWT | Aceita |
+| [0011](0011-isolamento-por-empresa.md) | Isolamento entre empresas-cliente no service (`EscopoEmpresa`) | Aceita |
+| [0012](0012-modulos-de-leitura.md) | Módulos de leitura podem consultar tabelas de outros módulos | Aceita |

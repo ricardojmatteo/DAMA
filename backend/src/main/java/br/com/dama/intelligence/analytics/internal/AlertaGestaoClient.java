@@ -4,6 +4,7 @@ import br.com.dama.intelligence.analytics.api.AlertaGestaoView;
 import br.com.dama.intelligence.analytics.internal.AnaliseGestaoRegras.ColaboradorSemAtividade;
 import br.com.dama.intelligence.analytics.internal.AnaliseGestaoRegras.Equipe;
 import br.com.dama.intelligence.analytics.internal.AnaliseGestaoRegras.MetaAberta;
+import br.com.dama.intelligence.analytics.internal.AnaliseGestaoRegras.OrcamentoIa;
 import br.com.dama.intelligence.analytics.internal.AnaliseGestaoRegras.ValorIndicador;
 
 import java.time.LocalDate;
@@ -16,12 +17,16 @@ import java.util.List;
  */
 interface AlertaGestaoClient {
 
-    /** Devolve os alertas na ordem metas, tendências, equipes e sem atividade; a ordenação por severidade é do chamador. */
+    /** Devolve os alertas na ordem metas, tendências, equipes, sem atividade e orçamentos; a ordenação por severidade é do chamador. */
     List<AlertaGestaoView> avaliar(EntradaAnalise entrada);
 
     /** Dados brutos que alimentam as regras. */
     record EntradaAnalise(LocalDate hoje, List<MetaAberta> metas, List<Tendencia> tendencias, List<Equipe> equipes,
-                          List<ColaboradorSemAtividade> semAtividade) {
+                          List<ColaboradorSemAtividade> semAtividade, List<OrcamentoIa> orcamentos) {
+        EntradaAnalise(LocalDate hoje, List<MetaAberta> metas, List<Tendencia> tendencias, List<Equipe> equipes,
+                       List<ColaboradorSemAtividade> semAtividade) {
+            this(hoje, metas, tendencias, equipes, semAtividade, List.of());
+        }
     }
 
     /** Os dois últimos valores de uma mesma série de indicador. */

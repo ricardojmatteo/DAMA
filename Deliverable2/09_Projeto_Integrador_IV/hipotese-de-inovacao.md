@@ -12,11 +12,13 @@ Dar **AI Credits** pelo uso produtivo de IA, e usar o saldo para liberar **níve
 |---|---|
 | Atividades produtivas e AI Credits | Implementado |
 | Elegibilidade, saldo e histórico | Implementado |
-| Níveis de autonomia ligados ao saldo | Implementado |
-| Conquistas, níveis de evolução e ranking | Implementado |
-| AI Literacy Score (eficiência no uso de tokens) | **Não implementado** |
-| Integração automática com o Jira (tarefas, story points, prioridade e tokens) | **Não implementado**; a regra de pontuação está descrita em [ranking.md](../../docs/requisitos/ranking.md) |
-| Login real e isolamento entre empresas | **Não implementado** ([ADR-0006](../../docs/adr/0006-autenticacao-por-cabecalho.md)) |
+| Níveis de autonomia ligados ao saldo | Implementado como cálculo e exibição; **ainda não restringe o acesso às ferramentas** ([autonomia.md](../../docs/produto/autonomia.md)) |
+| Conquistas, níveis de evolução e ranking | Implementado; o ranking passou a considerar retrabalho (qualidade), não só volume |
+| AI Maturity Score por departamento (adoção, capacitação, governança, produtividade, eficiência) | Implementado ([ams.md](../../docs/produto/ams.md)); falta o quadrante AMS × investimento |
+| Eficiência no uso de tokens | Implementado como dimensão do AMS e como penalidade no ranking |
+| Alerta de orçamento de IA em risco por centro de custo | Implementado (usa a previsão de Análise Preditiva quando carregada) |
+| Integração automática com o Jira (tarefas, story points, prioridade e tokens) | **Não implementado**; o caminho está em [ranking.md](../../docs/requisitos/ranking.md#integração-com-o-jira-fora-do-escopo-próximos-passos) |
+| Login real e isolamento entre empresas | Implementado ([ADR-0010](../../docs/adr/0010-autenticacao-jwt.md), [ADR-0011](../../docs/adr/0011-isolamento-por-empresa.md)) |
 
 ## Evidências de apoio das outras disciplinas
 

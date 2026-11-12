@@ -35,6 +35,10 @@ export const fmt = {
         const data = new Date(iso);
         return data.toLocaleDateString('pt-BR') + ' ' + data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     },
+    moeda(valor) {
+        if (valor === null || valor === undefined || valor === '') return '—';
+        return 'R$ ' + Number(valor).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    },
     mes(iso) {
         if (!iso) return '—';
         const [a, m] = String(iso).split('-');

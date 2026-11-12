@@ -93,11 +93,11 @@ As faixas são uma **proposta do PO**, a calibrar com dados reais. Na base sint�
 |---|---|
 | Método e resultado na base sintética | Pronto ([Estatística Multivariada](../../Deliverable2/02_Estatistica_Multivariada/README.md)) |
 | Exportar AMS, IINV e perfis por departamento | Sprint 4, SMAN-334 |
-| Tabelas e carga dos resultados na plataforma | Sprint 4, SMAN-335 |
-| Leitura na API | Sprint 4, SMAN-336 |
-| Painel de maturidade com interpretação | Sprint 4, SMAN-340 |
+| Tabelas e carga dos resultados na plataforma | Feito: calculado na leitura, sem carga (tabela `capacitacao` nova) |
+| Leitura na API | Feito: `GET /api/empresas/{id}/ams` |
+| Painel de maturidade com interpretação | Feito (tela Maturidade em IA), falta o quadrante AMS × investimento |
 
-Na plataforma, o AMS corresponde aos requisitos RF40 e RF41 do [catálogo](../requisitos/catalogo.md). Nenhum dos dois está implementado.
+Na plataforma, o AMS corresponde aos requisitos RF40 e RF41 do [catálogo](../requisitos/catalogo.md). A versão implementada usa cinco dimensões calculadas com os dados que o produto já coleta (adoção, capacitação, governança, produtividade e eficiência), com pesos justificados em [ams.md](ams.md). O IMIA acima continua como referência metodológica.
 
 ## 5. Hipótese de inovação
 

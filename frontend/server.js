@@ -3,7 +3,6 @@ const path = require('path');
 
 const PORT = process.env.PORT || 3000;
 const API = (process.env.API_BASE_URL || 'http://localhost:8080').replace(/\/$/, '');
-const HEADER_USUARIO = 'X-Colaborador-Id';
 
 const app = express();
 app.disable('x-powered-by');
@@ -19,12 +18,12 @@ app.get('/health', async (_req, res) => {
   }
 });
 
-// BFF: repassa /api/* ao Spring Boot preservando o caminho e o cabeçalho de identificação do usuário.
+// BFF: repassa /api/* ao Spring Boot preservando o caminho e o token de acesso do usuário (ADR-0010).
 app.use('/api', async (req, res) => {
   const headers = { Accept: 'application/json' };
-  const usuario = req.get(HEADER_USUARIO);
-  if (usuario) {
-    headers[HEADER_USUARIO] = usuario;
+  const autorizacao = req.get('Authorization');
+  if (autorizacao) {
+    headers.Authorization = autorizacao;
   }
   const opcoes = { method: req.method, headers };
   if (!['GET', 'HEAD'].includes(req.method) && req.body !== undefined) {

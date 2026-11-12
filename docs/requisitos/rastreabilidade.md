@@ -53,8 +53,8 @@ Situação em 10/11/2026. Liga cada requisito do [catálogo](catalogo.md) à nec
 | RF37 | N03, N07 | M | CA-RF37.1–4 | POAN-115 | SMAN-301, SMAN-299, SMAN-323; tela de registro: SMAN-342 | S3\*; S4 | `RankingRegrasTest` (7 testes); `PontuacaoServiceTest.tarefaEntregueAssumeUrgenciaMediaETokensZeroQuandoOmitidosEAvisaOGestor`, `.tarefaRepetidaGeraConflitoEColaboradorInativoEhRecusado`, `.bonusDoGestorEhRegistradoParaColaboradorAtivo`; regra em [ranking.md](ranking.md) | Implementado |
 | RF38 | N06 | M | CA-RF38.1–2 | POAN-119 | SMAN-179 | S2\* | `AuditoriaServiceTest` (1); `ColaboradorServiceTest.criarValidaEmpresaDepartamentoEEmailAntesDeAuditar`; `DamaApiIntegrationTest.perfilColaboradorVeRankingMasNaoVeAlertasNemAuditoria` | Implementado |
 | RF39 | N08 | W | CA-RF39.1–3 | POAN-122 | — (isolamento: SMAN-344) | POAN Sprint 3; S4 | — | Não implementado |
-| RF40 | N07 | M | CA-RF40.1–3 | POAN-6 (épico) | SMAN-43 (épico), SMAN-334, SMAN-335, SMAN-336 | S4 | Método e resultados em `Deliverable2/02_Estatistica_Multivariada` (SMAN-248) | Não implementado |
-| RF41 | N05, N07 | M | CA-RF41.1–3 | POAN-6 (épico) | SMAN-340 | S4 | — | Não implementado |
+| RF40 | N07 | M | CA-RF40.1–4 | POAN-6 (épico) | SMAN-43 (épico), SMAN-334, SMAN-335, SMAN-336 | S4 | `MaturidadeRegras` (cálculo puro); sem teste dedicado ainda | Implementado sem teste dedicado |
+| RF41 | N05, N07 | M | CA-RF41.1–3 | POAN-6 (épico) | SMAN-340 | S4 | — | Parcial (falta o quadrante AMS × investimento) |
 | RF42 | N04, N07 | S | CA-RF42.1–2 | POAN-105 | SMAN-343 | S4 | — | Não implementado |
 | RF43 | N07 | C | CA-RF43.1 | POAN-10 (épico) | SMAN-337 | S4 | Modelo em `Deliverable2/05_Machine_Learning` | Não implementado |
 | RF44 | N05 | C | CA-RF44.1 | — | SMAN-338, SMAN-339 | S4 | Modelo em `Deliverable2/07_Pesquisa_Operacional_e_Calculo_Aplicado` | Não implementado |
@@ -82,7 +82,7 @@ Situação dos 70 critérios de aceite dos 28 RFs Must:
 | Lacuna | CAs afetados | Onde será tratada |
 |---|---|---|
 | RFs Must sem nenhum teste automatizado: RF04, RF19, RF24 e RF29 | 8 | SMAN-182 (Sprint 4) |
-| RFs Must ainda não implementados: RF40 e RF41 | 6 | SMAN-334 a 336 e SMAN-340 (Sprint 4) |
+| RFs Must ainda incompletos: RF41 (quadrante AMS × investimento) | 3 | SMAN-340 (Sprint 4) |
 | RF05 e RF12 com teste só unitário (falta a integração TI-01 e TI-02) | 6 | SMAN-182 (Sprint 4) |
 | Casos manuais TM-01 a TM-12 não executados (cobririam os CAs de tela, como CA-RF26.2 e CA-RF32.3) | — | SMAN-356 (Sprint 4) |
 

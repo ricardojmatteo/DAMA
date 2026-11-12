@@ -3,7 +3,7 @@ import { sessao } from './sessao.js';
 import { limparCache } from './dados.js';
 import { destruirGraficos } from './graficos.js';
 import { h, fmt, painel } from './ui.js';
-import { USUARIOS_DEMO } from './config.js';
+import { USUARIOS_DEMO, SENHA_DEMO } from './config.js';
 
 const ROTAS = [
     { grupo: 'Meu espaço', caminho: 'inicio', titulo: 'Meu painel', subtitulo: 'Indicadores, metas, pontos e AI Credits', icone: '◆', permissoes: ['DESEMPENHO_LER'], modulo: () => import('./paginas/inicio.js') },
@@ -15,7 +15,8 @@ const ROTAS = [
     { grupo: 'Desempenho', caminho: 'equipes', titulo: 'Equipes', subtitulo: 'Dashboard por equipe e comparação entre equipes', icone: '▦', permissoes: ['DESEMPENHO_LER'], modulo: () => import('./paginas/equipes.js') },
     { grupo: 'Desempenho', caminho: 'desafios', titulo: 'Desafios', subtitulo: 'Desafios com recompensa em pontos', icone: '⚑', permissoes: ['GAMIFICACAO_LER'], modulo: () => import('./paginas/desafios.js') },
     { grupo: 'Desempenho', caminho: 'reconhecimentos', titulo: 'Reconhecimentos', subtitulo: 'Quem foi reconhecido e por quê', icone: '✦', permissoes: ['GAMIFICACAO_LER'], modulo: () => import('./paginas/reconhecimentos.js') },
-    { grupo: 'Gestão', caminho: 'analises', titulo: 'Análises de gestão', subtitulo: 'Onde agir: metas, indicadores, equipes e engajamento', icone: '!', permissoes: ['ANALYTICS_LER'], modulo: () => import('./paginas/analises.js') },
+    { grupo: 'Gestão', caminho: 'analises', titulo: 'Análises de gestão', subtitulo: 'Onde agir: metas, indicadores, equipes, engajamento e orçamento de IA', icone: '!', permissoes: ['ANALYTICS_LER'], modulo: () => import('./paginas/analises.js') },
+    { grupo: 'Gestão', caminho: 'maturidade', titulo: 'Maturidade em IA', subtitulo: 'AI Maturity Score por departamento e suas cinco dimensões', icone: '◐', permissoes: ['ANALYTICS_LER'], modulo: () => import('./paginas/maturidade.js') },
     { grupo: 'Gestão', caminho: 'pessoas', titulo: 'Pessoas e perfis', subtitulo: 'Colaboradores, departamentos e permissões', icone: '☰', permissoes: ['COLABORADOR_LER'], modulo: () => import('./paginas/pessoas.js') },
     { grupo: 'Gestão', caminho: 'auditoria', titulo: 'Auditoria', subtitulo: 'Movimentações registradas na plataforma', icone: '⌕', permissoes: ['PERFIL_GERENCIAR'], modulo: () => import('./paginas/auditoria.js') }
 ];
@@ -61,38 +62,45 @@ export function navegar(caminho, params) {
 function telaLogin(mensagem = '') {
     destruirGraficos();
     const erro = h('div', { class: 'erro' }, mensagem);
-    const campo = h('input', { type: 'number', min: '1', placeholder: 'Ex.: 4', id: 'login-id' });
+    const campoEmail = h('input', { type: 'email', placeholder: 'nome@empresa.com', id: 'login-email', autocomplete: 'username', required: '' });
+    const campoSenha = h('input', { type: 'password', placeholder: 'Senha', id: 'login-senha', autocomplete: 'current-password', required: '' });
+    const botao = h('button', { type: 'submit', class: 'btn primario' }, 'Entrar');
 
-    async function entrar(id) {
+    async function entrar(email, senha) {
         erro.textContent = '';
-        sessao.id = Number(id);
+        botao.disabled = true;
         try {
-            const dados = await api.get('/me');
-            sessao.definir(Number(id), dados);
+            const token = await api.post('/auth/login', { email, senha });
+            sessao.autenticar(token.token);
+            sessao.definir(await api.get('/me'));
             limparCache();
             montarLayout();
             const destino = rotasPermitidas()[0];
             if (!destino) {
-                telaLogin('Este colaborador não tem nenhum perfil com permissões atribuídas.');
                 sessao.limpar();
+                telaLogin('Este colaborador não tem nenhum perfil com permissões atribuídas.');
                 return;
             }
             navegar(destino.caminho);
             renderizar();
         } catch (e) {
             sessao.limpar();
-            erro.textContent = e.status === 404 ? 'Colaborador não encontrado.' : e.message;
+            erro.textContent = e.status === 401 ? 'E-mail ou senha inválidos.' : e.message;
+        } finally {
+            botao.disabled = false;
         }
     }
 
     const form = h('form', {
         class: 'campo', onsubmit: e => {
             e.preventDefault();
-            if (campo.value) entrar(campo.value);
+            if (campoEmail.value && campoSenha.value) entrar(campoEmail.value.trim(), campoSenha.value);
         }
     },
-        h('label', { for: 'login-id' }, 'ID do colaborador'),
-        h('div', { class: 'linha' }, campo, h('button', { type: 'submit', class: 'btn primario' }, 'Entrar')),
+        h('label', { for: 'login-email' }, 'E-mail'),
+        campoEmail,
+        h('label', { for: 'login-senha', style: 'margin-top:10px' }, 'Senha'),
+        h('div', { class: 'linha' }, campoSenha, botao),
         erro);
 
     raiz.replaceChildren(h('div', { class: 'login' },
@@ -104,14 +112,14 @@ function telaLogin(mensagem = '') {
                 'Desempenho, gamificação e AI Credits'),
             painel('Entrar', [
                 form,
-                h('p', { class: 'muted', style: 'margin-top:14px;font-size:12px' }, 'Usuários de demonstração:'),
+                h('p', { class: 'muted', style: 'margin-top:14px;font-size:12px' }, `Usuários de demonstração (senha "${SENHA_DEMO}"):`),
                 h('div', { class: 'demo' }, USUARIOS_DEMO.map(u =>
-                    h('button', { type: 'button', class: 'btn', onclick: () => entrar(u.id) },
-                        h('span', {}, `${u.nome} (#${u.id})`), h('small', {}, u.papel))))
+                    h('button', { type: 'button', class: 'btn', onclick: () => entrar(u.email, SENHA_DEMO) },
+                        h('span', {}, u.nome), h('small', {}, u.papel))))
             ], {
-                subtitulo: 'A autenticação atual identifica o usuário pelo ID (cabeçalho X-Colaborador-Id).'
+                subtitulo: 'Acesso por e-mail e senha; a sessão usa um token com validade de 8 horas.'
             }))));
-    campo.focus();
+    campoEmail.focus();
 }
 
 // ---------- layout ----------
@@ -210,12 +218,12 @@ async function renderizar() {
 window.addEventListener('hashchange', renderizar);
 
 async function iniciar() {
-    if (!sessao.id) {
+    if (!sessao.token) {
         telaLogin();
         return;
     }
     try {
-        sessao.definir(sessao.id, await api.get('/me'));
+        sessao.definir(await api.get('/me'));
         montarLayout();
         await renderizar();
     } catch {

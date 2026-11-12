@@ -13,7 +13,7 @@
 
     <groupId>br.com.dama</groupId>
     <artifactId>dama-intelligence-backend</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
     <name>DAMA Intelligence — Backend</name>
     <description>API REST do DAMA Intelligence (monólito modular Spring Boot + PostgreSQL).</description>
 
@@ -43,6 +43,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <!-- JWT (ADR-0010): codificação/validação HS256 via Nimbus, já integrada ao Spring Security -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-oauth2-jose</artifactId>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -97,6 +102,9 @@
                                 <include>br/com/dama/intelligence/analytics/internal/AnaliseGestaoRegras.class</include>
                                 <include>br/com/dama/intelligence/analytics/internal/AlertaGestaoLocal.class</include>
                                 <include>br/com/dama/intelligence/analytics/internal/AlertaGestaoNode.class</include>
+                                <include>br/com/dama/intelligence/analytics/internal/RankingRegras.class</include>
+                                <include>br/com/dama/intelligence/maturidade/internal/MaturidadeRegras.class</include>
+                                <include>br/com/dama/intelligence/shared/security/EscopoEmpresa.class</include>
                             </includes>
                         </configuration>
                     </execution>

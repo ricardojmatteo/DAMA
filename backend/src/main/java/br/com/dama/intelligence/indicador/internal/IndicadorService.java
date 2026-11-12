@@ -5,6 +5,7 @@ import br.com.dama.intelligence.colaborador.api.ColaboradorFacade;
 import br.com.dama.intelligence.indicador.api.*;
 import br.com.dama.intelligence.organizacao.api.OrganizacaoFacade;
 import br.com.dama.intelligence.shared.error.NotFoundException;
+import br.com.dama.intelligence.shared.security.EscopoEmpresa;
 import br.com.dama.intelligence.shared.error.ValidationException;
 import br.com.dama.intelligence.shared.security.UsuarioAtual;
 import org.springframework.stereotype.Service;
@@ -20,13 +21,15 @@ class IndicadorService implements IndicadorFacade {
     private final ColaboradorFacade colaboradores;
     private final OrganizacaoFacade organizacao;
     private final AuditoriaFacade auditoria;
+    private final EscopoEmpresa escopo;
 
     IndicadorService(IndicadorRepository repo, ColaboradorFacade colaboradores, OrganizacaoFacade organizacao,
-                     AuditoriaFacade auditoria) {
+                     AuditoriaFacade auditoria, EscopoEmpresa escopo) {
         this.repo = repo;
         this.colaboradores = colaboradores;
         this.organizacao = organizacao;
         this.auditoria = auditoria;
+        this.escopo = escopo;
     }
 
     @Override
@@ -49,6 +52,7 @@ class IndicadorService implements IndicadorFacade {
     @Transactional
     public IndicadorValorView registrarValor(Long indicadorId, RegistrarValorCommand comando) {
         IndicadorView indicador = buscar(indicadorId);
+        escopo.exigir(indicador.empresaId());
         boolean temColaborador = comando.colaboradorId() != null;
         boolean temDepartamento = comando.departamentoId() != null;
         if (temColaborador == temDepartamento) {
@@ -62,9 +66,9 @@ class IndicadorService implements IndicadorFacade {
             throw new ValidationException("O departamento informado não pertence à empresa do indicador.");
         }
 
-        Long registradoPor = comando.registradoPor() != null ? comando.registradoPor() : UsuarioAtual.id();
+        // a autoria é sempre do usuário autenticado: o campo registradoPor do corpo é ignorado (não pode ser forjado)
         Long valorId = repo.inserirValor(indicadorId, comando.colaboradorId(), comando.departamentoId(),
-                comando.periodoReferencia(), comando.valor(), registradoPor);
+                comando.periodoReferencia(), comando.valor(), UsuarioAtual.id());
         auditoria.registrar(indicador.empresaId(), UsuarioAtual.id(), "indicador_valor", valorId.toString(), "REGISTRO", null);
 
         return new IndicadorValorView(valorId, indicadorId, comando.colaboradorId(), comando.departamentoId(),
@@ -74,7 +78,7 @@ class IndicadorService implements IndicadorFacade {
     @Override
     public List<IndicadorValorView> historico(Long indicadorId, Long colaboradorId, Long departamentoId,
                                               LocalDate inicio, LocalDate fim) {
-        buscar(indicadorId);
+        escopo.exigir(buscar(indicadorId).empresaId());
         if (inicio != null && fim != null && fim.isBefore(inicio)) {
             throw new ValidationException("fim não pode ser anterior a inicio.");
         }
@@ -104,6 +108,7 @@ class IndicadorService implements IndicadorFacade {
         if (!organizacao.existeEmpresa(empresaId)) {
             throw new NotFoundException("Empresa inexistente: " + empresaId);
         }
+        escopo.exigir(empresaId);
     }
 
 }

@@ -15,6 +15,10 @@ server:
 # Alertas de gestão (RF15): com ALERTAS_URL o backend usa o alert-service Node.js (ADR-0009);
 # vazia, usa só as regras locais em Java. Se o serviço falhar, o backend também cai nas regras locais.
 dama:
+  # Autenticação (ADR-0010): segredo HS256 (>= 32 bytes) e validade do token. Em produção defina DAMA_JWT_SEGREDO.
+  auth:
+    segredo: ${DAMA_JWT_SEGREDO:}
+    validade-horas: ${DAMA_JWT_VALIDADE_HORAS:8}
   alertas:
     url: ${ALERTAS_URL:}
     timeout-ms: ${ALERTAS_TIMEOUT_MS:2000}
@@ -24,6 +28,18 @@ dama:
     franquia-gratis: ${RANKING_FRANQUIA_GRATIS:0.25}
     bonus-maximo: ${RANKING_BONUS_MAXIMO:0.15}
     janela-padrao-dias: ${RANKING_JANELA_DIAS:30}
+    fator-retrabalho: ${RANKING_FATOR_RETRABALHO:0.5}
+  # AI Maturity Score (docs/produto/ams.md): pesos das cinco dimensões (somam 100), janela das tarefas/atividades
+  # e validade de uma capacitação. Os limites de tokens vêm de dama.ranking.
+  ams:
+    pesos:
+      adocao: ${AMS_PESO_ADOCAO:20}
+      capacitacao: ${AMS_PESO_CAPACITACAO:20}
+      governanca: ${AMS_PESO_GOVERNANCA:20}
+      produtividade: ${AMS_PESO_PRODUTIVIDADE:20}
+      eficiencia: ${AMS_PESO_EFICIENCIA:20}
+    janela-dias: ${AMS_JANELA_DIAS:90}
+    capacitacao-validade-meses: ${AMS_CAPACITACAO_VALIDADE_MESES:12}
 
 management:
   endpoints:

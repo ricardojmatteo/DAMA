@@ -6,6 +6,7 @@ import br.com.dama.intelligence.analytics.internal.AlertaGestaoClient.Tendencia;
 import br.com.dama.intelligence.analytics.internal.AnaliseGestaoRegras.ValorIndicador;
 import br.com.dama.intelligence.shared.error.NotFoundException;
 import br.com.dama.intelligence.shared.error.ValidationException;
+import br.com.dama.intelligence.shared.security.EscopoEmpresa;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
@@ -19,12 +20,15 @@ class AnalyticsService implements AnalyticsFacade {
     private final Clock clock;
     private final AlertaGestaoClient motorAlertas;
     private final RankingConfig ranking;
+    private final EscopoEmpresa escopo;
 
-    AnalyticsService(AnalyticsRepository repo, Clock clock, AlertaGestaoClient motorAlertas, RankingConfig ranking) {
+    AnalyticsService(AnalyticsRepository repo, Clock clock, AlertaGestaoClient motorAlertas, RankingConfig ranking,
+                     EscopoEmpresa escopo) {
         this.repo = repo;
         this.clock = clock;
         this.motorAlertas = motorAlertas;
         this.ranking = ranking;
+        this.escopo = escopo;
     }
 
     @Override
@@ -89,7 +93,8 @@ class AnalyticsService implements AnalyticsFacade {
         // as regras de alerta são aplicadas pelo motor configurado (alert-service Node ou regras locais)
         List<AlertaGestaoView> alertas = new ArrayList<>(motorAlertas.avaliar(new EntradaAnalise(hoje,
                 repo.metasAbertas(empresaId), tendencias, equipesDaJanelaPadrao(empresaId),
-                repo.colaboradoresSemAtividade(empresaId, hoje.minusDays(AnaliseGestaoRegras.DIAS_SEM_ATIVIDADE)))));
+                repo.colaboradoresSemAtividade(empresaId, hoje.minusDays(AnaliseGestaoRegras.DIAS_SEM_ATIVIDADE)),
+                repo.orcamentosDoMes(empresaId, hoje.withDayOfMonth(1)))));
 
         alertas.sort(Comparator.comparingInt((AlertaGestaoView a) -> AnaliseGestaoRegras.peso(a.severidade())));
         Map<String, Long> porSeveridade = new LinkedHashMap<>();
@@ -117,5 +122,6 @@ class AnalyticsService implements AnalyticsFacade {
         if (!repo.existeEmpresa(empresaId)) {
             throw new NotFoundException("Empresa inexistente: " + empresaId);
         }
+        escopo.exigir(empresaId);
     }
 }

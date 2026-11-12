@@ -1,6 +1,6 @@
 # ADR-0006: Autenticação simplificada por cabeçalho `X-Colaborador-Id`
 
-- **Status:** Aceita, provisória
+- **Status:** Substituída pela [ADR-0010](0010-autenticacao-jwt.md)
 - **Data:** 2026-09-28
 
 ## Contexto

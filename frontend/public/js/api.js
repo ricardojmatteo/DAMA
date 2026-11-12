@@ -16,8 +16,8 @@ const MENSAGEM_PADRAO = {
 
 async function requisitar(metodo, caminho, corpo) {
     const headers = { Accept: 'application/json' };
-    if (sessao.id) {
-        headers['X-Colaborador-Id'] = String(sessao.id);
+    if (sessao.token) {
+        headers.Authorization = 'Bearer ' + sessao.token;
     }
     const opcoes = { method: metodo, headers };
     if (corpo !== undefined) {
@@ -44,7 +44,7 @@ async function requisitar(metodo, caminho, corpo) {
 
     if (!resposta.ok) {
         let mensagem = (dados && dados.message) || MENSAGEM_PADRAO[resposta.status] || `Erro ${resposta.status}`;
-        if (resposta.status === 403) {
+        if (resposta.status === 403 && !(dados && dados.message && /empresa/i.test(dados.message))) {
             mensagem = MENSAGEM_PADRAO[403];
         }
         if (dados && dados.fields) {

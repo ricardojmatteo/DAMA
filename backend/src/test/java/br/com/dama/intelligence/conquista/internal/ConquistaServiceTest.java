@@ -9,6 +9,7 @@ import br.com.dama.intelligence.conquista.api.NivelEvolucaoView;
 import br.com.dama.intelligence.organizacao.api.OrganizacaoFacade;
 import br.com.dama.intelligence.shared.error.ConflictException;
 import br.com.dama.intelligence.shared.error.ValidationException;
+import br.com.dama.intelligence.shared.security.EscopoEmpresa;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -39,7 +40,7 @@ class ConquistaServiceTest {
         colaboradores = mock(ColaboradorFacade.class);
         OrganizacaoFacade organizacao = mock(OrganizacaoFacade.class);
         when(organizacao.existeEmpresa(1L)).thenReturn(true);
-        service = new ConquistaService(repo, colaboradores, organizacao, mock(AuditoriaFacade.class));
+        service = new ConquistaService(repo, colaboradores, organizacao, mock(AuditoriaFacade.class), new EscopoEmpresa());
     }
 
     @Test

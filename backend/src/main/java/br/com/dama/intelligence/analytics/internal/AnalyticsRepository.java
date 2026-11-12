@@ -52,11 +52,11 @@ class AnalyticsRepository {
     /** Tarefas entregues pelos colaboradores ativos da empresa entre o início do dia inicio e o fim do dia fim. */
     List<RankingRegras.Tarefa> tarefasEntregues(Long empresaId, LocalDate inicio, LocalDate fim) {
         return jdbc.query(
-                "select t.colaborador_id, t.story_points, t.urgencia, t.tokens_ia from dama.tarefa_entregue t " +
+                "select t.colaborador_id, t.story_points, t.urgencia, t.tokens_ia, t.retrabalho from dama.tarefa_entregue t " +
                         "join dama.colaborador c on c.colaborador_id = t.colaborador_id " +
                         "where c.empresa_id = ? and c.ativo and t.entregue_em >= ? and t.entregue_em < ?",
                 (rs, i) -> new RankingRegras.Tarefa(rs.getLong("colaborador_id"), rs.getBigDecimal("story_points"),
-                        rs.getString("urgencia"), rs.getLong("tokens_ia")),
+                        rs.getString("urgencia"), rs.getLong("tokens_ia"), rs.getBoolean("retrabalho")),
                 empresaId, Timestamp.valueOf(inicio.atStartOfDay()), Timestamp.valueOf(fim.plusDays(1).atStartOfDay()));
     }
 
@@ -121,6 +121,19 @@ class AnalyticsRepository {
     }
 
     /** Ativos admitidos até a data desde, sem pontos nem atividades registradas a partir dela. */
+    /** Orçamentos de IA dos departamentos da empresa no mês de referência (dia 1). */
+    List<AnaliseGestaoRegras.OrcamentoIa> orcamentosDoMes(Long empresaId, LocalDate mes) {
+        return jdbc.query(
+                "select o.departamento_id, d.nome as departamento_nome, o.mes_referencia, o.valor_orcado, o.gasto_atual, " +
+                        "o.consumo_previsto, o.previsto_inferior, o.previsto_superior " +
+                        "from dama.orcamento_ia o join dama.departamento d on d.departamento_id = o.departamento_id " +
+                        "where o.empresa_id = ? and o.mes_referencia = ? order by d.nome",
+                (rs, i) -> new AnaliseGestaoRegras.OrcamentoIa(rs.getLong("departamento_id"), rs.getString("departamento_nome"),
+                        rs.getDate("mes_referencia").toLocalDate(), rs.getBigDecimal("valor_orcado"), rs.getBigDecimal("gasto_atual"),
+                        rs.getBigDecimal("consumo_previsto"), rs.getBigDecimal("previsto_inferior"), rs.getBigDecimal("previsto_superior")),
+                empresaId, java.sql.Date.valueOf(mes));
+    }
+
     List<AnaliseGestaoRegras.ColaboradorSemAtividade> colaboradoresSemAtividade(Long empresaId, LocalDate desde) {
         return jdbc.query(
                 "select c.colaborador_id, c.nome, c.departamento_id from dama.colaborador c " +

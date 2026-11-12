@@ -4,5 +4,5 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record TarefaEntregueView(Long tarefaId, Long colaboradorId, String chave, String descricao, BigDecimal storyPoints,
-                                 String urgencia, long tokensIa, LocalDateTime entregueEm) {
+                                 String urgencia, long tokensIa, boolean retrabalho, LocalDateTime entregueEm) {
 }

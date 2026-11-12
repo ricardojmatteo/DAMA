@@ -21,6 +21,9 @@ public interface PerfilFacade {
 
     List<PerfilView> perfisDoColaborador(Long colaboradorId);
 
+    /** Versão para a API: 403 se o colaborador for de outra empresa (ADR-0011). */
+    List<PerfilView> perfisDoColaboradorDaEmpresa(Long colaboradorId);
+
     /** Usado pelo filtro de autenticação para montar as authorities do colaborador autenticado. */
     Set<String> permissoesDoColaborador(Long colaboradorId);
 }

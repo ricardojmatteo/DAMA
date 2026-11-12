@@ -1,6 +1,6 @@
 package br.com.dama.intelligence.pontuacao.internal;
 
-import br.com.dama.intelligence.aicredit.api.AiCreditFacade;
+import br.com.dama.intelligence.aicredit.api.AtividadeFacade;
 import br.com.dama.intelligence.auditoria.api.AuditoriaFacade;
 import br.com.dama.intelligence.colaborador.api.ColaboradorFacade;
 import br.com.dama.intelligence.colaborador.api.ColaboradorView;
@@ -9,6 +9,7 @@ import br.com.dama.intelligence.pontuacao.api.*;
 import br.com.dama.intelligence.shared.error.NotFoundException;
 import br.com.dama.intelligence.shared.error.ValidationException;
 import br.com.dama.intelligence.shared.event.DesempenhoAtualizadoEvent;
+import br.com.dama.intelligence.shared.security.EscopoEmpresa;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationEventPublisher;
@@ -22,6 +23,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -29,7 +31,7 @@ import static org.mockito.Mockito.*;
 class PontuacaoServiceTest {
     private PontuacaoRepository repo;
     private ColaboradorFacade colaboradores;
-    private AiCreditFacade aiCredits;
+    private AtividadeFacade aiCredits;
     private ApplicationEventPublisher eventos;
     private PontuacaoService service;
 
@@ -37,11 +39,11 @@ class PontuacaoServiceTest {
     void setUp() {
         repo = mock(PontuacaoRepository.class);
         colaboradores = mock(ColaboradorFacade.class);
-        aiCredits = mock(AiCreditFacade.class);
+        aiCredits = mock(AtividadeFacade.class);
         eventos = mock(ApplicationEventPublisher.class);
         OrganizacaoFacade organizacao = mock(OrganizacaoFacade.class);
         when(organizacao.existeEmpresa(1L)).thenReturn(true);
-        service = new PontuacaoService(repo, colaboradores, organizacao, aiCredits, mock(AuditoriaFacade.class), eventos);
+        service = new PontuacaoService(repo, colaboradores, organizacao, aiCredits, mock(AuditoriaFacade.class), eventos, new EscopoEmpresa());
     }
 
     @Test
@@ -107,10 +109,10 @@ class PontuacaoServiceTest {
     @Test
     void tarefaEntregueAssumeUrgenciaMediaETokensZeroQuandoOmitidosEAvisaOGestor() {
         when(colaboradores.buscarPorId(10L)).thenReturn(colaborador(10L, 1L, true));
-        TarefaEntregueView tarefa = new TarefaEntregueView(7L, 10L, "DAMA-1", null, BigDecimal.valueOf(5), "MEDIA", 0, LocalDateTime.now());
-        when(repo.inserirTarefa(10L, "DAMA-1", null, BigDecimal.valueOf(5), "MEDIA", 0L, null)).thenReturn(tarefa);
+        TarefaEntregueView tarefa = new TarefaEntregueView(7L, 10L, "DAMA-1", null, BigDecimal.valueOf(5), "MEDIA", 0, false, LocalDateTime.now());
+        when(repo.inserirTarefa(10L, "DAMA-1", null, BigDecimal.valueOf(5), "MEDIA", 0L, false, null)).thenReturn(tarefa);
 
-        assertThat(service.registrarTarefa(10L, new RegistrarTarefaCommand(" DAMA-1 ", null, BigDecimal.valueOf(5), null, null, null)))
+        assertThat(service.registrarTarefa(10L, new RegistrarTarefaCommand(" DAMA-1 ", null, BigDecimal.valueOf(5), null, null, null, null)))
                 .isEqualTo(tarefa);
 
         verify(eventos).publishEvent(new DesempenhoAtualizadoEvent(10L));
@@ -119,13 +121,13 @@ class PontuacaoServiceTest {
     @Test
     void tarefaRepetidaGeraConflitoEColaboradorInativoEhRecusado() {
         when(colaboradores.buscarPorId(10L)).thenReturn(colaborador(10L, 1L, true));
-        when(repo.inserirTarefa(any(), any(), any(), any(), any(), anyLong(), any()))
+        when(repo.inserirTarefa(any(), any(), any(), any(), any(), anyLong(), anyBoolean(), any()))
                 .thenThrow(new org.springframework.dao.DuplicateKeyException("duplicada"));
-        assertThatThrownBy(() -> service.registrarTarefa(10L, new RegistrarTarefaCommand("DAMA-1", null, BigDecimal.ONE, "alta", 100L, null)))
+        assertThatThrownBy(() -> service.registrarTarefa(10L, new RegistrarTarefaCommand("DAMA-1", null, BigDecimal.ONE, "alta", 100L, null, null)))
                 .isInstanceOf(br.com.dama.intelligence.shared.error.ConflictException.class);
 
         when(colaboradores.buscarPorId(11L)).thenReturn(colaborador(11L, 1L, false));
-        assertThatThrownBy(() -> service.registrarTarefa(11L, new RegistrarTarefaCommand("DAMA-2", null, BigDecimal.ONE, null, null, null)))
+        assertThatThrownBy(() -> service.registrarTarefa(11L, new RegistrarTarefaCommand("DAMA-2", null, BigDecimal.ONE, null, null, null, null)))
                 .isInstanceOf(ValidationException.class);
     }
 

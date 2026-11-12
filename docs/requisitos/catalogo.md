@@ -64,8 +64,8 @@ Decisões tomadas:
 | RF37 | Pontuar tarefas entregues (story points, urgência, uso de IA e bônus do gestor) | RF12 / US10 | `pontuacao`, `analytics` | Implementado |
 | RF38 | Registrar movimentações para auditoria | RF23 / US23 | `auditoria` | Implementado |
 | RF39 | Autenticar usuário com credenciais (login real) | US01 | — | Não implementado |
-| RF40 | Calcular o AI Maturity Score por equipe | — | — | Não implementado |
-| RF41 | Visualizar painel de maturidade (AMS, componentes e quadrante de investimento) | — | — | Não implementado |
+| RF40 | Calcular o AI Maturity Score por equipe | — | `maturidade` | Implementado (cinco dimensões a partir dos dados do produto; ver [ams.md](../produto/ams.md)) |
+| RF41 | Visualizar painel de maturidade (AMS, componentes e quadrante de investimento) | — | `maturidade`, front | Parcial: AMS, dimensões, faixa e ação sugerida; falta o quadrante AMS × investimento |
 | RF42 | Calcular o AI Literacy Score do colaborador | — | — | Não implementado |
 | RF43 | Visualizar recomendações de licença do modelo de ML | US25 | — | Não implementado |
 | RF44 | Visualizar o plano ótimo de licenças e seus cenários | — | — | Não implementado |
@@ -142,7 +142,7 @@ Cada critério é verificável por teste automatizado, caso manual ou inspeção
 - CA-RF14.3: A comparação acontece só entre equipes da mesma empresa.
 
 **RF15 — Análises de gestão**
-- CA-RF15.1: São gerados os cinco tipos de alerta da RN35 (meta vencida, meta em risco, indicador em queda, equipe abaixo da média e sem atividade recente), com as severidades definidas.
+- CA-RF15.1: São gerados os seis tipos de alerta da RN35 (meta vencida, meta em risco, indicador em queda, equipe abaixo da média, sem atividade recente e orçamento de IA em risco), com as severidades definidas.
 - CA-RF15.2: Os alertas vêm ordenados da maior para a menor severidade, e a queda é calculada só dentro da mesma série.
 - CA-RF15.3: Se o `alert-service` não responder, o backend aplica as mesmas regras localmente.
 - CA-RF15.4: O perfil Colaborador não vê os alertas.
@@ -251,9 +251,10 @@ Cada critério é verificável por teste automatizado, caso manual ou inspeção
 - CA-RF39.3: Um usuário de uma empresa não acessa dados de outra (RNF09).
 
 **RF40 — Calcular o AI Maturity Score**
-- CA-RF40.1: O AMS é calculado por equipe com os 8 indicadores e a fórmula da [visão, seção 4.2](../produto/visao.md#42-cálculo), de 0 a 100.
-- CA-RF40.2: Equipes com menos de 5 colaboradores ativos ficam de fora. Equipes sem uso de IA recebem 0.
-- CA-RF40.3: Com a base sintética, a plataforma reproduz os valores do relatório de Estatística Multivariada (por exemplo, a média de 82,4 em Tecnologia), com diferença máxima de 0,1.
+- CA-RF40.1: O AMS é calculado por equipe, de 0 a 100, com as cinco dimensões e os pesos de [ams.md](../produto/ams.md) (adoção, capacitação, governança, produtividade e eficiência).
+- CA-RF40.2: Equipe sem colaborador ativo recebe 0. O AMS da empresa é a média das equipes ponderada pelos colaboradores ativos.
+- CA-RF40.3: A resposta traz as contagens que geraram cada dimensão, para o gestor conferir o número.
+- CA-RF40.4 (pendente): com a base sintética, comparar a ordenação das equipes com o índice IMIA de Estatística Multivariada.
 
 **RF41 — Painel de maturidade**
 - CA-RF41.1: O diretor vê o AMS de cada equipe, as dimensões Uso e Capacitação, a faixa e a ação sugerida.

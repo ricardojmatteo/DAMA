@@ -5,6 +5,8 @@ import br.com.dama.intelligence.colaborador.api.*;
 import br.com.dama.intelligence.shared.error.ConflictException;
 import br.com.dama.intelligence.shared.error.NotFoundException;
 import br.com.dama.intelligence.shared.error.ValidationException;
+import br.com.dama.intelligence.shared.security.EscopoEmpresa;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +24,7 @@ class ColaboradorServiceTest {
     @BeforeEach
     void setUp() {
         repo = mock(ColaboradorRepository.class);
-        service = new ColaboradorService(repo, mock(AuditoriaFacade.class));
+        service = new ColaboradorService(repo, mock(AuditoriaFacade.class), new EscopoEmpresa(), NoOpPasswordEncoder.getInstance());
     }
 
     @Test
@@ -44,10 +46,10 @@ class ColaboradorServiceTest {
         when(repo.existeEmpresa(1L)).thenReturn(true);
         assertThatThrownBy(() -> service.criar(1L, comando)).isInstanceOf(ValidationException.class);
         when(repo.departamentoPertenceAEmpresa(2L, 1L)).thenReturn(true);
-        when(repo.emailJaCadastrado(1L, "ana@x.com", null)).thenReturn(true);
+        when(repo.emailJaCadastradoNaPlataforma("ana@x.com", null)).thenReturn(true);
         assertThatThrownBy(() -> service.criar(1L, comando)).isInstanceOf(ConflictException.class);
-        when(repo.emailJaCadastrado(1L, "ana@x.com", null)).thenReturn(false);
-        when(repo.inserir(eq(1L), eq(2L), anyString(), anyString(), any(), any(), any())).thenReturn(7L);
+        when(repo.emailJaCadastradoNaPlataforma("ana@x.com", null)).thenReturn(false);
+        when(repo.inserir(eq(1L), eq(2L), anyString(), anyString(), any(), any(), any(), any())).thenReturn(7L);
         when(repo.buscarPorId(7L)).thenReturn(Optional.of(colaborador(7L, 1L)));
         assertThat(service.criar(1L, comando).colaboradorId()).isEqualTo(7L);
     }
@@ -58,9 +60,9 @@ class ColaboradorServiceTest {
         UpdateColaboradorCommand update = new UpdateColaboradorCommand(3L, "Ana Nova", "nova@x.com", "Dev", "Senior");
         assertThatThrownBy(() -> service.atualizar(7L, update)).isInstanceOf(ValidationException.class);
         when(repo.departamentoPertenceAEmpresa(3L, 1L)).thenReturn(true);
-        when(repo.emailJaCadastrado(1L, "nova@x.com", 7L)).thenReturn(true);
+        when(repo.emailJaCadastradoNaPlataforma("nova@x.com", 7L)).thenReturn(true);
         assertThatThrownBy(() -> service.atualizar(7L, update)).isInstanceOf(ConflictException.class);
-        when(repo.emailJaCadastrado(1L, "nova@x.com", 7L)).thenReturn(false);
+        when(repo.emailJaCadastradoNaPlataforma("nova@x.com", 7L)).thenReturn(false);
         assertThat(service.atualizar(7L, update).nome()).isEqualTo("Ana");
         assertThat(service.alterarStatus(7L, false).ativo()).isTrue();
         verify(repo).alterarStatus(7L, false);
@@ -69,7 +71,7 @@ class ColaboradorServiceTest {
     }
 
     private static CreateColaboradorCommand criar(long departamento, String email) {
-        return new CreateColaboradorCommand(departamento, "Ana", email, "Dev", "Pleno", LocalDate.now());
+        return new CreateColaboradorCommand(departamento, "Ana", email, "Dev", "Pleno", LocalDate.now(), null);
     }
 
     private static ColaboradorView colaborador(long id, long empresa) {

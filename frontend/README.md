@@ -1,6 +1,6 @@
 # Front-end
 
-SPA em JavaScript puro (módulos ES, sem build) servida por um BFF Node/Express. O BFF entrega os arquivos de `public/` e encaminha `/api/*` para a API, repassando o cabeçalho `X-Colaborador-Id`.
+SPA em JavaScript puro (módulos ES, sem build) servida por um BFF Node/Express. O BFF entrega os arquivos de `public/` e encaminha `/api/*` para a API, repassando o cabeçalho `Authorization` com o token de acesso ([ADR-0010](../docs/adr/0010-autenticacao-jwt.md)).
 
 ```
 frontend/

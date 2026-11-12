@@ -7,6 +7,7 @@ import br.com.dama.intelligence.conquista.api.*;
 import br.com.dama.intelligence.organizacao.api.OrganizacaoFacade;
 import br.com.dama.intelligence.shared.error.ConflictException;
 import br.com.dama.intelligence.shared.error.NotFoundException;
+import br.com.dama.intelligence.shared.security.EscopoEmpresa;
 import br.com.dama.intelligence.shared.error.ValidationException;
 import br.com.dama.intelligence.shared.security.UsuarioAtual;
 import org.springframework.dao.DuplicateKeyException;
@@ -24,13 +25,15 @@ class ConquistaService implements ConquistaFacade {
     private final ColaboradorFacade colaboradores;
     private final OrganizacaoFacade organizacao;
     private final AuditoriaFacade auditoria;
+    private final EscopoEmpresa escopo;
 
     ConquistaService(ConquistaRepository repo, ColaboradorFacade colaboradores, OrganizacaoFacade organizacao,
-                     AuditoriaFacade auditoria) {
+                     AuditoriaFacade auditoria, EscopoEmpresa escopo) {
         this.repo = repo;
         this.colaboradores = colaboradores;
         this.organizacao = organizacao;
         this.auditoria = auditoria;
+        this.escopo = escopo;
     }
 
     @Override
@@ -70,6 +73,7 @@ class ConquistaService implements ConquistaFacade {
     @Transactional
     public ConquistaView alterarAtiva(Long conquistaId, boolean ativa) {
         ConquistaView conquista = buscar(conquistaId);
+        escopo.exigir(conquista.empresaId());
         repo.atualizarAtiva(conquistaId, ativa);
         auditoria.registrar(conquista.empresaId(), UsuarioAtual.id(), "conquista", conquistaId.toString(),
                 ativa ? "ATIVACAO" : "DESATIVACAO", null);
@@ -83,6 +87,7 @@ class ConquistaService implements ConquistaFacade {
     @Transactional
     public ConquistaObtidaView conceder(Long colaboradorId, Long conquistaId) {
         ColaboradorView colaborador = colaboradores.buscarPorId(colaboradorId);
+        escopo.exigir(colaborador.empresaId());
         ConquistaView conquista = buscar(conquistaId);
         if (!conquista.empresaId().equals(colaborador.empresaId())) {
             throw new ValidationException("A conquista não pertence à empresa do colaborador.");
@@ -108,7 +113,7 @@ class ConquistaService implements ConquistaFacade {
 
     @Override
     public List<ConquistaObtidaView> conquistasDoColaborador(Long colaboradorId) {
-        colaboradores.buscarPorId(colaboradorId); // 404 se não existir
+        escopo.exigir(colaboradores.buscarPorId(colaboradorId).empresaId()); // 404 se não existir, 403 se de outra empresa
         return repo.conquistasDoColaborador(colaboradorId);
     }
 
@@ -134,6 +139,7 @@ class ConquistaService implements ConquistaFacade {
     @Override
     public EvolucaoView evolucao(Long colaboradorId) {
         ColaboradorView colaborador = colaboradores.buscarPorId(colaboradorId);
+        escopo.exigir(colaborador.empresaId());
         BigDecimal pontos = repo.pontosTotais(colaboradorId);
         Posicao posicao = posicionar(pontos, repo.listarNiveis());
         return new EvolucaoView(colaboradorId, colaborador.nome(), pontos, posicao.atual(), posicao.proximo(),
@@ -200,5 +206,6 @@ class ConquistaService implements ConquistaFacade {
         if (!organizacao.existeEmpresa(empresaId)) {
             throw new NotFoundException("Empresa inexistente: " + empresaId);
         }
+        escopo.exigir(empresaId);
     }
 }

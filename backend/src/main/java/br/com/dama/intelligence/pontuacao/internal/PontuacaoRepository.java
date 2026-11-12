@@ -58,28 +58,29 @@ class PontuacaoRepository {
     }
 
     private static final String TAREFA_COLS =
-            "tarefa_id, colaborador_id, chave, descricao, story_points, urgencia, tokens_ia, entregue_em";
+            "tarefa_id, colaborador_id, chave, descricao, story_points, urgencia, tokens_ia, retrabalho, entregue_em";
     private static final String BONUS_COLS = "bonus_id, colaborador_id, concedido_por, pontos, motivo, registrado_em";
 
     TarefaEntregueView inserirTarefa(Long colaboradorId, String chave, String descricao, BigDecimal storyPoints,
-                                     String urgencia, long tokensIa, LocalDateTime entregueEm) {
+                                     String urgencia, long tokensIa, boolean retrabalho, LocalDateTime entregueEm) {
         return jdbc.queryForObject(
-                "insert into dama.tarefa_entregue (colaborador_id, chave, descricao, story_points, urgencia, tokens_ia, entregue_em) " +
-                        "values (?, ?, ?, ?, ?, ?, coalesce(?, now())) returning " + TAREFA_COLS,
-                (rs, i) -> new TarefaEntregueView(rs.getLong("tarefa_id"), rs.getLong("colaborador_id"), rs.getString("chave"),
-                        rs.getString("descricao"), rs.getBigDecimal("story_points"), rs.getString("urgencia"),
-                        rs.getLong("tokens_ia"), rs.getTimestamp("entregue_em").toLocalDateTime()),
-                colaboradorId, chave, descricao, storyPoints, urgencia, tokensIa,
+                "insert into dama.tarefa_entregue (colaborador_id, chave, descricao, story_points, urgencia, tokens_ia, retrabalho, entregue_em) " +
+                        "values (?, ?, ?, ?, ?, ?, ?, coalesce(?, now())) returning " + TAREFA_COLS,
+                PontuacaoRepository::mapearTarefa,
+                colaboradorId, chave, descricao, storyPoints, urgencia, tokensIa, retrabalho,
                 entregueEm == null ? null : Timestamp.valueOf(entregueEm));
     }
 
     List<TarefaEntregueView> listarTarefas(Long colaboradorId) {
         return jdbc.query("select " + TAREFA_COLS + " from dama.tarefa_entregue where colaborador_id = ? " +
                         "order by entregue_em desc, tarefa_id desc",
-                (rs, i) -> new TarefaEntregueView(rs.getLong("tarefa_id"), rs.getLong("colaborador_id"), rs.getString("chave"),
-                        rs.getString("descricao"), rs.getBigDecimal("story_points"), rs.getString("urgencia"),
-                        rs.getLong("tokens_ia"), rs.getTimestamp("entregue_em").toLocalDateTime()),
-                colaboradorId);
+                PontuacaoRepository::mapearTarefa, colaboradorId);
+    }
+
+    private static TarefaEntregueView mapearTarefa(java.sql.ResultSet rs, int i) throws java.sql.SQLException {
+        return new TarefaEntregueView(rs.getLong("tarefa_id"), rs.getLong("colaborador_id"), rs.getString("chave"),
+                rs.getString("descricao"), rs.getBigDecimal("story_points"), rs.getString("urgencia"),
+                rs.getLong("tokens_ia"), rs.getBoolean("retrabalho"), rs.getTimestamp("entregue_em").toLocalDateTime());
     }
 
     BonusGestorView inserirBonus(Long colaboradorId, Long concedidoPor, BigDecimal pontos, String motivo) {

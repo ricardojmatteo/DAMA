@@ -1,5 +1,6 @@
 package br.com.dama.intelligence;
 
+import br.com.dama.intelligence.shared.security.JwtService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -46,6 +47,9 @@ class DamaApiIntegrationTest {
 
     @Autowired
     TestRestTemplate rest;
+
+    @Autowired
+    JwtService jwt;
 
     private final ObjectMapper json = new ObjectMapper();
 
@@ -238,7 +242,7 @@ class DamaApiIntegrationTest {
     }
 
     @Test
-    void requisicaoSemCabecalhoNaoEhAutenticada() {
+    void requisicaoSemTokenNaoEhAutenticada() {
         assertThat(call(HttpMethod.GET, null, "/api/me", null).getStatusCode().value()).isIn(401, 403);
     }
 
@@ -288,7 +292,7 @@ class DamaApiIntegrationTest {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         if (usuario != null) {
-            headers.set("X-Colaborador-Id", usuario.toString());
+            headers.setBearerAuth(jwt.emitir(usuario).token()); // ADR-0010: identidade por token
         }
         return rest.exchange(path, metodo, new HttpEntity<>(corpo, headers), String.class);
     }

@@ -24,8 +24,9 @@ public class OrganizacaoController {
         return facade.listarEmpresas();
     }
 
+    /** Só o operador da plataforma cadastra empresas-cliente (ADR-0011). */
     @PostMapping("/empresas")
-    @PreAuthorize("hasAuthority('PERFIL_GERENCIAR')")
+    @PreAuthorize("hasAuthority('PLATAFORMA_ADMINISTRAR')")
     public ResponseEntity<EmpresaView> criarEmpresa(@Valid @RequestBody CreateEmpresaCommand comando) {
         return ResponseEntity.status(HttpStatus.CREATED).body(facade.criarEmpresa(comando));
     }

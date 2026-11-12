@@ -25,8 +25,9 @@ CREATE FUNCTION pg_temp.mes(meses_atras int) RETURNS date LANGUAGE sql AS
 -- ---------------------------------------------------------------------
 INSERT INTO departamento (empresa_id, nome) VALUES (1, 'Tecnologia'), (1, 'Comercial');
 
-INSERT INTO colaborador (empresa_id, departamento_id, nome, email, cargo, senioridade, data_admissao, ativo)
-SELECT 1, pg_temp.did(dep), nome, email, cargo, senioridade, admissao, ativo
+-- Todos os usuários de demonstração entram com a senha "dama123".
+INSERT INTO colaborador (empresa_id, departamento_id, nome, email, cargo, senioridade, data_admissao, ativo, senha_hash)
+SELECT 1, pg_temp.did(dep), nome, email, cargo, senioridade, admissao, ativo, crypt('dama123', gen_salt('bf', 10))
 FROM (VALUES
     ('Recursos Humanos', 'Mariana Souza',    'mariana.souza@demo.dama',    'Gerente de Pessoas',       'Gerente',      DATE '2021-03-01', true),
     ('Operações',        'Ricardo Nogueira', 'ricardo.nogueira@demo.dama', 'Diretor de Operações',     'Gerente',      DATE '2019-08-12', true),
@@ -207,21 +208,49 @@ WHERE d.empresa_id = 1 AND dp.status = 'Concluido';
 -- Limite de tokens por story point = 20.000; os primeiros 25% são grátis.
 -- Uns ficam dentro da franquia grátis, outros passam do limite.
 -- ---------------------------------------------------------------------
-INSERT INTO tarefa_entregue (colaborador_id, chave, descricao, story_points, urgencia, tokens_ia, entregue_em)
-SELECT pg_temp.cid(email), chave, descricao, sp, urgencia, tokens, now() - make_interval(days => dias_atras)
+-- "retrabalho" = entrega devolvida para correção: vale metade dos pontos no ranking.
+INSERT INTO tarefa_entregue (colaborador_id, chave, descricao, story_points, urgencia, tokens_ia, retrabalho, entregue_em)
+SELECT pg_temp.cid(email), chave, descricao, sp, urgencia, tokens, retrabalho, now() - make_interval(days => dias_atras)
 FROM (VALUES
-    ('juliana.rocha@demo.dama',   'DEMO-101', 'Revisão de arquitetura',      5, 'ALTA',    20000, 20),
-    ('juliana.rocha@demo.dama',   'DEMO-102', 'Documentação técnica',       3, 'MEDIA',   12000, 6),
-    ('beatriz.santos@demo.dama',  'DEMO-103', 'Integração com assistente',  8, 'CRITICA', 90000, 18),
-    ('beatriz.santos@demo.dama',  'DEMO-104', 'Testes automatizados',       5, 'MEDIA',   30000, 4),
-    ('lucas.pereira@demo.dama',   'DEMO-105', 'Análise de churn',           5, 'ALTA',   100000, 10),
-    ('lucas.pereira@demo.dama',   'DEMO-106', 'Relatório mensal',           3, 'BAIXA',   70000, 3),
-    ('felipe.costa@demo.dama',    'DEMO-107', 'Refatoração de módulo',      5, 'MEDIA',   60000, 12),
-    ('felipe.costa@demo.dama',    'DEMO-108', 'Correção de bug',            2, 'ALTA',    35000, 5),
-    ('rafael.oliveira@demo.dama', 'DEMO-109', 'Automação de conciliação',   5, 'MEDIA',   18000, 14),
-    ('mariana.souza@demo.dama',   'DEMO-110', 'Plano de capacitação',       3, 'BAIXA',    8000, 9),
-    ('paula.mendes@demo.dama',    'DEMO-111', 'Proposta comercial',         5, 'MEDIA',   40000, 11)
-) AS v(email, chave, descricao, sp, urgencia, tokens, dias_atras);
+    ('juliana.rocha@demo.dama',   'DEMO-101', 'Revisão de arquitetura',      5, 'ALTA',    20000, false, 20),
+    ('juliana.rocha@demo.dama',   'DEMO-102', 'Documentação técnica',       3, 'MEDIA',   12000, false, 6),
+    ('beatriz.santos@demo.dama',  'DEMO-103', 'Integração com assistente',  8, 'CRITICA', 90000, false, 18),
+    ('beatriz.santos@demo.dama',  'DEMO-104', 'Testes automatizados',       5, 'MEDIA',   30000, false, 4),
+    ('lucas.pereira@demo.dama',   'DEMO-105', 'Análise de churn',           5, 'ALTA',   100000, false, 10),
+    ('lucas.pereira@demo.dama',   'DEMO-106', 'Relatório mensal',           3, 'BAIXA',   70000, true,  3),
+    ('felipe.costa@demo.dama',    'DEMO-107', 'Refatoração de módulo',      5, 'MEDIA',   60000, true,  12),
+    ('felipe.costa@demo.dama',    'DEMO-108', 'Correção de bug',            2, 'ALTA',    35000, false, 5),
+    ('rafael.oliveira@demo.dama', 'DEMO-109', 'Automação de conciliação',   5, 'MEDIA',   18000, false, 14),
+    ('mariana.souza@demo.dama',   'DEMO-110', 'Plano de capacitação',       3, 'BAIXA',    8000, false, 9),
+    ('paula.mendes@demo.dama',    'DEMO-111', 'Proposta comercial',         5, 'MEDIA',   40000, false, 11)
+) AS v(email, chave, descricao, sp, urgencia, tokens, retrabalho, dias_atras);
+
+-- ---------------------------------------------------------------------
+-- Capacitação em IA (dimensão do AI Maturity Score) e orçamento de IA por centro de custo
+-- ---------------------------------------------------------------------
+INSERT INTO capacitacao (colaborador_id, nome, carga_horaria, concluida_em, registrado_por)
+SELECT pg_temp.cid(email), nome, horas, current_date - dias_atras, pg_temp.cid('mariana.souza@demo.dama')
+FROM (VALUES
+    ('juliana.rocha@demo.dama',   'Engenharia de prompts avançada',     8,  40),
+    ('beatriz.santos@demo.dama',  'Política de uso responsável de IA',  2,  65),
+    ('lucas.pereira@demo.dama',   'Política de uso responsável de IA',  2,  65),
+    ('felipe.costa@demo.dama',    'Fundamentos de IA generativa',       4,  20),
+    ('mariana.souza@demo.dama',   'IA para gestão de pessoas',          6,  90),
+    ('gabriel.souza@demo.dama',   'Política de uso responsável de IA',  2,  65),
+    ('rafael.oliveira@demo.dama', 'Automação com IA em processos',      6,  30),
+    ('paula.mendes@demo.dama',    'IA aplicada a vendas',               4,  400)   -- há mais de 12 meses: não conta
+) AS v(email, nome, horas, dias_atras);
+
+-- Orçamento do mês corrente: Tecnologia já está acima do orçado; Comercial fica em risco pela faixa superior da previsão.
+INSERT INTO orcamento_ia (empresa_id, departamento_id, mes_referencia, valor_orcado, gasto_atual,
+                          consumo_previsto, previsto_inferior, previsto_superior, origem_previsao)
+VALUES
+    (1, pg_temp.did('Tecnologia'),       pg_temp.mes(0), 12000, 11800, 900,  600,  1300, 'previsao_demanda_custo.ipynb (demonstração)'),
+    (1, pg_temp.did('Comercial'),        pg_temp.mes(0),  4000,  3300, 500,  300,   850, 'previsao_demanda_custo.ipynb (demonstração)'),
+    (1, pg_temp.did('Operações'),        pg_temp.mes(0),  5000,  2900, 400,  250,   600, 'previsao_demanda_custo.ipynb (demonstração)'),
+    (1, pg_temp.did('Recursos Humanos'), pg_temp.mes(0),  2500,  1200, NULL, NULL,  NULL, NULL),
+    (1, pg_temp.did('Tecnologia'),       pg_temp.mes(1), 12000, 12650, NULL, NULL,  NULL, NULL),
+    (1, pg_temp.did('Comercial'),        pg_temp.mes(1),  4000,  3700, NULL, NULL,  NULL, NULL);
 
 INSERT INTO bonus_gestor (colaborador_id, concedido_por, pontos, motivo, registrado_em)
 VALUES (pg_temp.cid('juliana.rocha@demo.dama'), pg_temp.cid('mariana.souza@demo.dama'), 2,

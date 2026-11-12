@@ -1,8 +1,9 @@
 # API REST
 
 Base: `http://localhost:8080/api` (ou `http://localhost:3000/api` pelo BFF do front).
-Toda requisição precisa do cabeçalho `X-Colaborador-Id` ([ADR-0006](../adr/0006-autenticacao-por-cabecalho.md)); a permissão exigida está na coluna **Permissão**.
-Erros de negócio voltam como `400` (regra violada), `404` (não encontrado), `409` (conflito) ou `403` (perfil sem permissão), sempre com `{ "status", "message" }`.
+Toda requisição, exceto o login, precisa de `Authorization: Bearer <token>` ([ADR-0010](../adr/0010-autenticacao-jwt.md)); a permissão exigida está na coluna **Permissão**.
+Além da permissão, o recurso precisa ser da empresa do usuário; só o Administrador (`PLATAFORMA_ADMINISTRAR`) enxerga todas as empresas ([ADR-0011](../adr/0011-isolamento-por-empresa.md)).
+Erros voltam como `400` (regra violada), `401` (sem token válido ou login recusado), `403` (perfil sem permissão ou recurso de outra empresa), `404` (não encontrado) ou `409` (conflito), sempre com `{ "status", "message" }`.
 
 ## Perfis padrão
 
@@ -18,23 +19,27 @@ Erros de negócio voltam como `400` (regra violada), `404` (não encontrado), `4
 | `AI_CREDITS_LER` | ✓ | ✓ | ✓ |
 | `AI_CREDITS_GERENCIAR` | ✓ | ✓ | |
 | `ANALYTICS_LER` | ✓ | ✓ | |
+| `PLATAFORMA_ADMINISTRAR` | ✓ | | |
 
-## Sessão
+## Autenticação e sessão
 
 | Método | Caminho | Permissão | O que faz |
 |---|---|---|---|
-| GET | `/me` | autenticado | Colaborador logado, perfis e permissões |
+| POST | `/auth/login` | pública | `{ "email", "senha" }` → `{ "token", "tipo": "Bearer", "expiraEm", "colaboradorId" }`; 401 se inválido ou desligado |
+| POST | `/auth/senha` | autenticado | Troca a própria senha: `{ "senhaAtual", "novaSenha" }` (8 a 72 caracteres) |
+| PUT | `/colaboradores/{id}/senha` | COLABORADOR_ESCREVER | Define ou redefine a senha de um colaborador da empresa: `{ "senha" }` |
+| GET | `/me` | autenticado | Colaborador logado, perfis, permissões e `administraPlataforma` |
 
 ## Organização e pessoas
 
 | Método | Caminho | Permissão | O que faz |
 |---|---|---|---|
-| GET | `/empresas` | COLABORADOR_LER | Lista empresas |
-| POST | `/empresas` | PERFIL_GERENCIAR | Cria empresa |
+| GET | `/empresas` | COLABORADOR_LER | Lista empresas (só a própria, exceto para o Administrador) |
+| POST | `/empresas` | PLATAFORMA_ADMINISTRAR | Cria empresa-cliente |
 | GET | `/empresas/{empresaId}/departamentos` | COLABORADOR_LER | Lista equipes |
 | POST | `/empresas/{empresaId}/departamentos` | PERFIL_GERENCIAR | Cria equipe |
 | GET | `/empresas/{empresaId}/colaboradores` | COLABORADOR_LER | Lista colaboradores |
-| POST | `/empresas/{empresaId}/colaboradores` | COLABORADOR_ESCREVER | Cadastra colaborador (e-mail único por empresa) |
+| POST | `/empresas/{empresaId}/colaboradores` | COLABORADOR_ESCREVER | Cadastra colaborador (e-mail único na plataforma; `senha` opcional) |
 | GET | `/colaboradores/{id}` | COLABORADOR_LER | Consulta colaborador |
 | PUT | `/colaboradores/{id}` | COLABORADOR_ESCREVER | Edita dados |
 | PATCH | `/colaboradores/{id}/status` | COLABORADOR_ESCREVER | Desliga ou reativa (`{ "ativo": false }`) |
@@ -49,7 +54,7 @@ Erros de negócio voltam como `400` (regra violada), `404` (não encontrado), `4
 |---|---|---|---|
 | GET | `/empresas/{empresaId}/indicadores` | DESEMPENHO_LER | Lista indicadores |
 | POST | `/empresas/{empresaId}/indicadores` | DESEMPENHO_ESCREVER | Cria indicador (`maiorMelhor: false` para "menor é melhor") |
-| POST | `/indicadores/{id}/valores` | DESEMPENHO_ESCREVER | Registra valor mensal para um colaborador **ou** uma equipe |
+| POST | `/indicadores/{id}/valores` | DESEMPENHO_ESCREVER | Registra valor mensal para um colaborador **ou** uma equipe (o autor é sempre o usuário autenticado) |
 | GET | `/indicadores/{id}/valores?colaboradorId&departamentoId&inicio&fim` | DESEMPENHO_LER | Evolução filtrada por série e período |
 | GET | `/empresas/{empresaId}/metas?colaboradorId&departamentoId&status` | DESEMPENHO_LER | Lista metas com progresso atual |
 | POST | `/empresas/{empresaId}/metas` | DESEMPENHO_ESCREVER | Cria meta para colaborador ou equipe |
@@ -96,7 +101,7 @@ Erros de negócio voltam como `400` (regra violada), `404` (não encontrado), `4
 | POST | `/colaboradores/{id}/ai-credits/transacoes` | AI_CREDITS_GERENCIAR | Crédito manual ou débito (recusado sem saldo) |
 | GET | `/colaboradores/{id}/ai-credits/saldo` | AI_CREDITS_LER | Saldo e nível de autonomia |
 | GET | `/colaboradores/{id}/ai-credits/historico` | AI_CREDITS_LER | Movimentações |
-| POST / GET | `/colaboradores/{id}/tarefas` | DESEMPENHO_ESCREVER / GAMIFICACAO_LER | Tarefas entregues (Jira): `{ "chave", "storyPoints", "urgencia", "tokensIa" }`; base do ranking |
+| POST / GET | `/colaboradores/{id}/tarefas` | DESEMPENHO_ESCREVER / GAMIFICACAO_LER | Tarefas entregues (Jira): `{ "chave", "storyPoints", "urgencia", "tokensIa", "retrabalho" }`; base do ranking (retrabalho vale metade) |
 | POST / GET | `/colaboradores/{id}/bonus` | DESEMPENHO_ESCREVER / GAMIFICACAO_LER | Bônus do gestor (`{ "pontos", "motivo" }`), até 15% dos pontos líquidos no ranking |
 | GET / POST | `/ai-credits/niveis` | LER / GERENCIAR | Níveis de autonomia |
 
@@ -109,6 +114,9 @@ Erros de negócio voltam como `400` (regra violada), `404` (não encontrado), `4
 | GET | `/empresas/{empresaId}/analytics/ranking-departamentos?inicio&fim` | ANALYTICS_LER | Comparação entre equipes do período, por pontuação por pessoa (nota de 0 a 10) |
 | GET | `/empresas/{empresaId}/analytics/indicadores-departamentos?indicadorId` | ANALYTICS_LER | Último valor de cada indicador por equipe |
 | GET | `/empresas/{empresaId}/analytics/alertas` | ANALYTICS_LER | Análises de gestão (onde agir); as regras rodam no `alert-service` ([ADR-0009](../adr/0009-alert-service-node-para-alertas-de-gestao.md)) ou, se ele estiver fora do ar, no próprio backend |
+| GET / PUT | `/empresas/{empresaId}/orcamentos-ia?mes` | ANALYTICS_LER / DESEMPENHO_ESCREVER | Orçamento de IA por departamento no mês, com gasto, previsão e faixa de 80%; o PUT cria ou atualiza (um por departamento e mês) |
+| GET | `/empresas/{empresaId}/ams` | ANALYTICS_LER | AI Maturity Score da empresa e por departamento, com as cinco dimensões ([ams.md](../produto/ams.md)) |
+| GET / POST | `/colaboradores/{id}/capacitacoes` | DESEMPENHO_LER / DESEMPENHO_ESCREVER | Capacitações em IA concluídas (`{ "nome", "cargaHoraria", "concluidaEm" }`) |
 | GET | `/empresas/{empresaId}/auditoria?entidade&entidadeId` | PERFIL_GERENCIAR | Eventos de auditoria |
 
 Saúde da aplicação (sem autenticação): `GET /actuator/health`.
@@ -116,13 +124,17 @@ Saúde da aplicação (sem autenticação): `GET /actuator/health`.
 ## Exemplos
 
 ```bash
-# quem sou eu (Lucas, perfil Colaborador, nos dados de demonstração)
-curl -H "X-Colaborador-Id: 4" http://localhost:8080/api/me
+# entrar (usuários de demonstração usam a senha dama123) e guardar o token
+TOKEN=$(curl -s -X POST -H "Content-Type: application/json" \
+     -d '{"email":"lucas.pereira@demo.dama","senha":"dama123"}' \
+     http://localhost:8080/api/auth/login | sed -E 's/.*"token":"([^"]+)".*/\1/')
 
-# lançar pontos (só o Administrador; um Gestor recebe 403)
-curl -X POST -H "X-Colaborador-Id: 1" -H "Content-Type: application/json" \
-     -d '{"regraId": 1}' http://localhost:8080/api/colaboradores/4/pontuacao
+# quem sou eu
+curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/me
 
-# análises de gestão
-curl -H "X-Colaborador-Id: 2" http://localhost:8080/api/empresas/1/analytics/alertas
+# sem token: 401; com token de outra empresa: 403
+curl -i http://localhost:8080/api/me
+
+# AI Maturity Score (perfil com ANALYTICS_LER, ex.: mariana.souza@demo.dama)
+curl -H "Authorization: Bearer $TOKEN_GESTOR" http://localhost:8080/api/empresas/1/ams
 ```

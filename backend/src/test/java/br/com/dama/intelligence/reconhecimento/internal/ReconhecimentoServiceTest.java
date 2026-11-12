@@ -9,6 +9,7 @@ import br.com.dama.intelligence.reconhecimento.api.ReconhecimentoView;
 import br.com.dama.intelligence.shared.error.NotFoundException;
 import br.com.dama.intelligence.shared.error.ValidationException;
 import br.com.dama.intelligence.shared.event.DesempenhoAtualizadoEvent;
+import br.com.dama.intelligence.shared.security.EscopoEmpresa;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationEventPublisher;
@@ -33,7 +34,7 @@ class ReconhecimentoServiceTest {
         colaboradores = mock(ColaboradorFacade.class);
         organizacao = mock(OrganizacaoFacade.class);
         eventos = mock(ApplicationEventPublisher.class);
-        service = new ReconhecimentoService(repo, colaboradores, organizacao, mock(AuditoriaFacade.class), eventos);
+        service = new ReconhecimentoService(repo, colaboradores, organizacao, mock(AuditoriaFacade.class), eventos, new EscopoEmpresa());
     }
 
     @Test

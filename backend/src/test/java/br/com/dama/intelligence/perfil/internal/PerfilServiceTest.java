@@ -3,6 +3,9 @@ package br.com.dama.intelligence.perfil.internal;
 import br.com.dama.intelligence.perfil.api.*;
 import br.com.dama.intelligence.shared.error.NotFoundException;
 import br.com.dama.intelligence.shared.error.ValidationException;
+import br.com.dama.intelligence.colaborador.api.ColaboradorFacade;
+import br.com.dama.intelligence.colaborador.api.ColaboradorView;
+import br.com.dama.intelligence.shared.security.EscopoEmpresa;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -14,12 +17,14 @@ import static org.mockito.Mockito.*;
 
 class PerfilServiceTest {
     private PerfilRepository repo;
+    private ColaboradorFacade colaboradores;
     private PerfilService service;
 
     @BeforeEach
     void setUp() {
         repo = mock(PerfilRepository.class);
-        service = new PerfilService(repo);
+        colaboradores = mock(ColaboradorFacade.class);
+        service = new PerfilService(repo, colaboradores, new EscopoEmpresa());
     }
 
     @Test
@@ -36,6 +41,8 @@ class PerfilServiceTest {
 
     @Test
     void atribuirExigePerfilExistenteEOsDemaisMetodosDelegam() {
+        when(colaboradores.buscarPorId(9L)).thenReturn(new ColaboradorView(9L, 1L, 1L, "Time", "Ana", "ana@x.com",
+                "Dev", "Pleno", java.time.LocalDate.of(2025, 1, 1), true));
         when(repo.existePerfil(1L)).thenReturn(false);
         assertThatThrownBy(() -> service.atribuirPerfil(9L, 1L)).isInstanceOf(NotFoundException.class);
         when(repo.existePerfil(1L)).thenReturn(true);

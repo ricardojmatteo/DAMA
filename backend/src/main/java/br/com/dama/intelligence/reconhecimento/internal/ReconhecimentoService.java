@@ -8,6 +8,7 @@ import br.com.dama.intelligence.reconhecimento.api.CreateReconhecimentoCommand;
 import br.com.dama.intelligence.reconhecimento.api.ReconhecimentoFacade;
 import br.com.dama.intelligence.reconhecimento.api.ReconhecimentoView;
 import br.com.dama.intelligence.shared.error.NotFoundException;
+import br.com.dama.intelligence.shared.security.EscopoEmpresa;
 import br.com.dama.intelligence.shared.error.ValidationException;
 import br.com.dama.intelligence.shared.event.DesempenhoAtualizadoEvent;
 import br.com.dama.intelligence.shared.security.UsuarioAtual;
@@ -25,14 +26,17 @@ class ReconhecimentoService implements ReconhecimentoFacade {
     private final OrganizacaoFacade organizacao;
     private final AuditoriaFacade auditoria;
     private final ApplicationEventPublisher eventos;
+    private final EscopoEmpresa escopo;
 
     ReconhecimentoService(ReconhecimentoRepository repo, ColaboradorFacade colaboradores,
-                          OrganizacaoFacade organizacao, AuditoriaFacade auditoria, ApplicationEventPublisher eventos) {
+                          OrganizacaoFacade organizacao, AuditoriaFacade auditoria, ApplicationEventPublisher eventos,
+                          EscopoEmpresa escopo) {
         this.repo = repo;
         this.colaboradores = colaboradores;
         this.organizacao = organizacao;
         this.auditoria = auditoria;
         this.eventos = eventos;
+        this.escopo = escopo;
     }
 
     @Override
@@ -40,12 +44,13 @@ class ReconhecimentoService implements ReconhecimentoFacade {
         if (!organizacao.existeEmpresa(empresaId)) {
             throw new NotFoundException("Empresa inexistente: " + empresaId);
         }
+        escopo.exigir(empresaId);
         return repo.listarPorEmpresa(empresaId);
     }
 
     @Override
     public List<ReconhecimentoView> listarDoColaborador(Long colaboradorId) {
-        colaboradores.buscarPorId(colaboradorId); // 404 se não existir
+        escopo.exigir(colaboradores.buscarPorId(colaboradorId).empresaId()); // 404 se não existir, 403 se de outra empresa
         return repo.listarDoColaborador(colaboradorId);
     }
 
@@ -55,6 +60,7 @@ class ReconhecimentoService implements ReconhecimentoFacade {
         if (!organizacao.existeEmpresa(empresaId)) {
             throw new NotFoundException("Empresa inexistente: " + empresaId);
         }
+        escopo.exigir(empresaId);
         ColaboradorView recebedor = colaboradores.buscarPorId(comando.colaboradorId());
         if (!recebedor.empresaId().equals(empresaId)) {
             throw new ValidationException("O colaborador reconhecido não pertence a esta empresa.");

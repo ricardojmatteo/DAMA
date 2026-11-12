@@ -3,6 +3,7 @@ package br.com.dama.intelligence.organizacao.internal;
 import br.com.dama.intelligence.organizacao.api.*;
 import br.com.dama.intelligence.shared.error.ConflictException;
 import br.com.dama.intelligence.shared.error.NotFoundException;
+import br.com.dama.intelligence.shared.security.EscopoEmpresa;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.DuplicateKeyException;
@@ -20,7 +21,7 @@ class OrganizacaoServiceTest {
     @BeforeEach
     void setUp() {
         repo = mock(OrganizacaoRepository.class);
-        service = new OrganizacaoService(repo);
+        service = new OrganizacaoService(repo, new EscopoEmpresa());
     }
 
     @Test

@@ -5,7 +5,7 @@ Vale para o ranking de colaboradores (RF08/RF28) e para a comparação entre equ
 ## A conta
 
 ```
-pontos da tarefa = story points × multiplicador da urgência
+pontos da tarefa = story points × multiplicador da urgência × (0,5 se houve retrabalho)
 penalidade de IA = pontos da tarefa × fração penalizada
 pontuação        = max(0, Σ (pontos da tarefa − penalidade de IA) + bônus do gestor)
 nota (0 a 10)    = 10 × pontuação ÷ maior pontuação da empresa na janela
@@ -25,6 +25,18 @@ A tarefa vem do Jira com seus **story points**, então tarefas maiores valem mai
 | CRITICA | 2,00 |
 
 Exemplo: 5 story points com urgência ALTA valem 5 × 1,5 = 7,5 pontos.
+
+**Retrabalho.** Uma tarefa devolvida para correção (reaberta no Jira, ou marcada pelo gestor como `retrabalho: true`) vale **metade** dos pontos (`dama.ranking.fator-retrabalho`, padrão 0,5). Assim o ranking passa a considerar qualidade, e não só volume: entregar rápido com IA e precisar refazer não compensa. A penalidade de IA é calculada sobre os pontos já reduzidos.
+
+### Por que penalizar tokens
+
+A avaliação de Projeto Integrador perguntou se penalizar tokens não desestimula o uso de IA. A regra **não pune usar IA**, pune usar acima do que o tamanho da tarefa justifica:
+
+- os primeiros 25% do limite são grátis, e o limite cresce com os story points;
+- o objetivo do produto é uso **produtivo**: mesmo resultado com menos custo de consumo;
+- o retrabalho entra como fator de qualidade, para que gastar poucos tokens e entregar algo que volta também não seja premiado.
+
+O que a regra ainda não mede é a **qualidade positiva** (entrega acima do esperado). Isso hoje fica com o bônus do gestor, que tem teto de 15%.
 
 ### 2. Penalidade de IA (a subtração)
 
@@ -108,12 +120,12 @@ Bia e Dani empatam em 0 e dividem a 3ª posição.
 
 | Dado | Tabela | Como entra |
 |---|---|---|
-| Tarefa entregue | `tarefa_entregue` | `POST /colaboradores/{id}/tarefas`, pelo gestor ou por uma integração com o Jira |
+| Tarefa entregue | `tarefa_entregue` | `POST /colaboradores/{id}/tarefas` ou tela de Ranking ("Registrar tarefa"), pelo gestor ou por uma integração com o Jira |
 | Bônus do gestor | `bonus_gestor` | `POST /colaboradores/{id}/bonus` |
 
 Os pontos lançados por regras de pontuação e por desafios **não entram no ranking**. Eles continuam alimentando níveis e conquistas.
 
-Cada tarefa é registrada uma vez por colaborador (`chave` única); repetir a mesma chave devolve 409. O campo `tokensIa` (padrão 0) deve ser preenchido com os tokens gastos naquela tarefa.
+Cada tarefa é registrada uma vez por colaborador (`chave` única); repetir a mesma chave devolve 409. O campo `tokensIa` (padrão 0) deve ser preenchido com os tokens gastos naquela tarefa, e `retrabalho` (padrão `false`) indica entrega devolvida para correção.
 
 ## Configuração (`application.yml`)
 
@@ -124,9 +136,10 @@ dama:
     franquia-gratis: 0.25
     bonus-maximo: 0.15
     janela-padrao-dias: 30
+    fator-retrabalho: 0.5
 ```
 
-Também podem ser definidas por variável de ambiente: `RANKING_TOKENS_POR_PONTO`, `RANKING_FRANQUIA_GRATIS`, `RANKING_BONUS_MAXIMO` e `RANKING_JANELA_DIAS`. Os valores valem para todas as empresas. Os multiplicadores de urgência ficam em `RankingRegras.multiplicadorUrgencia`.
+Também podem ser definidas por variável de ambiente: `RANKING_TOKENS_POR_PONTO`, `RANKING_FRANQUIA_GRATIS`, `RANKING_BONUS_MAXIMO`, `RANKING_JANELA_DIAS` e `RANKING_FATOR_RETRABALHO`. Os valores valem para todas as empresas. Os multiplicadores de urgência ficam em `RankingRegras.multiplicadorUrgencia`.
 
 ## API
 
@@ -134,7 +147,7 @@ Também podem ser definidas por variável de ambiente: `RANKING_TOKENS_POR_PONTO
 |---|---|---|
 | GET | `/empresas/{id}/analytics/ranking-colaboradores?inicio&fim` | ANALYTICS_LER ou GAMIFICACAO_LER |
 | GET | `/empresas/{id}/analytics/ranking-departamentos?inicio&fim` | ANALYTICS_LER |
-| POST | `/colaboradores/{id}/tarefas` `{ "chave", "descricao", "storyPoints", "urgencia", "tokensIa", "entregueEm" }` | DESEMPENHO_ESCREVER |
+| POST | `/colaboradores/{id}/tarefas` `{ "chave", "descricao", "storyPoints", "urgencia", "tokensIa", "retrabalho", "entregueEm" }` | DESEMPENHO_ESCREVER |
 | GET | `/colaboradores/{id}/tarefas` | GAMIFICACAO_LER |
 | POST | `/colaboradores/{id}/bonus` `{ "pontos", "motivo" }` | DESEMPENHO_ESCREVER |
 | GET | `/colaboradores/{id}/bonus` | GAMIFICACAO_LER |
@@ -162,9 +175,9 @@ O sistema **não** lê o Jira. Hoje as tarefas entram pela API (`POST /colaborad
 **Na ligação (a construir)**
 5. Quando a tarefa for para "Concluído", enviar ao DAMA: chave (`DAMA-123`), descrição, e-mail do responsável, story points, prioridade convertida em urgência, tokens e data de conclusão.
    - Opções: uma regra do **Jira Automation** com "Send web request", ou um script/serviço que consulta a API do Jira.
-   - O DAMA hoje só aceita chamadas autenticadas por colaborador (`X-Colaborador-Id`, ver [ADR-0006](../adr/0006-autenticacao-por-cabecalho.md)). Quem integrar precisará definir como autenticar o Jira (segredo compartilhado, token de serviço etc.).
+   - O DAMA aceita só chamadas autenticadas por colaborador (token JWT, ver [ADR-0010](../adr/0010-autenticacao-jwt.md)). Para o Jira, o caminho mais simples é um colaborador técnico com perfil Gestor cuja senha fica no segredo da automação, que faz login e envia o token; um token de serviço dedicado é a evolução.
    - O Jira precisa alcançar o DAMA por uma URL pública (em ambiente de teste, um túnel).
-6. Decidir o que fazer com os casos de borda: tarefa sem story points, responsável sem cadastro no DAMA, tarefa reaberta depois de entregue e reenvio da mesma chave (hoje a API devolve 409).
+6. Decidir o que fazer com os casos de borda: tarefa sem story points, responsável sem cadastro no DAMA e reenvio da mesma chave (hoje a API devolve 409). Tarefa reaberta deve ser enviada com `retrabalho: true` quando voltar a "Concluído".
 7. Enquanto a ligação não existir, o SM ou um Administrador registra as tarefas e os bônus manualmente pela API.
 
 Passo a passo do Jira Automation e detalhes de campos ficam a cargo de quem implementar, pois variam por instância (os ids de campos personalizados são diferentes em cada Jira).

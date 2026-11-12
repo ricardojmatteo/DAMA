@@ -26,6 +26,7 @@ class AlertaGestaoConfig {
             return local;
         }
         log.info("Alertas de gestão: alert-service em {} (timeout {} ms, fallback local).", url, timeoutMs);
-        return new AlertaGestaoNode(url.trim(), Duration.ofMillis(timeoutMs), local);
+        Duration timeout = Duration.ofMillis(timeoutMs);
+        return new AlertaGestaoNode(url.trim(), timeout, local, AlertaGestaoNode.clientePadrao(timeout));
     }
 }

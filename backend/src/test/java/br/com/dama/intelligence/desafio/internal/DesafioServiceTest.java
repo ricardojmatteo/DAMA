@@ -12,6 +12,7 @@ import br.com.dama.intelligence.shared.error.ConflictException;
 import br.com.dama.intelligence.shared.error.NotFoundException;
 import br.com.dama.intelligence.shared.error.ValidationException;
 import br.com.dama.intelligence.shared.event.DesempenhoAtualizadoEvent;
+import br.com.dama.intelligence.shared.security.EscopoEmpresa;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationEventPublisher;
@@ -40,7 +41,7 @@ class DesafioServiceTest {
         eventos = mock(ApplicationEventPublisher.class);
         OrganizacaoFacade organizacao = mock(OrganizacaoFacade.class);
         when(organizacao.existeEmpresa(1L)).thenReturn(true);
-        service = new DesafioService(repo, colaboradores, organizacao, pontuacao, mock(AuditoriaFacade.class), eventos);
+        service = new DesafioService(repo, colaboradores, organizacao, pontuacao, mock(AuditoriaFacade.class), eventos, new EscopoEmpresa());
     }
 
     @Test

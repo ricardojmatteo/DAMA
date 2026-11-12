@@ -11,6 +11,7 @@ const PIORA_MINIMA = 0.1;
 const PIORA_ALTA = 0.25;
 const FOLGA_META_EM_RISCO = 0.25;
 const FRACAO_MEDIA_EQUIPE = 0.5;
+const ORCAMENTO_COMPROMETIDO = 0.9;
 const EPSILON = 1e-9;
 const MS_DIA = 24 * 60 * 60 * 1000;
 
@@ -157,8 +158,66 @@ function semAtividade(colaborador, hoje) {
     colaborador.colaboradorId, colaborador.departamentoId, null);
 }
 
+/** Valor em reais no formato brasileiro, com duas casas (ex.: 1.234,50). */
+function reais(valor) {
+  return Number(valor).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 /**
- * Aplica todas as regras. A ordem de saída é a mesma do backend (metas, tendências, equipes, sem atividade);
+ * Orçamento de IA em risco. Espelha AnaliseGestaoRegras.avaliarOrcamento:
+ * ALTA quando gasto + consumo previsto ultrapassa o orçado; MEDIA quando só o limite superior da faixa de 80%
+ * ultrapassa; BAIXA quando, sem previsão, 90% ou mais do orçamento já está comprometido.
+ */
+function avaliarOrcamento(o) {
+  const orcado = Number(o.orcado);
+  if (!(orcado > 0)) {
+    return null;
+  }
+  const gasto = Number(o.gasto);
+  const temPrevisao = o.previsto !== undefined && o.previsto !== null;
+  const previsto = temPrevisao ? Number(o.previsto) : 0;
+  const projetado = gasto + previsto;
+  const mes = formatarMes(o.mes);
+  const temFaixa = o.inferior !== undefined && o.inferior !== null && o.superior !== undefined && o.superior !== null;
+  const faixa = temFaixa
+    ? ` (faixa de 80%: R$ ${reais(gasto + Number(o.inferior))} a R$ ${reais(gasto + Number(o.superior))})`
+    : '';
+
+  if (projetado > orcado + EPSILON) {
+    const detalhe = temPrevisao
+      ? `Gasto de R$ ${reais(gasto)} mais consumo previsto de R$ ${reais(previsto)} = R$ ${reais(projetado)}, acima do orçamento de R$ ${reais(orcado)} em ${mes}${faixa}.`
+      : `Gasto de R$ ${reais(gasto)} já ultrapassa o orçamento de R$ ${reais(orcado)} em ${mes}.`;
+    return alerta(
+      'ORCAMENTO_IA_EM_RISCO',
+      'ALTA',
+      `Orçamento de IA de ${o.departamentoNome} em risco`,
+      detalhe,
+      'Rever assentos e licenças do centro de custo ou realocar orçamento antes do fechamento do mês.',
+      null, o.departamentoId, null);
+  }
+  if (temFaixa && gasto + Number(o.superior) > orcado + EPSILON) {
+    return alerta(
+      'ORCAMENTO_IA_EM_RISCO',
+      'MEDIA',
+      `Orçamento de IA de ${o.departamentoNome} pode estourar`,
+      `Projeção central de R$ ${reais(projetado)} cabe no orçamento de R$ ${reais(orcado)}, mas o limite superior da faixa de 80% chega a R$ ${reais(gasto + Number(o.superior))} em ${mes}.`,
+      'Acompanhar o consumo semanalmente e preparar realocação caso o cenário alto se confirme.',
+      null, o.departamentoId, null);
+  }
+  if (!temPrevisao && gasto >= orcado * ORCAMENTO_COMPROMETIDO - EPSILON) {
+    return alerta(
+      'ORCAMENTO_IA_EM_RISCO',
+      'BAIXA',
+      `Orçamento de IA de ${o.departamentoNome} quase comprometido`,
+      `R$ ${reais(gasto)} de R$ ${reais(orcado)} já gastos em ${mes}, sem previsão de consumo carregada.`,
+      'Carregar a previsão de consumo do centro de custo para saber se o orçamento fecha o mês.',
+      null, o.departamentoId, null);
+  }
+  return null;
+}
+
+/**
+ * Aplica todas as regras. A ordem de saída é a mesma do backend (metas, tendências, equipes, sem atividade, orçamentos);
  * a ordenação por severidade e a contagem continuam sendo feitas pelo backend.
  */
 function avaliar(entrada) {
@@ -176,6 +235,10 @@ function avaliar(entrada) {
   for (const colaborador of entrada.colaboradoresSemAtividade) {
     alertas.push(semAtividade(colaborador, hoje));
   }
+  for (const orcamento of entrada.orcamentos || []) {
+    const a = avaliarOrcamento(orcamento);
+    if (a) alertas.push(a);
+  }
   return alertas;
 }
 
@@ -186,4 +249,5 @@ module.exports = {
   avaliarTendencia,
   avaliarEquipes,
   semAtividade,
+  avaliarOrcamento,
 };

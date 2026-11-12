@@ -3,6 +3,7 @@ package br.com.dama.intelligence.analytics.internal;
 import br.com.dama.intelligence.analytics.api.*;
 import br.com.dama.intelligence.analytics.internal.AnaliseGestaoRegras.ColaboradorSemAtividade;
 import br.com.dama.intelligence.analytics.internal.AnaliseGestaoRegras.ValorIndicador;
+import br.com.dama.intelligence.shared.security.EscopoEmpresa;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -23,14 +24,15 @@ class AnalyticsServiceTest {
     private AnalyticsRepository repo;
     private AlertaGestaoClient alertas;
     private AnalyticsService service;
-    private static final RankingConfig RANKING = new RankingConfig(20000, 0.25, 0.15, 30);
+    private static final RankingConfig RANKING = new RankingConfig(20000, 0.25, 0.15, 30, 0.5);
 
     @BeforeEach
     void setUp() {
         repo = mock(AnalyticsRepository.class);
         alertas = mock(AlertaGestaoClient.class);
         when(repo.existeEmpresa(1L)).thenReturn(true);
-        service = new AnalyticsService(repo, Clock.fixed(Instant.parse("2026-10-05T12:00:00Z"), ZoneOffset.UTC), alertas, RANKING);
+        service = new AnalyticsService(repo, Clock.fixed(Instant.parse("2026-10-05T12:00:00Z"), ZoneOffset.UTC), alertas, RANKING,
+                new EscopoEmpresa());
     }
 
     @Test

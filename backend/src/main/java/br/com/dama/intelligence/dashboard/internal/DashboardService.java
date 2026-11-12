@@ -11,6 +11,7 @@ import br.com.dama.intelligence.dashboard.api.DashboardEquipeView;
 import br.com.dama.intelligence.dashboard.api.DashboardFacade;
 import br.com.dama.intelligence.organizacao.api.DepartamentoView;
 import br.com.dama.intelligence.organizacao.api.OrganizacaoFacade;
+import br.com.dama.intelligence.shared.security.EscopoEmpresa;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
@@ -25,20 +26,23 @@ class DashboardService implements DashboardFacade {
     private final AnalyticsFacade analytics;
     private final DashboardRepository repo;
     private final Clock clock;
+    private final EscopoEmpresa escopo;
 
     DashboardService(ColaboradorFacade colaboradores, OrganizacaoFacade organizacao, ConquistaFacade conquistas,
-                     AnalyticsFacade analytics, DashboardRepository repo, Clock clock) {
+                     AnalyticsFacade analytics, DashboardRepository repo, Clock clock, EscopoEmpresa escopo) {
         this.colaboradores = colaboradores;
         this.organizacao = organizacao;
         this.conquistas = conquistas;
         this.analytics = analytics;
         this.repo = repo;
         this.clock = clock;
+        this.escopo = escopo;
     }
 
     @Override
     public DashboardColaboradorView doColaborador(Long colaboradorId) {
         ColaboradorView colaborador = colaboradores.buscarPorId(colaboradorId); // 404 se não existir
+        escopo.exigir(colaborador.empresaId());
         EvolucaoView evolucao = conquistas.evolucao(colaboradorId);
 
         return new DashboardColaboradorView(
@@ -57,6 +61,7 @@ class DashboardService implements DashboardFacade {
     @Override
     public DashboardEquipeView daEquipe(Long departamentoId) {
         DepartamentoView departamento = organizacao.buscarDepartamento(departamentoId); // 404 se não existir
+        escopo.exigir(departamento.empresaId());
         LocalDate hoje = LocalDate.now(clock);
 
         return new DashboardEquipeView(

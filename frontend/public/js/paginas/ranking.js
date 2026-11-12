@@ -10,6 +10,7 @@ export default async function (el, params, recarregar) {
     const e = sessao.empresaId;
     const periodo = periodoRanking(params);
     const escreve = sessao.pode('PONTOS_LANCAR');   // só o Administrador lança pontos e mantém regras
+    const registraTarefas = sessao.pode('DESEMPENHO_ESCREVER');
     const [ranking, minhaPontuacao, regras, n] = await Promise.all([
         api.get(`/empresas/${e}/analytics/ranking-colaboradores?${periodo.consulta}`),
         sessao.pode('GAMIFICACAO_LER') ? api.get(`/colaboradores/${sessao.id}/pontuacao`) : Promise.resolve(null),
@@ -36,7 +37,8 @@ export default async function (el, params, recarregar) {
             { titulo: 'Pontuação', classe: 'num', valor: r => h('span', { class: 'forte' }, fmt.num(r.pontuacao)) },
             { titulo: 'Nota', classe: 'num', valor: r => fmt.num(r.nota) }
         ], ranking, { destacar: r => r.colaboradorId === sessao.id }), {
-            subtitulo: 'Pontuação = pontos das tarefas entregues (story points × urgência) − uso de IA acima da franquia grátis + bônus do gestor (até 15%). Nota de 0 a 10: 10 é a maior pontuação da empresa.',
+            subtitulo: 'Pontuação = pontos das tarefas entregues (story points × urgência; metade se houve retrabalho) − uso de IA acima da franquia grátis + bônus do gestor (até 15%). Nota de 0 a 10: 10 é a maior pontuação da empresa.',
+            acoes: registraTarefas ? botao('Registrar tarefa', () => registrarTarefa(recarregar)) : null,
             acoes: h('div', { class: 'linha' },
                 seletorPeriodo(periodo.dias, v => navegar('ranking', { dias: v })),
                 escreve ? botao('Lançar pontos', () => lancar(regras, recarregar), { tipo: 'primario' }) : null)
@@ -78,6 +80,25 @@ export default async function (el, params, recarregar) {
         subtitulo: 'Pontos lançados por regra alimentam níveis e conquistas; o ranking usa as tarefas entregues. Só podem ser lançados a partir de uma regra ativa',
         acoes: escreve ? botao('Nova regra', () => novaRegra(recarregar)) : null
     }));
+}
+
+async function registrarTarefa(recarregar) {
+    formulario('Registrar tarefa entregue', [
+        { nome: 'colaboradorId', rotulo: 'Colaborador', tipo: 'select', obrigatorio: true, opcoes: opcoes(await pessoasAtivas(), p => p.colaboradorId, p => p.nome) },
+        { nome: 'chave', rotulo: 'Chave', obrigatorio: true, ajuda: 'Identificador da tarefa no Jira, ex.: SMAN-120' },
+        { nome: 'storyPoints', rotulo: 'Story points', tipo: 'number', obrigatorio: true },
+        { nome: 'urgencia', rotulo: 'Urgência', tipo: 'select', valor: 'MEDIA', opcoes: ['BAIXA', 'MEDIA', 'ALTA', 'CRITICA'].map(u => ({ valor: u, rotulo: u })) },
+        { nome: 'tokensIa', rotulo: 'Tokens de IA', tipo: 'number', ajuda: 'Tokens gastos na tarefa; acima da franquia grátis descontam pontos.' },
+        { nome: 'descricao', rotulo: 'Descrição', inteiro: true },
+        { nome: 'retrabalho', rotulo: 'Entrega devolvida para correção (retrabalho)', tipo: 'checkbox', inteiro: true, ajuda: 'Tarefa com retrabalho vale metade dos pontos e pesa na governança do AMS.' }
+    ], async v => {
+        await api.post(`/colaboradores/${v.colaboradorId}/tarefas`, {
+            chave: v.chave, descricao: v.descricao, storyPoints: v.storyPoints, urgencia: v.urgencia,
+            tokensIa: v.tokensIa ?? 0, retrabalho: Boolean(v.retrabalho)
+        });
+        toast('Tarefa registrada.');
+        recarregar();
+    }, { textoBotao: 'Registrar' });
 }
 
 async function lancar(regras, recarregar) {

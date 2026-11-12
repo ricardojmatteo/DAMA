@@ -27,14 +27,16 @@ Pré-requisito: Docker.
 docker compose up --build
 ```
 
-Abra http://localhost:3000 e entre com um dos usuários de demonstração:
+Abra http://localhost:3000 e entre com um dos usuários de demonstração (senha `dama123` para todos; os botões da tela de login já preenchem):
 
-| ID | Usuário | Perfil |
+| E-mail | Usuário | Perfil |
 |---|---|---|
-| 1 | Administrador | Administrador (acesso total) |
-| 2 | Mariana Souza | Gestor |
-| 3 | Ricardo Nogueira | Gestor |
-| 4 | Lucas Pereira | Colaborador |
+| admin@empresa-demonstracao.com | Administrador | Administrador (operador da plataforma, vê todas as empresas) |
+| mariana.souza@demo.dama | Mariana Souza | Gestor |
+| ricardo.nogueira@demo.dama | Ricardo Nogueira | Gestor |
+| lucas.pereira@demo.dama | Lucas Pereira | Colaborador |
+
+O acesso usa e-mail e senha com token JWT ([ADR-0010](docs/adr/0010-autenticacao-jwt.md)), e cada usuário só vê a própria empresa ([ADR-0011](docs/adr/0011-isolamento-por-empresa.md)). Em produção, defina `DAMA_JWT_SEGREDO` (32 caracteres ou mais).
 
 | Serviço | Endereço |
 |---|---|
@@ -79,6 +81,8 @@ Unitários para regras de metas, conquistas e análises de gestão; testes de in
 - [Referência da API](docs/api/)
 - [Rastreabilidade e regras de negócio](docs/requisitos/)
 - [Como o ranking é calculado e o que falta para integrar com o Jira](docs/requisitos/ranking.md)
+- [AI Maturity Score: dimensões e pesos](docs/produto/ams.md) e [nível de autonomia: real vs. interface](docs/produto/autonomia.md)
+- [Curadoria do código com IA (code review)](docs/qualidade/code-review-ia.md)
 - [Deliverable 2](Deliverable2/): [Qualidade de Software](Deliverable2/04_Qualidade_de_Software/), [Pesquisa Operacional](Deliverable2/07_Pesquisa_Operacional_e_Calculo_Aplicado/), [Estatística Multivariada](Deliverable2/02_Estatistica_Multivariada/), [Machine Learning](Deliverable2/05_Machine_Learning/) e [Análise Preditiva](Deliverable2/08_Analise_Preditiva/)
 
 ## Uso de IA

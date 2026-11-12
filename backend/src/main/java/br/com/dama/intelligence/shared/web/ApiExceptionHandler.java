@@ -7,6 +7,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -46,7 +47,15 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Object> handleAccessDenied(AccessDeniedException ex) {
-        return body(HttpStatus.FORBIDDEN, "Perfil sem permissão para esta operação.");
+        // mensagem do EscopoEmpresa (recurso de outra empresa) é preservada; a do @PreAuthorize vira texto padrão
+        String mensagem = ex.getMessage() != null && ex.getMessage().contains("empresa")
+                ? ex.getMessage() : "Perfil sem permissão para esta operação.";
+        return body(HttpStatus.FORBIDDEN, mensagem);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Object> handleBadCredentials(BadCredentialsException ex) {
+        return body(HttpStatus.UNAUTHORIZED, ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

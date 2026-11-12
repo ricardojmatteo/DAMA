@@ -66,6 +66,7 @@ function validar(entrada) {
     tendencias: lista(entrada, 'tendencias'),
     equipes: lista(entrada, 'equipes'),
     colaboradoresSemAtividade: lista(entrada, 'colaboradoresSemAtividade'),
+    orcamentos: lista(entrada, 'orcamentos'),
   };
   normalizada.metas.forEach((m, i) => {
     for (const campo of ['descricao', 'valorAlvo', 'dataInicio', 'dataFim']) {
@@ -98,6 +99,13 @@ function validar(entrada) {
       throw new ErroDeEntrada(`colaboradoresSemAtividade[${i}]: o campo "nome" é obrigatório.`);
     }
   });
+  normalizada.orcamentos.forEach((o, i) => {
+    for (const campo of ['departamentoNome', 'mes', 'orcado', 'gasto']) {
+      if (o?.[campo] === undefined || o?.[campo] === null) {
+        throw new ErroDeEntrada(`orcamentos[${i}]: o campo "${campo}" é obrigatório.`);
+      }
+    }
+  });
   return normalizada;
 }
 
@@ -123,7 +131,8 @@ async function tratar(req, res) {
     const dados = validar(entrada);
     const alertas = avaliar(dados);
     console.log(`[alert-service] POST /avaliar metas=${dados.metas.length} tendencias=${dados.tendencias.length} `
-      + `equipes=${dados.equipes.length} semAtividade=${dados.colaboradoresSemAtividade.length} -> ${alertas.length} alerta(s)`);
+      + `equipes=${dados.equipes.length} semAtividade=${dados.colaboradoresSemAtividade.length} `
+      + `orcamentos=${dados.orcamentos.length} -> ${alertas.length} alerta(s)`);
     return responder(res, 200, { motor: MOTOR, alertas });
   }
 

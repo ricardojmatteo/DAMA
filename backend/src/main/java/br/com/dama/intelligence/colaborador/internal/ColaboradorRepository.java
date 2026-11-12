@@ -1,6 +1,7 @@
 package br.com.dama.intelligence.colaborador.internal;
 
 import br.com.dama.intelligence.colaborador.api.ColaboradorView;
+import br.com.dama.intelligence.colaborador.api.CredencialView;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -44,17 +45,43 @@ class ColaboradorRepository {
         return n != null && n > 0;
     }
 
+    Optional<CredencialView> credencialPorEmail(String email) {
+        return jdbc.query(
+                "select colaborador_id, empresa_id, nome, senha_hash, ativo from dama.colaborador where lower(email) = lower(?)",
+                (rs, i) -> new CredencialView(rs.getLong("colaborador_id"), rs.getLong("empresa_id"), rs.getString("nome"),
+                        rs.getString("senha_hash"), rs.getBoolean("ativo")),
+                email).stream().findFirst();
+    }
+
+    String senhaHash(Long colaboradorId) {
+        return jdbc.query("select senha_hash from dama.colaborador where colaborador_id = ?",
+                (rs, i) -> rs.getString("senha_hash"), colaboradorId).stream().findFirst().orElse(null);
+    }
+
+    void definirSenhaHash(Long colaboradorId, String senhaHash) {
+        jdbc.update("update dama.colaborador set senha_hash = ?, atualizado_em = now() where colaborador_id = ?",
+                senhaHash, colaboradorId);
+    }
+
+    boolean emailJaCadastradoNaPlataforma(String email, Long ignorarColaboradorId) {
+        String sql = "select count(*) from dama.colaborador where lower(email) = lower(?)";
+        Integer n = ignorarColaboradorId == null
+                ? jdbc.queryForObject(sql, Integer.class, email)
+                : jdbc.queryForObject(sql + " and colaborador_id <> ?", Integer.class, email, ignorarColaboradorId);
+        return n != null && n > 0;
+    }
+
     boolean existe(Long colaboradorId) {
         Integer n = jdbc.queryForObject("select count(*) from dama.colaborador where colaborador_id = ?", Integer.class, colaboradorId);
         return n != null && n > 0;
     }
 
     Long inserir(Long empresaId, Long departamentoId, String nome, String email, String cargo,
-                 String senioridade, java.time.LocalDate dataAdmissao) {
+                 String senioridade, java.time.LocalDate dataAdmissao, String senhaHash) {
         return jdbc.queryForObject(
-                "insert into dama.colaborador (empresa_id, departamento_id, nome, email, cargo, senioridade, data_admissao) " +
-                        "values (?, ?, ?, ?, ?, ?, ?) returning colaborador_id",
-                Long.class, empresaId, departamentoId, nome, email, cargo, senioridade, dataAdmissao);
+                "insert into dama.colaborador (empresa_id, departamento_id, nome, email, cargo, senioridade, data_admissao, senha_hash) " +
+                        "values (?, ?, ?, ?, ?, ?, ?, ?) returning colaborador_id",
+                Long.class, empresaId, departamentoId, nome, email, cargo, senioridade, dataAdmissao, senhaHash);
     }
 
     void atualizar(Long colaboradorId, Long departamentoId, String nome, String email, String cargo, String senioridade) {

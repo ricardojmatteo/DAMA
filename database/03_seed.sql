@@ -15,7 +15,8 @@ INSERT INTO permissao (codigo, descricao) VALUES
     ('PONTOS_LANCAR',        'Lançar pontos e manter as regras de pontuação (exclusiva do Administrador)'),
     ('AI_CREDITS_LER',       'Consultar saldo e histórico de AI Credits'),
     ('AI_CREDITS_GERENCIAR', 'Conceder/debitar AI Credits e gerenciar regras'),
-    ('ANALYTICS_LER',        'Consultar analytics consolidado e comparação entre equipes');
+    ('ANALYTICS_LER',        'Consultar analytics consolidado e comparação entre equipes'),
+    ('PLATAFORMA_ADMINISTRAR', 'Operar a plataforma: enxergar e administrar todas as empresas-cliente (ADR-0011)');
 
 INSERT INTO perfil (nome, descricao) VALUES
     ('Administrador', 'Acesso completo à plataforma'),
@@ -26,10 +27,11 @@ INSERT INTO perfil (nome, descricao) VALUES
 INSERT INTO perfil_permissao (perfil_id, permissao_id)
 SELECT (SELECT perfil_id FROM perfil WHERE nome = 'Administrador'), permissao_id FROM permissao;
 
--- Gestor: tudo, exceto gerenciar perfis/permissões de acesso e lançar pontos (só o Administrador lança pontos)
+-- Gestor: tudo, exceto gerenciar perfis/permissões de acesso, lançar pontos (só o Administrador lança pontos)
+-- e administrar a plataforma (enxergar outras empresas)
 INSERT INTO perfil_permissao (perfil_id, permissao_id)
 SELECT (SELECT perfil_id FROM perfil WHERE nome = 'Gestor'), permissao_id
-FROM permissao WHERE codigo NOT IN ('PERFIL_GERENCIAR', 'PONTOS_LANCAR');
+FROM permissao WHERE codigo NOT IN ('PERFIL_GERENCIAR', 'PONTOS_LANCAR', 'PLATAFORMA_ADMINISTRAR');
 
 -- Colaborador: apenas leitura do próprio desempenho/gamificação/créditos
 INSERT INTO perfil_permissao (perfil_id, permissao_id)
@@ -45,13 +47,14 @@ INSERT INTO departamento (empresa_id, nome) VALUES
 
 -- Colaborador administrador de bootstrap: sem ele, ninguém consegue autenticar
 -- (nem para cadastrar o primeiro colaborador de verdade) numa base recém-criada.
--- Ver README "Como testar" para o X-Colaborador-Id a usar.
-INSERT INTO colaborador (empresa_id, departamento_id, nome, email, cargo, senioridade, data_admissao)
+-- Senha inicial: "dama123" (BCrypt via pgcrypto). Troque em POST /api/auth/senha depois do primeiro login.
+INSERT INTO colaborador (empresa_id, departamento_id, nome, email, cargo, senioridade, data_admissao, senha_hash)
 VALUES (
     (SELECT empresa_id FROM empresa WHERE nome = 'Empresa Demonstração'),
     (SELECT departamento_id FROM departamento WHERE nome = 'Recursos Humanos'
         AND empresa_id = (SELECT empresa_id FROM empresa WHERE nome = 'Empresa Demonstração')),
-    'Administrador da Plataforma', 'admin@empresa-demonstracao.com', 'Administrador de Sistema', 'Especialista', CURRENT_DATE
+    'Administrador da Plataforma', 'admin@empresa-demonstracao.com', 'Administrador de Sistema', 'Especialista', CURRENT_DATE,
+    crypt('dama123', gen_salt('bf', 10))
 );
 
 INSERT INTO colaborador_perfil (colaborador_id, perfil_id)

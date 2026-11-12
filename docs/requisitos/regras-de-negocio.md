@@ -37,6 +37,7 @@ O documento de requisitos deixa alguns comportamentos em aberto. Estas são as r
 | Indicador em queda | Piora de 10% ou mais entre os dois últimos valores de uma série (colaborador ou equipe); para "menor é melhor", piora é aumento | Média; Alta a partir de 25% |
 | Equipe abaixo da média | Pontos por colaborador ativo da equipe abaixo de metade da média da empresa (com ao menos duas equipes com pessoas) | Média |
 | Sem atividade recente | Colaborador ativo, admitido há mais de 30 dias, sem pontos nem atividades registradas nos últimos 30 dias | Baixa |
+| Orçamento de IA em risco | Gasto do mês + consumo previsto acima do orçado do departamento; ou só o limite superior da faixa de 80% acima; ou, sem previsão, 90% do orçado já gasto | Alta; Média; Baixa |
 
 As regras acima são aplicadas pelo `alert-service` (Node.js) a pedido do backend; se o serviço não responder, o backend aplica as mesmas regras localmente ([ADR-0009](../adr/0009-alert-service-node-para-alertas-de-gestao.md)).
 
@@ -44,3 +45,5 @@ As regras acima são aplicadas pelo `alert-service` (Node.js) a pedido do backen
 
 15. O perfil Colaborador só lê desempenho, gamificação e AI Credits (inclui o ranking). Créditos, metas e reconhecimentos são lançados por Gestor ou Administrador; pontos, só pelo Administrador (permissão `PONTOS_LANCAR`).
 16. Auditoria, perfis, empresas e equipes são exclusivos do Administrador.
+17. Todo recurso pertence a uma empresa, e o usuário só lê ou altera recursos da própria empresa (403 caso contrário). Só o Administrador, com `PLATAFORMA_ADMINISTRAR`, enxerga e cadastra empresas-cliente ([ADR-0011](../adr/0011-isolamento-por-empresa.md)).
+18. O acesso exige e-mail e senha; colaborador desligado não entra, mesmo com token ainda válido ([ADR-0010](../adr/0010-autenticacao-jwt.md)).

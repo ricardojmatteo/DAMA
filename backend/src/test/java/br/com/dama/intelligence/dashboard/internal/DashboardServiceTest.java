@@ -10,6 +10,7 @@ import br.com.dama.intelligence.conquista.api.NivelEvolucaoView;
 import br.com.dama.intelligence.dashboard.api.MembroEquipeView;
 import br.com.dama.intelligence.organizacao.api.DepartamentoView;
 import br.com.dama.intelligence.organizacao.api.OrganizacaoFacade;
+import br.com.dama.intelligence.shared.security.EscopoEmpresa;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -39,7 +40,7 @@ class DashboardServiceTest {
         analytics = mock(AnalyticsFacade.class);
         repo = mock(DashboardRepository.class);
         service = new DashboardService(colaboradores, organizacao, conquistas, analytics, repo,
-                Clock.fixed(Instant.parse("2026-10-05T12:00:00Z"), ZoneOffset.UTC));
+                Clock.fixed(Instant.parse("2026-10-05T12:00:00Z"), ZoneOffset.UTC), new EscopoEmpresa());
     }
 
     @Test

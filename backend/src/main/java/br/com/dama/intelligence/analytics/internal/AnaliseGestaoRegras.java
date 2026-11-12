@@ -49,6 +49,60 @@ final class AnaliseGestaoRegras {
     record ColaboradorSemAtividade(Long colaboradorId, String nome, Long departamentoId) {
     }
 
+    /**
+     * Orçamento de IA de um departamento no mês: gasto é retrato (assentos + consumo faturados); previsto, inferior e
+     * superior vêm do modelo de demanda (faixa de 80%) e podem ser nulos quando não há previsão carregada.
+     */
+    record OrcamentoIa(Long departamentoId, String departamentoNome, LocalDate mes, BigDecimal orcado, BigDecimal gasto,
+                       BigDecimal previsto, BigDecimal inferior, BigDecimal superior) {
+    }
+
+    private static final BigDecimal ORCAMENTO_COMPROMETIDO = new BigDecimal("0.90");
+
+    /**
+     * Orçamento de IA em risco (próximo passo apontado na avaliação de Análise Preditiva):
+     * ALTA quando gasto + consumo previsto ultrapassa o orçado (ou o gasto sozinho já ultrapassou);
+     * MEDIA quando só o limite superior da faixa de 80% ultrapassa;
+     * BAIXA quando, sem previsão, 90% ou mais do orçamento já está comprometido.
+     */
+    static Optional<AlertaGestaoView> avaliarOrcamento(OrcamentoIa o) {
+        if (o.orcado() == null || o.orcado().signum() <= 0) {
+            return Optional.empty();
+        }
+        BigDecimal previsto = o.previsto() == null ? BigDecimal.ZERO : o.previsto();
+        BigDecimal projetado = o.gasto().add(previsto);
+        String mes = MES.format(o.mes());
+        String faixa = o.inferior() == null || o.superior() == null ? ""
+                : " (faixa de 80%: R$ " + reais(o.gasto().add(o.inferior())) + " a R$ " + reais(o.gasto().add(o.superior())) + ")";
+        if (projetado.compareTo(o.orcado()) > 0) {
+            String detalhe = o.previsto() == null
+                    ? "Gasto de R$ " + reais(o.gasto()) + " já ultrapassa o orçamento de R$ " + reais(o.orcado()) + " em " + mes + "."
+                    : "Gasto de R$ " + reais(o.gasto()) + " mais consumo previsto de R$ " + reais(previsto) + " = R$ "
+                      + reais(projetado) + ", acima do orçamento de R$ " + reais(o.orcado()) + " em " + mes + faixa + ".";
+            return Optional.of(new AlertaGestaoView("ORCAMENTO_IA_EM_RISCO", "ALTA",
+                    "Orçamento de IA de " + o.departamentoNome() + " em risco",
+                    detalhe,
+                    "Rever assentos e licenças do centro de custo ou realocar orçamento antes do fechamento do mês.",
+                    null, o.departamentoId(), null));
+        }
+        if (o.superior() != null && o.gasto().add(o.superior()).compareTo(o.orcado()) > 0) {
+            return Optional.of(new AlertaGestaoView("ORCAMENTO_IA_EM_RISCO", "MEDIA",
+                    "Orçamento de IA de " + o.departamentoNome() + " pode estourar",
+                    "Projeção central de R$ " + reais(projetado) + " cabe no orçamento de R$ " + reais(o.orcado())
+                            + ", mas o limite superior da faixa de 80% chega a R$ " + reais(o.gasto().add(o.superior())) + " em " + mes + ".",
+                    "Acompanhar o consumo semanalmente e preparar realocação caso o cenário alto se confirme.",
+                    null, o.departamentoId(), null));
+        }
+        if (o.previsto() == null && o.gasto().compareTo(o.orcado().multiply(ORCAMENTO_COMPROMETIDO)) >= 0) {
+            return Optional.of(new AlertaGestaoView("ORCAMENTO_IA_EM_RISCO", "BAIXA",
+                    "Orçamento de IA de " + o.departamentoNome() + " quase comprometido",
+                    "R$ " + reais(o.gasto()) + " de R$ " + reais(o.orcado()) + " já gastos em " + mes + ", sem previsão de consumo carregada.",
+                    "Carregar a previsão de consumo do centro de custo para saber se o orçamento fecha o mês.",
+                    null, o.departamentoId(), null));
+        }
+        return Optional.empty();
+    }
+
     /** Meta com prazo encerrado (ALTA) ou com progresso bem atrás do tempo decorrido (MEDIA). */
     static Optional<AlertaGestaoView> avaliarMeta(MetaAberta meta, LocalDate hoje) {
         String progresso = meta.progressoAtual() == null ? "sem progresso registrado" : formatar(meta.progressoAtual());
@@ -142,6 +196,13 @@ final class AnaliseGestaoRegras {
             case "MEDIA" -> 1;
             default -> 2;
         };
+    }
+
+    /** Valor em reais no formato brasileiro com duas casas (ex.: 1.234,50); igual a reais() do alert-service. */
+    static String reais(BigDecimal valor) {
+        java.text.DecimalFormat formato = new java.text.DecimalFormat("#,##0.00",
+                java.text.DecimalFormatSymbols.getInstance(new java.util.Locale("pt", "BR")));
+        return formato.format(valor);
     }
 
     /** Número no formato brasileiro, sem zeros à direita (ex.: 74,5). */

@@ -16,6 +16,7 @@ final class AlertaGestaoLocal implements AlertaGestaoClient {
                 AnaliseGestaoRegras.avaliarTendencia(t.anterior(), t.atual()).ifPresent(alertas::add));
         alertas.addAll(AnaliseGestaoRegras.avaliarEquipes(entrada.equipes()));
         entrada.semAtividade().forEach(c -> alertas.add(AnaliseGestaoRegras.semAtividade(c, entrada.hoje())));
+        entrada.orcamentos().forEach(o -> AnaliseGestaoRegras.avaliarOrcamento(o).ifPresent(alertas::add));
         return alertas;
     }
 }

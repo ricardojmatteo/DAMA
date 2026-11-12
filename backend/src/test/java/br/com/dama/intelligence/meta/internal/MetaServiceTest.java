@@ -8,6 +8,7 @@ import br.com.dama.intelligence.meta.api.RegistrarProgressoCommand;
 import br.com.dama.intelligence.organizacao.api.OrganizacaoFacade;
 import br.com.dama.intelligence.shared.error.ValidationException;
 import br.com.dama.intelligence.shared.event.DesempenhoAtualizadoEvent;
+import br.com.dama.intelligence.shared.security.EscopoEmpresa;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationEventPublisher;
@@ -33,7 +34,7 @@ class MetaServiceTest {
         indicadores = mock(IndicadorFacade.class);
         eventos = mock(ApplicationEventPublisher.class);
         service = new MetaService(repo, mock(ColaboradorFacade.class), mock(OrganizacaoFacade.class), indicadores,
-                mock(AuditoriaFacade.class), eventos);
+                mock(AuditoriaFacade.class), eventos, new EscopoEmpresa());
     }
 
     @Test

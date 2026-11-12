@@ -16,6 +16,9 @@
 -- =====================================================================
 DROP SCHEMA IF EXISTS dama CASCADE;
 CREATE SCHEMA dama;
+-- pgcrypto: gera os hashes BCrypt das senhas de demonstração (03_seed.sql, 04_demo.sql).
+-- Em produção o hash é gerado pela aplicação (BCryptPasswordEncoder); o formato $2a$ é o mesmo.
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 SET search_path = dama, public;
 
 -- ---------------------------------------------------------------------
@@ -49,12 +52,18 @@ CREATE TABLE colaborador (
     senioridade      text        CHECK (senioridade IN ('Junior','Pleno','Senior','Especialista','Gerente')),
     data_admissao    date        NOT NULL,
     ativo            boolean     NOT NULL DEFAULT true,
+    senha_hash       text,
     criado_em        timestamp   NOT NULL DEFAULT now(),
     atualizado_em    timestamp   NOT NULL DEFAULT now(),
     UNIQUE (empresa_id, email)
 );
 COMMENT ON COLUMN colaborador.ativo IS
   'Desligamento é lógico (RF02 fala em "editar", não há RF de exclusão física).';
+COMMENT ON COLUMN colaborador.senha_hash IS
+  'BCrypt da senha de acesso (ADR-0010). Nulo = colaborador ainda sem credencial; não consegue autenticar.';
+-- O login é feito só pelo e-mail (POST /api/auth/login), então ele precisa ser único na plataforma,
+-- e não apenas dentro da empresa.
+CREATE UNIQUE INDEX ux_colaborador_email ON colaborador (lower(email));
 
 -- Um departamento pertence à mesma empresa do colaborador: garantido na
 -- camada de aplicação (ColaboradorService) além do FK, pois checar isso
@@ -117,7 +126,7 @@ CREATE TABLE indicador_valor (
     valor                numeric NOT NULL,
     registrado_por        bigint  REFERENCES colaborador,
     registrado_em         timestamp NOT NULL DEFAULT now(),
-    CHECK (colaborador_id IS NOT NULL OR departamento_id IS NOT NULL)
+    CHECK ((colaborador_id IS NULL) <> (departamento_id IS NULL))   -- RN06: exatamente um dos dois
 );
 COMMENT ON TABLE indicador_valor IS
   'Série histórica: um indicador tem N valores ao longo do tempo (RF06 evolução, RNF04 consistência com o dashboard).';
@@ -196,10 +205,13 @@ CREATE TABLE tarefa_entregue (
     story_points    numeric NOT NULL CHECK (story_points > 0),
     urgencia        text    NOT NULL DEFAULT 'MEDIA' CHECK (urgencia IN ('BAIXA','MEDIA','ALTA','CRITICA')),
     tokens_ia       bigint  NOT NULL DEFAULT 0 CHECK (tokens_ia >= 0),
+    retrabalho      boolean NOT NULL DEFAULT false,
     entregue_em     timestamp NOT NULL DEFAULT now(),
     UNIQUE (colaborador_id, chave)
 );
 COMMENT ON TABLE tarefa_entregue IS 'Tarefa concluída (vinda do Jira): story points, urgência e tokens de IA gastos nela. Base do ranking (docs/requisitos/ranking.md).';
+COMMENT ON COLUMN tarefa_entregue.retrabalho IS
+  'true quando a entrega foi devolvida para correção (reaberta no Jira). Reduz os pontos da tarefa no ranking e pesa na governança do AMS.';
 
 CREATE TABLE bonus_gestor (
     bonus_id        bigserial PRIMARY KEY,
@@ -319,6 +331,45 @@ CREATE TABLE ai_nivel_autonomia (
 COMMENT ON TABLE ai_nivel_autonomia IS 'RF25/RF26 — nível de acesso à IA desbloqueado conforme o saldo de créditos.';
 
 -- ---------------------------------------------------------------------
+-- Capacitação em IA (dimensão "capacitação" do AI Maturity Score, docs/produto/ams.md)
+-- ---------------------------------------------------------------------
+
+CREATE TABLE capacitacao (
+    capacitacao_id  bigserial PRIMARY KEY,
+    colaborador_id  bigint  NOT NULL REFERENCES colaborador,
+    nome            text    NOT NULL,                 -- ex.: "Engenharia de prompts", "Política de uso de IA"
+    carga_horaria   numeric CHECK (carga_horaria > 0),
+    concluida_em    date    NOT NULL,
+    registrado_por  bigint  REFERENCES colaborador,
+    registrado_em   timestamp NOT NULL DEFAULT now()
+);
+COMMENT ON TABLE capacitacao IS
+  'Treinamento em IA concluído por um colaborador. Um colaborador é considerado capacitado se concluiu ao menos um nos últimos 12 meses.';
+
+-- ---------------------------------------------------------------------
+-- Orçamento de IA por centro de custo (alerta "orçamento de IA em risco", RF15)
+-- ---------------------------------------------------------------------
+
+CREATE TABLE orcamento_ia (
+    orcamento_id        bigserial PRIMARY KEY,
+    empresa_id          bigint  NOT NULL REFERENCES empresa,
+    departamento_id     bigint  NOT NULL REFERENCES departamento,
+    mes_referencia      date    NOT NULL,             -- dia 1 do mês
+    valor_orcado        numeric NOT NULL CHECK (valor_orcado >= 0),
+    gasto_atual         numeric NOT NULL DEFAULT 0 CHECK (gasto_atual >= 0),   -- assentos + consumo já faturados no mês (retrato)
+    consumo_previsto    numeric CHECK (consumo_previsto >= 0),                  -- consumo adicional previsto até o fim do mês
+    previsto_inferior   numeric CHECK (previsto_inferior >= 0),                 -- faixa de 80% da previsão
+    previsto_superior   numeric CHECK (previsto_superior >= 0),
+    origem_previsao     text,                                                   -- ex.: "previsao_demanda_custo.ipynb 2026-11-10"
+    atualizado_em       timestamp NOT NULL DEFAULT now(),
+    UNIQUE (departamento_id, mes_referencia),
+    CHECK (previsto_inferior IS NULL OR previsto_superior IS NULL OR previsto_inferior <= previsto_superior)
+);
+COMMENT ON TABLE orcamento_ia IS
+  'Orçamento mensal de IA de um departamento (centro de custo). O gasto atual é retrato; a previsão vem do modelo de demanda '
+  '(Deliverable2/08_Analise_Preditiva) e é opcional. Alerta ORCAMENTO_IA_EM_RISCO quando gasto + previsão ultrapassa o orçado.';
+
+-- ---------------------------------------------------------------------
 -- E05 — Analytics (RF13, RF14, RF15, RF36, RF37) — deriva de indicador,
 -- meta, pontuacao e ai_credit_transacao acima; não tem tabelas próprias
 -- além de auditoria abaixo. Ver database/02_views.sql.
@@ -354,3 +405,5 @@ CREATE INDEX ix_atividade_registro_colab  ON atividade_registro (colaborador_id,
 CREATE INDEX ix_reconhecimento_colab      ON reconhecimento (colaborador_id);
 CREATE INDEX ix_tarefa_entregue_colab     ON tarefa_entregue (colaborador_id, entregue_em);
 CREATE INDEX ix_bonus_gestor_colab        ON bonus_gestor (colaborador_id, registrado_em);
+CREATE INDEX ix_capacitacao_colab         ON capacitacao (colaborador_id, concluida_em);
+CREATE INDEX ix_orcamento_ia_empresa      ON orcamento_ia (empresa_id, mes_referencia);

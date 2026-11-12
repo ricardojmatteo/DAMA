@@ -35,7 +35,7 @@ public class ColaboradorController {
     @GetMapping("/colaboradores/{colaboradorId}")
     @PreAuthorize("hasAuthority('COLABORADOR_LER')")
     public ColaboradorView buscar(@PathVariable Long colaboradorId) {
-        return facade.buscarPorId(colaboradorId);
+        return facade.buscarNaEmpresaDoUsuario(colaboradorId);
     }
 
     @PutMapping("/colaboradores/{colaboradorId}")

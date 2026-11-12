@@ -7,6 +7,7 @@ import br.com.dama.intelligence.indicador.api.*;
 import br.com.dama.intelligence.organizacao.api.OrganizacaoFacade;
 import br.com.dama.intelligence.shared.error.NotFoundException;
 import br.com.dama.intelligence.shared.error.ValidationException;
+import br.com.dama.intelligence.shared.security.EscopoEmpresa;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +31,7 @@ class IndicadorServiceTest {
         repo = mock(IndicadorRepository.class);
         colaboradores = mock(ColaboradorFacade.class);
         organizacao = mock(OrganizacaoFacade.class);
-        service = new IndicadorService(repo, colaboradores, organizacao, mock(AuditoriaFacade.class));
+        service = new IndicadorService(repo, colaboradores, organizacao, mock(AuditoriaFacade.class), new EscopoEmpresa());
     }
 
     @Test
@@ -62,7 +63,8 @@ class IndicadorServiceTest {
     void registrarValorAceitaColaboradorOuDepartamentoEHistoricoValidaPeriodo() {
         when(repo.buscar(3L)).thenReturn(Optional.of(indicador(3L, false)));
         when(colaboradores.buscarPorId(10L)).thenReturn(colaborador(10L, 1L));
-        when(repo.inserirValor(3L, 10L, null, LocalDate.of(2026, 1, 1), BigDecimal.TEN, 99L)).thenReturn(8L);
+        // registradoPor do corpo (99) é ignorado: a autoria é do usuário autenticado (null fora de uma requisição)
+        when(repo.inserirValor(3L, 10L, null, LocalDate.of(2026, 1, 1), BigDecimal.TEN, null)).thenReturn(8L);
         assertThat(service.registrarValor(3L, new RegistrarValorCommand(10L, null, LocalDate.of(2026, 1, 1), BigDecimal.TEN, 99L)).indicadorValorId())
                 .isEqualTo(8L);
 

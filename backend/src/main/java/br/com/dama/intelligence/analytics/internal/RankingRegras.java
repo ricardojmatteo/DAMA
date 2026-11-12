@@ -16,7 +16,7 @@ import java.util.Map;
  * já lidos do banco e devolvem as posições.
  *
  * <pre>
- * pontos da tarefa = story points × multiplicador da urgência
+ * pontos da tarefa = story points × multiplicador da urgência × (fator de retrabalho, se a entrega foi devolvida)
  * penalidade de IA = pontos da tarefa × fração penalizada   (0 até a franquia grátis, 1 no limite de tokens)
  * pontuação        = max(0, Σ (pontos − penalidade) + bônus do gestor)
  * </pre>
@@ -30,15 +30,24 @@ final class RankingRegras {
      * @param tokensPorPonto limite de tokens por story point: com esse uso a tarefa perde todos os pontos
      * @param franquiaGratis fração do limite que é gratuita (0,25 = os primeiros 25% não pesam)
      * @param bonusMaximo    teto do bônus do gestor como fração dos pontos líquidos das tarefas (0,15 = 15%)
+     * @param fatorRetrabalho fração dos pontos que uma tarefa devolvida para correção mantém (0,5 = metade)
      */
-    record Parametros(double tokensPorPonto, double franquiaGratis, double bonusMaximo) {
+    record Parametros(double tokensPorPonto, double franquiaGratis, double bonusMaximo, double fatorRetrabalho) {
+        Parametros(double tokensPorPonto, double franquiaGratis, double bonusMaximo) {
+            this(tokensPorPonto, franquiaGratis, bonusMaximo, FATOR_RETRABALHO_PADRAO);
+        }
     }
+
+    static final double FATOR_RETRABALHO_PADRAO = 0.5;
 
     record Colaborador(Long colaboradorId, String nome, Long departamentoId) {
     }
 
-    /** Tarefa entregue na janela. */
-    record Tarefa(Long colaboradorId, BigDecimal storyPoints, String urgencia, long tokensIa) {
+    /** Tarefa entregue na janela. retrabalho = entrega devolvida para correção (qualidade). */
+    record Tarefa(Long colaboradorId, BigDecimal storyPoints, String urgencia, long tokensIa, boolean retrabalho) {
+        Tarefa(Long colaboradorId, BigDecimal storyPoints, String urgencia, long tokensIa) {
+            this(colaboradorId, storyPoints, urgencia, tokensIa, false);
+        }
     }
 
     /** Soma dos bônus do gestor concedidos ao colaborador na janela. */
@@ -73,8 +82,14 @@ final class RankingRegras {
         }
     }
 
+    /** Pontos brutos; uma entrega com retrabalho vale só a fração {@code fatorRetrabalho} (qualidade conta, não só volume). */
+    static double pontosDaTarefa(Tarefa t, Parametros p) {
+        double pontos = t.storyPoints().doubleValue() * multiplicadorUrgencia(t.urgencia());
+        return t.retrabalho() ? pontos * p.fatorRetrabalho() : pontos;
+    }
+
     static double pontosDaTarefa(Tarefa t) {
-        return t.storyPoints().doubleValue() * multiplicadorUrgencia(t.urgencia());
+        return pontosDaTarefa(t, new Parametros(1, 0, 0));
     }
 
     /** 0 até a franquia grátis; cresce linearmente até 1 quando os tokens chegam ao limite (story points × tokens por ponto). */
@@ -155,7 +170,7 @@ final class RankingRegras {
             double pontos = 0;
             double penalidade = 0;
             for (Tarefa t : doColaborador) {
-                double pontosDaTarefa = pontosDaTarefa(t);
+                double pontosDaTarefa = pontosDaTarefa(t, p);
                 pontos += pontosDaTarefa;
                 penalidade += pontosDaTarefa * fracaoPenalizada(t, p);
             }

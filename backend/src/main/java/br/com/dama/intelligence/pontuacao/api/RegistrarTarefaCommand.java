@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 /**
  * Tarefa concluída no Jira. {@code chave} é o identificador lá (ex.: DAMA-123) e não se repete para o mesmo colaborador.
  * {@code urgencia} é BAIXA, MEDIA (padrão), ALTA ou CRITICA; {@code tokensIa} são os tokens gastos na tarefa (padrão 0);
+ * {@code retrabalho} marca uma entrega devolvida para correção (padrão false; vale metade dos pontos no ranking);
  * {@code entregueEm} assume o momento do registro.
  */
 public record RegistrarTarefaCommand(
@@ -20,6 +21,7 @@ public record RegistrarTarefaCommand(
         @NotNull(message = "storyPoints é obrigatório") @Positive(message = "storyPoints deve ser maior que zero") BigDecimal storyPoints,
         @Pattern(regexp = "(?i)BAIXA|MEDIA|ALTA|CRITICA", message = "urgencia deve ser BAIXA, MEDIA, ALTA ou CRITICA") String urgencia,
         @PositiveOrZero(message = "tokensIa não pode ser negativo") Long tokensIa,
+        Boolean retrabalho,
         LocalDateTime entregueEm
 ) {
 }

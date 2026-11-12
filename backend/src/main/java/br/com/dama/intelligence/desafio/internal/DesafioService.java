@@ -8,6 +8,7 @@ import br.com.dama.intelligence.organizacao.api.OrganizacaoFacade;
 import br.com.dama.intelligence.pontuacao.api.PontuacaoFacade;
 import br.com.dama.intelligence.shared.error.ConflictException;
 import br.com.dama.intelligence.shared.error.NotFoundException;
+import br.com.dama.intelligence.shared.security.EscopoEmpresa;
 import br.com.dama.intelligence.shared.error.ValidationException;
 import br.com.dama.intelligence.shared.event.DesempenhoAtualizadoEvent;
 import br.com.dama.intelligence.shared.security.UsuarioAtual;
@@ -31,15 +32,18 @@ class DesafioService implements DesafioFacade {
     private final PontuacaoFacade pontuacao;
     private final AuditoriaFacade auditoria;
     private final ApplicationEventPublisher eventos;
+    private final EscopoEmpresa escopo;
 
     DesafioService(DesafioRepository repo, ColaboradorFacade colaboradores, OrganizacaoFacade organizacao,
-                   PontuacaoFacade pontuacao, AuditoriaFacade auditoria, ApplicationEventPublisher eventos) {
+                   PontuacaoFacade pontuacao, AuditoriaFacade auditoria, ApplicationEventPublisher eventos,
+                   EscopoEmpresa escopo) {
         this.repo = repo;
         this.colaboradores = colaboradores;
         this.organizacao = organizacao;
         this.pontuacao = pontuacao;
         this.auditoria = auditoria;
         this.eventos = eventos;
+        this.escopo = escopo;
     }
 
     @Override
@@ -53,7 +57,9 @@ class DesafioService implements DesafioFacade {
 
     @Override
     public DesafioView buscar(Long desafioId) {
-        return repo.buscar(desafioId).orElseThrow(() -> new NotFoundException("Desafio inexistente: " + desafioId));
+        DesafioView desafio = repo.buscar(desafioId).orElseThrow(() -> new NotFoundException("Desafio inexistente: " + desafioId));
+        escopo.exigir(desafio.empresaId());
+        return desafio;
     }
 
     @Override
@@ -157,5 +163,6 @@ class DesafioService implements DesafioFacade {
         if (!organizacao.existeEmpresa(empresaId)) {
             throw new NotFoundException("Empresa inexistente: " + empresaId);
         }
+        escopo.exigir(empresaId);
     }
 }

@@ -4,6 +4,7 @@ import br.com.dama.intelligence.analytics.api.AlertaGestaoView;
 import br.com.dama.intelligence.analytics.internal.AnaliseGestaoRegras.ColaboradorSemAtividade;
 import br.com.dama.intelligence.analytics.internal.AnaliseGestaoRegras.Equipe;
 import br.com.dama.intelligence.analytics.internal.AnaliseGestaoRegras.MetaAberta;
+import br.com.dama.intelligence.analytics.internal.AnaliseGestaoRegras.OrcamentoIa;
 import br.com.dama.intelligence.analytics.internal.AnaliseGestaoRegras.ValorIndicador;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,12 +39,25 @@ final class AlertaGestaoNode implements AlertaGestaoClient {
     private final HttpClient http;
     private final ObjectMapper json = new ObjectMapper();
 
-    AlertaGestaoNode(String baseUrl, Duration timeout, AlertaGestaoClient fallback) {
+    /**
+     * O cliente HTTP é injetado (DIP): a configuração monta o cliente real e os testes podem passar um cliente com
+     * outros timeouts ou um stub que simula falhas, sem subir servidor.
+     */
+    AlertaGestaoNode(String baseUrl, Duration timeout, AlertaGestaoClient fallback, HttpClient http) {
         String base = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
         this.endpoint = URI.create(base + "/avaliar");
         this.timeout = timeout;
         this.fallback = fallback;
-        this.http = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).connectTimeout(timeout).build();
+        this.http = http;
+    }
+
+    /** Conveniência: cliente HTTP/1.1 padrão com o mesmo timeout de conexão. */
+    AlertaGestaoNode(String baseUrl, Duration timeout, AlertaGestaoClient fallback) {
+        this(baseUrl, timeout, fallback, clientePadrao(timeout));
+    }
+
+    static HttpClient clientePadrao(Duration timeout) {
+        return HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).connectTimeout(timeout).build();
     }
 
     @Override
@@ -89,6 +103,7 @@ final class AlertaGestaoNode implements AlertaGestaoClient {
         }).toList());
         corpo.put("equipes", entrada.equipes().stream().map(AlertaGestaoNode::equipe).toList());
         corpo.put("colaboradoresSemAtividade", entrada.semAtividade().stream().map(AlertaGestaoNode::semAtividade).toList());
+        corpo.put("orcamentos", entrada.orcamentos().stream().map(AlertaGestaoNode::orcamento).toList());
         return corpo;
     }
 
@@ -137,6 +152,19 @@ final class AlertaGestaoNode implements AlertaGestaoClient {
         mapa.put("colaboradorId", c.colaboradorId());
         mapa.put("nome", c.nome());
         mapa.put("departamentoId", c.departamentoId());
+        return mapa;
+    }
+
+    private static Map<String, Object> orcamento(OrcamentoIa o) {
+        Map<String, Object> mapa = new LinkedHashMap<>();
+        mapa.put("departamentoId", o.departamentoId());
+        mapa.put("departamentoNome", o.departamentoNome());
+        mapa.put("mes", o.mes().toString());
+        mapa.put("orcado", o.orcado());
+        mapa.put("gasto", o.gasto());
+        mapa.put("previsto", o.previsto());
+        mapa.put("inferior", o.inferior());
+        mapa.put("superior", o.superior());
         return mapa;
     }
 

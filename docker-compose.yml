@@ -43,6 +43,8 @@ services:
       DB_NAME: ${DB_NAME:-dama}
       DB_USER: ${DB_USER:-dama}
       DB_PASSWORD: ${DB_PASSWORD:-dama}
+      # segredo do token de acesso (ADR-0010); vazio = segredo de desenvolvimento, com aviso no log
+      DAMA_JWT_SEGREDO: ${DAMA_JWT_SEGREDO:-}
     ports:
       - "${BACKEND_PORTA:-8080}:8080"
 

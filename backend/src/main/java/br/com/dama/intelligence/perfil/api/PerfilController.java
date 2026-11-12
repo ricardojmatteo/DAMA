@@ -41,7 +41,7 @@ public class PerfilController {
     @GetMapping("/colaboradores/{colaboradorId}/perfis")
     @PreAuthorize("hasAuthority('PERFIL_GERENCIAR')")
     public List<PerfilView> perfisDoColaborador(@PathVariable Long colaboradorId) {
-        return facade.perfisDoColaborador(colaboradorId);
+        return facade.perfisDoColaboradorDaEmpresa(colaboradorId);
     }
 
     @PostMapping("/colaboradores/{colaboradorId}/perfis")

@@ -7,6 +7,7 @@ import br.com.dama.intelligence.indicador.api.IndicadorFacade;
 import br.com.dama.intelligence.meta.api.*;
 import br.com.dama.intelligence.organizacao.api.OrganizacaoFacade;
 import br.com.dama.intelligence.shared.error.NotFoundException;
+import br.com.dama.intelligence.shared.security.EscopoEmpresa;
 import br.com.dama.intelligence.shared.error.ValidationException;
 import br.com.dama.intelligence.shared.event.DesempenhoAtualizadoEvent;
 import br.com.dama.intelligence.shared.security.UsuarioAtual;
@@ -29,15 +30,18 @@ class MetaService implements MetaFacade {
     private final IndicadorFacade indicadores;
     private final AuditoriaFacade auditoria;
     private final ApplicationEventPublisher eventos;
+    private final EscopoEmpresa escopo;
 
     MetaService(MetaRepository repo, ColaboradorFacade colaboradores, OrganizacaoFacade organizacao,
-                IndicadorFacade indicadores, AuditoriaFacade auditoria, ApplicationEventPublisher eventos) {
+                IndicadorFacade indicadores, AuditoriaFacade auditoria, ApplicationEventPublisher eventos,
+                EscopoEmpresa escopo) {
         this.repo = repo;
         this.colaboradores = colaboradores;
         this.organizacao = organizacao;
         this.indicadores = indicadores;
         this.auditoria = auditoria;
         this.eventos = eventos;
+        this.escopo = escopo;
     }
 
     @Override
@@ -51,7 +55,9 @@ class MetaService implements MetaFacade {
 
     @Override
     public MetaView buscar(Long metaId) {
-        return repo.buscar(metaId).orElseThrow(() -> new NotFoundException("Meta inexistente: " + metaId));
+        MetaView meta = repo.buscar(metaId).orElseThrow(() -> new NotFoundException("Meta inexistente: " + metaId));
+        escopo.exigir(meta.empresaId());
+        return meta;
     }
 
     @Override
@@ -147,5 +153,6 @@ class MetaService implements MetaFacade {
         if (!organizacao.existeEmpresa(empresaId)) {
             throw new NotFoundException("Empresa inexistente: " + empresaId);
         }
+        escopo.exigir(empresaId);
     }
 }

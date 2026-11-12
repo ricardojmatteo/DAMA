@@ -43,9 +43,15 @@ Datas em `AAAA-MM-DD`. Listas ausentes valem como vazias; `dataReferencia` é ob
                   "periodo": "2026-09-28", "valor": 56 }
   }],
   "equipes": [{ "departamentoId": 2, "nome": "Comercial", "colaboradoresAtivos": 4, "pontosTotais": 100 }],
-  "colaboradoresSemAtividade": [{ "colaboradorId": 7, "nome": "Marina", "departamentoId": 2 }]
+  "colaboradoresSemAtividade": [{ "colaboradorId": 7, "nome": "Marina", "departamentoId": 2 }],
+  "orcamentos": [{
+    "departamentoId": 3, "departamentoNome": "Tecnologia", "mes": "2026-09-01",
+    "orcado": 12000, "gasto": 11800, "previsto": 900, "inferior": 600, "superior": 1300
+  }]
 }
 ```
+
+Em `orcamentos`, `gasto` é o retrato do mês (assentos e consumo já faturados); `previsto`, `inferior` e `superior` são o consumo adicional previsto até o fim do mês e a faixa de 80% do modelo de demanda (`Deliverable2/08_Analise_Preditiva`). Os três podem ser nulos quando não há previsão carregada.
 
 ### Saída
 
@@ -62,7 +68,9 @@ Datas em `AAAA-MM-DD`. Listas ausentes valem como vazias; `dataReferencia` é ob
 }
 ```
 
-`tipo`: `META_VENCIDA`, `META_EM_RISCO`, `INDICADOR_EM_QUEDA`, `EQUIPE_ABAIXO_DA_MEDIA` ou `SEM_ATIVIDADE_RECENTE`. `severidade`: `ALTA`, `MEDIA` ou `BAIXA`. A ordem é a das regras (metas, tendências, equipes, sem atividade); o backend ordena por severidade.
+`tipo`: `META_VENCIDA`, `META_EM_RISCO`, `INDICADOR_EM_QUEDA`, `EQUIPE_ABAIXO_DA_MEDIA`, `SEM_ATIVIDADE_RECENTE` ou `ORCAMENTO_IA_EM_RISCO`. `severidade`: `ALTA`, `MEDIA` ou `BAIXA`. A ordem é a das regras (metas, tendências, equipes, sem atividade, orçamentos); o backend ordena por severidade.
+
+`ORCAMENTO_IA_EM_RISCO` é `ALTA` quando gasto + consumo previsto ultrapassa o orçado, `MEDIA` quando só o limite superior da faixa de 80% ultrapassa e `BAIXA` quando, sem previsão carregada, 90% ou mais do orçamento já foi gasto.
 
 ## Regras
 

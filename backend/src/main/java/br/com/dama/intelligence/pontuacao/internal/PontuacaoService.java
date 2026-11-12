@@ -1,6 +1,6 @@
 package br.com.dama.intelligence.pontuacao.internal;
 
-import br.com.dama.intelligence.aicredit.api.AiCreditFacade;
+import br.com.dama.intelligence.aicredit.api.AtividadeFacade;
 import br.com.dama.intelligence.auditoria.api.AuditoriaFacade;
 import br.com.dama.intelligence.colaborador.api.ColaboradorFacade;
 import br.com.dama.intelligence.colaborador.api.ColaboradorView;
@@ -8,6 +8,7 @@ import br.com.dama.intelligence.organizacao.api.OrganizacaoFacade;
 import br.com.dama.intelligence.pontuacao.api.*;
 import br.com.dama.intelligence.shared.error.ConflictException;
 import br.com.dama.intelligence.shared.error.NotFoundException;
+import br.com.dama.intelligence.shared.security.EscopoEmpresa;
 import br.com.dama.intelligence.shared.error.ValidationException;
 import br.com.dama.intelligence.shared.event.DesempenhoAtualizadoEvent;
 import br.com.dama.intelligence.shared.security.UsuarioAtual;
@@ -25,18 +26,21 @@ class PontuacaoService implements PontuacaoFacade {
     private final PontuacaoRepository repo;
     private final ColaboradorFacade colaboradores;
     private final OrganizacaoFacade organizacao;
-    private final AiCreditFacade aiCredits;
+    private final AtividadeFacade atividades;
     private final AuditoriaFacade auditoria;
     private final ApplicationEventPublisher eventos;
+    private final EscopoEmpresa escopo;
 
     PontuacaoService(PontuacaoRepository repo, ColaboradorFacade colaboradores, OrganizacaoFacade organizacao,
-                     AiCreditFacade aiCredits, AuditoriaFacade auditoria, ApplicationEventPublisher eventos) {
+                     AtividadeFacade atividades, AuditoriaFacade auditoria, ApplicationEventPublisher eventos,
+                     EscopoEmpresa escopo) {
         this.repo = repo;
         this.colaboradores = colaboradores;
         this.organizacao = organizacao;
-        this.aiCredits = aiCredits;
+        this.atividades = atividades;
         this.auditoria = auditoria;
         this.eventos = eventos;
+        this.escopo = escopo;
     }
 
     @Override
@@ -49,7 +53,7 @@ class PontuacaoService implements PontuacaoFacade {
     @Transactional
     public RegraPontuacaoView criarRegra(Long empresaId, CreateRegraPontuacaoCommand comando) {
         exigirEmpresa(empresaId);
-        if (comando.atividadeId() != null && !aiCredits.atividadePertenceAEmpresa(comando.atividadeId(), empresaId)) {
+        if (comando.atividadeId() != null && !atividades.atividadePertenceAEmpresa(comando.atividadeId(), empresaId)) {
             throw new ValidationException("A atividade informada não existe ou não pertence a esta empresa.");
         }
         RegraPontuacaoView criada = repo.inserirRegra(empresaId, comando.atividadeId(), comando.nome(), comando.pontos());
@@ -62,6 +66,7 @@ class PontuacaoService implements PontuacaoFacade {
     public RegraPontuacaoView alterarRegraAtiva(Long regraId, boolean ativa) {
         RegraPontuacaoView regra = repo.buscarRegra(regraId)
                 .orElseThrow(() -> new NotFoundException("Regra de pontuação inexistente: " + regraId));
+        escopo.exigir(regra.empresaId());
         repo.atualizarRegraAtiva(regraId, ativa);
         auditoria.registrar(regra.empresaId(), UsuarioAtual.id(), "regra_pontuacao", regraId.toString(),
                 ativa ? "ATIVACAO" : "DESATIVACAO", null);
@@ -72,6 +77,7 @@ class PontuacaoService implements PontuacaoFacade {
     @Transactional
     public PontuacaoView lancar(Long colaboradorId, LancarPontosCommand comando) {
         ColaboradorView colaborador = colaboradores.buscarPorId(colaboradorId);
+        escopo.exigir(colaborador.empresaId());
         exigirAtivo(colaborador);
 
         RegraPontuacaoView regra = repo.buscarRegra(comando.regraId())
@@ -92,7 +98,7 @@ class PontuacaoService implements PontuacaoFacade {
 
     @Override
     public PontuacaoResumoView resumo(Long colaboradorId) {
-        colaboradores.buscarPorId(colaboradorId); // 404 se não existir
+        escopo.exigir(colaboradores.buscarPorId(colaboradorId).empresaId()); // 404 se não existir, 403 se de outra empresa
         return new PontuacaoResumoView(colaboradorId, repo.total(colaboradorId), repo.historico(colaboradorId));
     }
 
@@ -100,12 +106,14 @@ class PontuacaoService implements PontuacaoFacade {
     @Transactional
     public TarefaEntregueView registrarTarefa(Long colaboradorId, RegistrarTarefaCommand comando) {
         ColaboradorView colaborador = colaboradores.buscarPorId(colaboradorId);
+        escopo.exigir(colaborador.empresaId());
         exigirAtivo(colaborador);
         String urgencia = comando.urgencia() == null ? "MEDIA" : comando.urgencia().toUpperCase();
         TarefaEntregueView tarefa;
         try {
             tarefa = repo.inserirTarefa(colaboradorId, comando.chave().trim(), comando.descricao(), comando.storyPoints(),
-                    urgencia, comando.tokensIa() == null ? 0 : comando.tokensIa(), comando.entregueEm());
+                    urgencia, comando.tokensIa() == null ? 0 : comando.tokensIa(),
+                    Boolean.TRUE.equals(comando.retrabalho()), comando.entregueEm());
         } catch (DuplicateKeyException e) {
             throw new ConflictException("A tarefa " + comando.chave().trim() + " já foi registrada para este colaborador.");
         }
@@ -116,7 +124,7 @@ class PontuacaoService implements PontuacaoFacade {
 
     @Override
     public List<TarefaEntregueView> listarTarefas(Long colaboradorId) {
-        colaboradores.buscarPorId(colaboradorId); // 404 se não existir
+        escopo.exigir(colaboradores.buscarPorId(colaboradorId).empresaId()); // 404 se não existir, 403 se de outra empresa
         return repo.listarTarefas(colaboradorId);
     }
 
@@ -124,6 +132,7 @@ class PontuacaoService implements PontuacaoFacade {
     @Transactional
     public BonusGestorView concederBonus(Long colaboradorId, ConcederBonusCommand comando) {
         ColaboradorView colaborador = colaboradores.buscarPorId(colaboradorId);
+        escopo.exigir(colaborador.empresaId());
         exigirAtivo(colaborador);
         BonusGestorView bonus = repo.inserirBonus(colaboradorId, UsuarioAtual.id(), comando.pontos(), comando.motivo().trim());
         auditoria.registrar(colaborador.empresaId(), UsuarioAtual.id(), "bonus_gestor", bonus.bonusId().toString(), "CRIACAO", null);
@@ -133,7 +142,7 @@ class PontuacaoService implements PontuacaoFacade {
 
     @Override
     public List<BonusGestorView> listarBonus(Long colaboradorId) {
-        colaboradores.buscarPorId(colaboradorId); // 404 se não existir
+        escopo.exigir(colaboradores.buscarPorId(colaboradorId).empresaId()); // 404 se não existir, 403 se de outra empresa
         return repo.listarBonus(colaboradorId);
     }
 
@@ -152,6 +161,7 @@ class PontuacaoService implements PontuacaoFacade {
         if (!organizacao.existeEmpresa(empresaId)) {
             throw new NotFoundException("Empresa inexistente: " + empresaId);
         }
+        escopo.exigir(empresaId);
     }
 
     private void exigirAtivo(ColaboradorView colaborador) {

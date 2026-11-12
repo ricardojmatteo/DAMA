@@ -1,6 +1,7 @@
 package br.com.dama.intelligence.auditoria.internal;
 
 import br.com.dama.intelligence.auditoria.api.AuditoriaEventoView;
+import br.com.dama.intelligence.shared.security.EscopoEmpresa;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -13,7 +14,7 @@ class AuditoriaServiceTest {
     @Test
     void registraJsonVazioQuandoDetalhesSaoNulosEMantemJsonInformado() {
         AuditoriaRepository repo = mock(AuditoriaRepository.class);
-        AuditoriaService service = new AuditoriaService(repo);
+        AuditoriaService service = new AuditoriaService(repo, new EscopoEmpresa());
         service.registrar(1L, 2L, "meta", "3", "CRIACAO", null);
         service.registrar(1L, 2L, "meta", "3", "EDICAO", "{\"antes\":1}");
         verify(repo).inserir(1L, 2L, "meta", "3", "CRIACAO", "{}");
