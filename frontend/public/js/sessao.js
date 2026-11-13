@@ -53,6 +53,8 @@ export const sessao = {
         this.administraPlataforma = false;
         try {
             window.localStorage.removeItem(CHAVE_TOKEN);
+            // conversa do Assistente IA não sobrevive à saída
+            Object.keys(window.sessionStorage).filter(k => k.startsWith('dama.assistente.')).forEach(k => window.sessionStorage.removeItem(k));
         } catch {
             // ignorado
         }

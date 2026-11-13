@@ -18,6 +18,7 @@ const ROTAS = [
     { grupo: 'Gestão', caminho: 'analises', titulo: 'Análises de gestão', subtitulo: 'Onde agir: metas, indicadores, equipes, engajamento e orçamento de IA', icone: '!', permissoes: ['ANALYTICS_LER'], modulo: () => import('./paginas/analises.js') },
     { grupo: 'Gestão', caminho: 'maturidade', titulo: 'Maturidade em IA', subtitulo: 'AI Maturity Score por departamento e suas cinco dimensões', icone: '◐', permissoes: ['ANALYTICS_LER'], modulo: () => import('./paginas/maturidade.js') },
     { grupo: 'Gestão', caminho: 'pessoas', titulo: 'Pessoas e perfis', subtitulo: 'Colaboradores, departamentos e permissões', icone: '☰', permissoes: ['COLABORADOR_LER'], modulo: () => import('./paginas/pessoas.js') },
+    { grupo: 'Assistente', caminho: 'assistente', titulo: 'Assistente IA', subtitulo: 'Pergunte sobre seus dados na plataforma', icone: '✧', permissoes: ['DESEMPENHO_LER'], modulo: () => import('./paginas/assistente.js') },
     { grupo: 'Gestão', caminho: 'auditoria', titulo: 'Auditoria', subtitulo: 'Movimentações registradas na plataforma', icone: '⌕', permissoes: ['PERFIL_GERENCIAR'], modulo: () => import('./paginas/auditoria.js') }
 ];
 

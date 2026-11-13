@@ -55,6 +55,9 @@ services:
         condition: service_healthy
     environment:
       API_BASE_URL: http://backend:8080
+      # chave do Assistente IA (definir ANTHROPIC_API_KEY no .env); vazio = página do assistente avisa que falta a chave
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODELO: ${ANTHROPIC_MODELO:-claude-sonnet-5-5}
     ports:
       - "${FRONTEND_PORTA:-3000}:3000"
 
