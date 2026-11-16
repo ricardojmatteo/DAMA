@@ -18,7 +18,7 @@ app.get('/health', async (_req, res) => {
   }
 });
 
-// Assistente de IA (página "Assistente IA"): /agente/status e /agente/chat. Chave em ANTHROPIC_API_KEY (ver agente.js).
+// Assistente de IA (aba "Assistente IA", OpenAI): /agente/status e /agente/chat. Chave em OPENAI_API_KEY (ver agente.js).
 require('./agente').registrarRotas(app, API);
 
 // BFF: repassa /api/* ao Spring Boot preservando o caminho e o token de acesso do usuário (ADR-0010).

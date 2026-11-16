@@ -1,4 +1,4 @@
-// Assistente IA: chat com o agente que roda no BFF (frontend/agente.js).
+// Assistente IA: chat com o agente (OpenAI) que roda no BFF (frontend/agente.js).
 // A conversa (sessão) fica guardada nesta aba do navegador até clicar em "Nova conversa" ou sair.
 
 import { sessao } from '../sessao.js';
@@ -107,11 +107,11 @@ export default async function (el) {
 
     el.append(painel('Assistente DAMA', [
         !status.configurado && h('div', { class: 'chat-aviso' },
-            'O assistente ainda não tem chave de API. Defina ANTHROPIC_API_KEY no arquivo .env e reinicie o front.'),
+            'O assistente ainda não tem chave de API. Defina OPENAI_API_KEY no arquivo .env e reinicie o front.'),
         mensagens,
         form
     ], {
-        subtitulo: 'Agente de IA que lê seus dados na plataforma. Não registra nem altera nada.',
+        subtitulo: `Agente de IA (OpenAI${status.modelo ? ' · ' + status.modelo : ''}) que lê seus dados na plataforma. Não registra nem altera nada.`,
         acoes: botao('Nova conversa', () => {
             historico = [];
             salvarHistorico(historico);

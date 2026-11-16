@@ -1,34 +1,38 @@
-// Assistente DAMA: agente de IA que roda no BFF e consulta a API do DAMA em nome do usuário logado.
-// A chave da Anthropic fica só no servidor (variável de ambiente), nunca vai para o navegador.
+// Assistente DAMA: agente de IA (OpenAI) que roda no BFF e consulta a API do DAMA em nome do usuário logado.
+// A chave da OpenAI fica só no servidor (variável de ambiente), nunca vai para o navegador.
 // O agente só faz GET, com o token do próprio usuário: enxerga exatamente o que o perfil dele já pode ver
 // (permissões e isolamento por empresa continuam sendo aplicados pelo backend, ADR-0010/0011).
 
 // =====================================================================================
-//  CHAVE DA API: defina ANTHROPIC_API_KEY no arquivo .env da raiz do projeto
-//  (ou no ambiente, ex.: ANTHROPIC_API_KEY=sk-ant-... npm start).
+//  CHAVE DA API: defina OPENAI_API_KEY no arquivo .env da raiz do projeto
+//  (ou no ambiente, ex.: OPENAI_API_KEY=sk-... npm start).
 //  NÃO cole a chave aqui no código: o repositório é público.
 // =====================================================================================
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || '';
-const MODELO = process.env.ANTHROPIC_MODELO || 'claude-sonnet-5-5';
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY || '';
+const MODELO = process.env.OPENAI_MODELO || 'gpt-6-luna';
+const ESFORCO = process.env.OPENAI_ESFORCO || 'low'; // reasoning.effort: none | low | medium | high
 const MAX_PASSOS = 8;          // limite de idas e voltas agente -> ferramenta por pergunta
 const MAX_HISTORICO = 30;      // mensagens da sessão enviadas ao modelo
 const MAX_RESULTADO = 15000;   // caracteres de cada resposta da API repassados ao modelo
 
 const FERRAMENTAS = [
   {
+    type: 'function',
     name: 'consultar_dama',
     description:
       'Faz um GET na API REST do DAMA Intelligence com as permissões do usuário logado e devolve o JSON. ' +
       'Use para buscar dados reais antes de responder. Caminho relativo a /api, ex.: "/me", ' +
       '"/colaboradores/12/ai-credits/saldo", "/empresas/1/metas?colaboradorId=12". ' +
       'Respostas 403 significam que o perfil do usuário não pode ver aquele recurso.',
-    input_schema: {
+    parameters: {
       type: 'object',
       properties: {
         caminho: { type: 'string', description: 'Caminho começando com "/", com query string opcional.' }
       },
-      required: ['caminho']
-    }
+      required: ['caminho'],
+      additionalProperties: false
+    },
+    strict: true
   }
 ];
 
@@ -84,23 +88,44 @@ async function chamarDama(apiBase, autorizacao, caminho) {
   return { status: resposta.status, corpo: texto.length > MAX_RESULTADO ? texto.slice(0, MAX_RESULTADO) + '…[cortado]' : texto };
 }
 
-async function chamarClaude(sistema, mensagens) {
-  const resposta = await fetch('https://api.anthropic.com/v1/messages', {
+// Responses API (/v1/responses): é a que os modelos atuais da OpenAI usam para function calling.
+// store: false -> a OpenAI não guarda a conversa; o raciocínio volta criptografado para mantermos o contexto entre passos.
+async function chamarOpenAI(sistema, entrada) {
+  const resposta = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST',
     headers: {
-      'content-type': 'application/json',
-      'x-api-key': ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01'
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${OPENAI_API_KEY}`
     },
-    body: JSON.stringify({ model: MODELO, max_tokens: 2048, system: sistema, tools: FERRAMENTAS, messages: mensagens })
+    body: JSON.stringify({
+      model: MODELO,
+      instructions: sistema,
+      input: entrada,
+      tools: FERRAMENTAS,
+      reasoning: { effort: ESFORCO },
+      max_output_tokens: 4096,
+      store: false,
+      include: ['reasoning.encrypted_content']
+    })
   });
   const dados = await resposta.json().catch(() => ({}));
   if (!resposta.ok) {
-    const erro = new Error(dados?.error?.message || `Anthropic respondeu ${resposta.status}`);
+    const erro = new Error(dados?.error?.message || `OpenAI respondeu ${resposta.status}`);
     erro.status = resposta.status;
     throw erro;
   }
   return dados;
+}
+
+function textoDaResposta(resposta) {
+  if (typeof resposta.output_text === 'string' && resposta.output_text.trim()) return resposta.output_text.trim();
+  return (resposta.output || [])
+    .filter(item => item.type === 'message')
+    .flatMap(item => item.content || [])
+    .filter(c => c.type === 'output_text')
+    .map(c => c.text)
+    .join('\n')
+    .trim();
 }
 
 function limparHistorico(historico) {
@@ -115,13 +140,13 @@ function limparHistorico(historico) {
 
 function registrarRotas(app, apiBase) {
   app.get('/agente/status', (_req, res) => {
-    res.json({ configurado: Boolean(ANTHROPIC_API_KEY), modelo: MODELO });
+    res.json({ configurado: Boolean(OPENAI_API_KEY), modelo: MODELO, provedor: 'OpenAI' });
   });
 
   // Corpo: { historico: [{ papel: 'user'|'assistant', texto }] } — a última mensagem é a pergunta do usuário.
   app.post('/agente/chat', async (req, res) => {
-    if (!ANTHROPIC_API_KEY) {
-      return res.status(503).json({ message: 'Assistente sem chave configurada. Defina ANTHROPIC_API_KEY no .env e reinicie o front.' });
+    if (!OPENAI_API_KEY) {
+      return res.status(503).json({ message: 'Assistente sem chave configurada. Defina OPENAI_API_KEY no .env e reinicie o front.' });
     }
     const autorizacao = req.get('Authorization');
     if (!autorizacao) return res.status(401).json({ message: 'Sessão inválida. Entre novamente.' });
@@ -138,33 +163,33 @@ function registrarRotas(app, apiBase) {
       const consultas = [];
 
       for (let passo = 0; passo < MAX_PASSOS; passo++) {
-        const resposta = await chamarClaude(sistema, mensagens);
-        mensagens.push({ role: 'assistant', content: resposta.content });
+        const resposta = await chamarOpenAI(sistema, mensagens);
+        const saida = resposta.output || [];
+        mensagens.push(...saida);
 
-        const usos = resposta.content.filter(b => b.type === 'tool_use');
-        if (resposta.stop_reason !== 'tool_use' || !usos.length) {
-          const texto = resposta.content.filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
-          return res.json({ texto: texto || '(sem resposta)', consultas });
+        const chamadas = saida.filter(item => item.type === 'function_call');
+        if (!chamadas.length) {
+          return res.json({ texto: textoDaResposta(resposta) || '(sem resposta)', consultas });
         }
 
-        const resultados = [];
-        for (const uso of usos) {
+        for (const chamada of chamadas) {
+          let caminho;
           let resultado;
           try {
-            resultado = await chamarDama(apiBase, autorizacao, uso.input?.caminho);
+            caminho = JSON.parse(chamada.arguments || '{}').caminho;
+            resultado = await chamarDama(apiBase, autorizacao, caminho);
           } catch (err) {
-            resultado = { erro: `Backend indisponível: ${err.message}` };
+            resultado = { erro: `Falha na consulta: ${err.message}` };
           }
-          consultas.push({ caminho: uso.input?.caminho, status: resultado.status ?? 0 });
-          resultados.push({ type: 'tool_result', tool_use_id: uso.id, content: JSON.stringify(resultado) });
+          consultas.push({ caminho, status: resultado.status ?? 0 });
+          mensagens.push({ type: 'function_call_output', call_id: chamada.call_id, output: JSON.stringify(resultado) });
         }
-        mensagens.push({ role: 'user', content: resultados });
       }
       res.json({ texto: 'Precisei de consultas demais para responder. Tente uma pergunta mais específica.', consultas });
     } catch (err) {
       console.error(`[agente] ${err.message}`);
       res.status(502).json({
-        message: err.status === 401 ? 'Chave da Anthropic inválida. Confira ANTHROPIC_API_KEY.' : `Falha no assistente: ${err.message}`
+        message: err.status === 401 ? 'Chave da OpenAI inválida. Confira OPENAI_API_KEY.' : `Falha no assistente: ${err.message}`
       });
     }
   });

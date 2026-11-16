@@ -5,6 +5,7 @@ SPA em JavaScript puro (módulos ES, sem build) servida por um BFF Node/Express.
 ```
 frontend/
 ├── server.js              BFF: estáticos, proxy /api, /health e Chart.js em /vendor
+├── agente.js              Assistente IA (OpenAI): /agente/status e /agente/chat
 └── public/
     ├── index.html
     ├── css/app.css
@@ -27,6 +28,18 @@ API_BASE_URL=http://localhost:8080 npm start     # http://localhost:3000
 
 `PORT` muda a porta do front. No PowerShell: `$env:API_BASE_URL="http://localhost:8080"; npm start`.
 
+## Assistente IA (OpenAI)
+
+A aba **Assistente IA** conversa com um agente que roda no BFF (`agente.js`) e usa a API da OpenAI (Responses API com function calling). O agente só faz `GET` na API do DAMA com o token do próprio usuário, então enxerga apenas o que o perfil dele já pode ver.
+
+| Variável | Padrão | Uso |
+|---|---|---|
+| `OPENAI_API_KEY` | — | Chave da OpenAI. Sem ela, a aba avisa que falta configurar. |
+| `OPENAI_MODELO` | `gpt-6-luna` | Modelo usado pelo agente. |
+| `OPENAI_ESFORCO` | `low` | `reasoning.effort` (`none`, `low`, `medium`, `high`). |
+
+Com Docker, coloque a chave no `.env` da raiz (ver `.env.example`). Rodando direto no PowerShell: `$env:OPENAI_API_KEY="sk-..."; npm start`. O `.env` está no `.gitignore`: nunca coloque a chave no código.
+
 ## Responsividade
 
 | Largura | Comportamento |
@@ -44,6 +57,7 @@ Em telas de toque os botões têm altura mínima de 40 px e os campos usam fonte
 
 | Menu | Quem vê | Conteúdo |
 |---|---|---|
+| Assistente IA | todos | Chat com IA (OpenAI) que consulta seus dados na plataforma, só leitura |
 | Meu painel | todos | Pontos, AI Credits, nível, conquistas, metas e evolução dos indicadores |
 | Evolução e conquistas | todos | Níveis, progresso e conquistas; gestores criam e concedem conquistas |
 | AI Credits | todos | Saldo, nível de autonomia, histórico; gestores registram atividades e lançam créditos |
