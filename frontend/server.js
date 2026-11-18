@@ -1,6 +1,14 @@
 const express = require('express');
 const path = require('path');
 
+// Carrega o .env da raiz do projeto quando o front roda direto com `npm start` (no Docker as variáveis vêm do compose).
+// Variáveis já definidas no ambiente têm prioridade. O .env está no .gitignore: a chave nunca vai para o repositório.
+try {
+  process.loadEnvFile(path.join(__dirname, '..', '.env'));
+} catch {
+  // sem .env: segue só com as variáveis de ambiente
+}
+
 const PORT = process.env.PORT || 3000;
 const API = (process.env.API_BASE_URL || 'http://localhost:8080').replace(/\/$/, '');
 

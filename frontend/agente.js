@@ -112,6 +112,7 @@ async function chamarOpenAI(sistema, entrada) {
   if (!resposta.ok) {
     const erro = new Error(dados?.error?.message || `OpenAI respondeu ${resposta.status}`);
     erro.status = resposta.status;
+    erro.codigo = dados?.error?.code;
     throw erro;
   }
   return dados;
@@ -189,7 +190,10 @@ function registrarRotas(app, apiBase) {
     } catch (err) {
       console.error(`[agente] ${err.message}`);
       res.status(502).json({
-        message: err.status === 401 ? 'Chave da OpenAI inválida. Confira OPENAI_API_KEY.' : `Falha no assistente: ${err.message}`
+        message: err.status === 401 ? 'Chave da OpenAI inválida. Confira OPENAI_API_KEY.'
+          : err.codigo === 'insufficient_quota' ? 'A conta da OpenAI está sem créditos. Adicione saldo em platform.openai.com/settings/organization/billing.'
+          : err.status === 429 ? 'Muitas perguntas seguidas para a OpenAI. Aguarde alguns segundos e tente de novo.'
+          : `Falha no assistente: ${err.message}`
       });
     }
   });
